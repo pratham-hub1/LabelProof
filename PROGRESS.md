@@ -26,6 +26,7 @@
 | T0.1 | Repo init — monorepo layout (frontend/ + backend/), 8 docs placed (L_6), folder skeleton per TASKS, .gitignore + README stub; §8 layout locked in the decision log | 2026-09-18 | DECISIONS 0, 8; decision log |
 | T1.1 | Word-index builder (Tesseract + pdfplumber) and tests | 2026-09-18 | F1 1.9 item 1 |
 | T1.2 | Gates G1-G6 pure functions and tests | 2026-09-18 | F1 1.9 item 2 |
+| T1.3 | anchors.config + loader + tests | 2026-09-18 | F1 1.9 item 3 |
 
 ## Not started
 
