@@ -25,6 +25,7 @@
 | Design + legal-correction pass | 2026-09-18 — 12 decisions (D12–D23) applied (decision log): R8 migrated to the 2018 area-based Rule 7 Table-I (GSR 629(E); supersedes the 200 g boundary decision), Features 9 (extraction module) + 10 (preprocess) written and PROVEN, class-interval rule, embossed/molded detector, minAreaRect spec, CONTRACTS §5 fixture shape, anchors + taxes initial content, unanchored-verified tag, PDF ink-coverage for R9, TASKS rewiring (T1.8/T1.9, H5–H7), model-ID defaults. Docs now implementation-complete |
 | T0.1 | Repo init — monorepo layout (frontend/ + backend/), 8 docs placed (L_6), folder skeleton per TASKS, .gitignore + README stub; §8 layout locked in the decision log | 2026-09-18 | DECISIONS 0, 8; decision log |
 | T1.1 | Word-index builder (Tesseract + pdfplumber) and tests | 2026-09-18 | F1 1.9 item 1 |
+| T1.2 | Gates G1-G6 pure functions and tests | 2026-09-18 | F1 1.9 item 2 |
 
 ## Not started
 
