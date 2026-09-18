@@ -49,16 +49,7 @@ def pipeline(image_bytes, label_width_mm, s3_client):
     # Fixed timestamp for determinism test
     submitted_at = "2026-09-18T10:00:00Z"
     
-    # 1. Calibrate
-    calib = calibrate_photo(image_bytes, label_width_mm)
-    if "error" in calib:
-        return scan_id, {"verdict": "FAILED", "error": calib["error"], "submitted_at": submitted_at}, b""
-        
-    scale = calib["scale"]
-    sigma = calib["sigma"]
-    pdp_area = calib["pdp_area_cm2"]
-    
-    # 2. Gauntlet
+    # 1. Gauntlet
     gauntlet = run_gauntlet(
         image_bytes=image_bytes,
         content_type="image/jpeg",
@@ -73,6 +64,16 @@ def pipeline(image_bytes, label_width_mm, s3_client):
     extraction = gauntlet["extraction"]
     gauntlet_results = gauntlet["gauntlet_results"]
     is_readable = gauntlet["readability"]
+    word_index = gauntlet.get("word_index", [])
+    
+    # 2. Calibrate (now with word_index)
+    calib = calibrate_photo(image_bytes, label_width_mm, word_index)
+    if "error" in calib:
+        return scan_id, {"verdict": "FAILED", "error": calib["error"], "submitted_at": submitted_at}, b""
+        
+    scale = calib["scale"]
+    sigma = calib["sigma"]
+    pdp_area = calib["pdp_area_cm2"]
     
     # 3. Exemptions
     exemptions = evaluate_exemptions(extraction)

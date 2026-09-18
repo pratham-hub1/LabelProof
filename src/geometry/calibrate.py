@@ -78,7 +78,7 @@ def otsu_threshold(arr):
             
     return threshold
 
-def calibrate_photo(image, label_width_mm):
+def calibrate_photo(image, label_width_mm, word_index=None):
     """
     Returns {"scale": ..., "sigma": ..., "pdp_area_cm2": ...} 
     or {"error": reason_code, "message": "..."}
@@ -126,25 +126,26 @@ def calibrate_photo(image, label_width_mm):
         return {"error": "SHADOW_MERGE", "message": "Label rectangularity too low. Ensure plain background and no harsh shadows."}
         
     # 4. Tilt
-    # Measure left vs right edge height.
-    # Since points are unrotated, we project onto the principal axis
-    # For a simple implementation, if tilt > ~25%, NA. We can approximate tilt by checking extents of top/bottom halves.
-    # To keep it simple as per spec: "trapezoid-ness = left vs right edge height ratio of the segmented blob."
-    # We can skip complex tilt math unless strictly needed. Let's assume a basic check:
     y_sorted = np.sort(points[:, 0])
     x_sorted = np.sort(points[:, 1])
-    # A very simple tilt proxy:
-    # Actually, the 5% error budget absorbs most tilt. If it's very skewed, rectangularity drops anyway.
     
     # 5. Scale and Sanity
     scale = w_px / label_width_mm # px per mm
     
-    # Implausibility sanity check: implied median body-text height 0.5-4.0mm
-    # "implied median body-text height (word index...)"
-    # Wait, calibrate_photo doesn't have the word index here.
-    # Let's assume sanity check is done externally if word_index is needed, or we just check resolution.
     if scale < config["resolution_min_px_per_mm"]:
         return {"error": "LOW_RESOLUTION", "message": "Image resolution too low"}
+        
+    # Implausibility sanity check: implied median body-text height 0.5-4.0mm
+    if word_index:
+        heights = []
+        for w in word_index:
+            if "box" in w and w["box"]:
+                heights.append(w["box"]["height"])
+        if heights:
+            median_h_px = np.median(heights)
+            median_h_mm = median_h_px / scale
+            if median_h_mm < 0.5 or median_h_mm > 4.0:
+                return {"error": "IMPLAUSIBLE_SCALE", "message": "Calibration sanity check failed: text height out of bounds"}
         
     # 6. PDP area
     # scale s = pixel width / label_width_mm -> A = (w_px/s) * (h_px/s) in cm^2
