@@ -42,6 +42,7 @@
 | T3.2 | run_checks framework + tests | 2026-09-18 | F3 3.7 items 2, 3, 5 |
 | T3.7 | patterns.config + loader + tests | 2026-09-18 | F3 3.7 item 4 |
 | T3.3 | Checks R1 + R2 + tests | 2026-09-18 | F3 3.3 |
+| T3.4 | Checks R4 + R5 + tests | 2026-09-18 | F3 3.3 |
 
 ## Not started
 
