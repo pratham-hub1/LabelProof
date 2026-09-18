@@ -51,6 +51,7 @@
 | T4.1 | evaluate_exemptions + tests | 2026-09-18 | F4 4.8 |
 | T4.2 | tobacco.config | 2026-09-18 | F4 4.8 |
 | T4.3 | F4 acceptance fixtures | 2026-09-18 | F4 4.9 |
+| T1.8 | Bedrock extraction client (schema, prompt, fallback logic) | 2026-09-18 | F9 |
 
 ## Not started
 
