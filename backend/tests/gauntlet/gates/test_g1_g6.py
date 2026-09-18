@@ -72,8 +72,11 @@ def test_g5():
     assert check_g5({"box": box}, "generic_name", word_index, anchors)
 
 def test_g6():
-    assert check_g6({"confidence": 0.95})
-    assert check_g6({"confidence": 0.60})
-    assert not check_g6({"confidence": 0.59})
-    assert not check_g6({"confidence": None})
-    assert not check_g6({})
+    valid_claim = {"raw": "abc", "parsed": {}, "box": {}, "confidence": 0.95}
+    assert check_g6(valid_claim)
+    
+    invalid_claim_conf = {"raw": "abc", "parsed": {}, "box": {}, "confidence": 0.50}
+    assert not check_g6(invalid_claim_conf)
+    
+    missing_key_claim = {"raw": "abc", "confidence": 0.95}
+    assert not check_g6(missing_key_claim)

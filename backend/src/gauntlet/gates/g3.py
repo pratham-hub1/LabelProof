@@ -24,25 +24,30 @@ def check_g3(claim, word_index=None, image_meta=None):
             if val is None:
                 continue
             if isinstance(val, (int, float)):
-                # Convert to string and strip decimals (or keep them?)
-                val_str = str(val).replace('.', '')
-                # Just check if the string representation of the parsed value's digits appears in raw digits
-                # Actually, just checking if the sequence of digits appears in the raw text directly is better
-                val_digits = "".join(re.findall(r'\d+', str(val)))
-                if val_digits and val_digits not in raw_digits:
-                     # Wait, maybe it's floating point like 1.5 -> "15" in raw?
-                     # Let's be lenient: every digit in parsed value must exist in raw text in order.
-                     return False
+                val_str = str(val)
+                if val_str.endswith(".0"):
+                    val_str = val_str[:-2]
+                val_digits = "".join(re.findall(r'\d+', val_str))
+                if val_digits:
+                    # Must appear contiguously (optionally separated by . or ,) and bounded by non-digits
+                    pattern = r'(?<!\d)' + r'[.,]?'.join(list(val_digits)) + r'(?!\d)'
+                    if not re.search(pattern, raw):
+                        return False
             elif isinstance(val, str):
-                # For units like "g", "kg", currency "INR", phone, email
-                # Phone numbers have digits
                 if key == "phone":
                     phone_digits = "".join(re.findall(r'\d+', val))
-                    if phone_digits and phone_digits not in raw_digits:
-                        return False
+                    if phone_digits:
+                        pattern = r'(?<!\d)' + r'[-\s.,]?'.join(list(phone_digits)) + r'(?!\d)'
+                        if not re.search(pattern, raw):
+                            return False
                 elif key == "unit":
-                    # unit should be in raw (case-insensitive)
-                    if val.lower() not in raw.lower():
+                    # unit should be in raw as a distinct word or attached to digits
+                    # e.g., "g" inside "200g" or "200 g". It should not match "g" inside "good"
+                    # so (?<=\d|\s|^) unit (?=\s|$)
+                    # Actually, word boundaries \b work if there's a space, but for "200g", there is no \b between 0 and g.
+                    # Let's use a regex that allows a digit or non-word char before, and a non-word char after.
+                    pattern = r'(?:^|\b|\d)' + re.escape(val.lower()) + r'(?:\b|$)'
+                    if not re.search(pattern, raw.lower()):
                         return False
                         
     return True

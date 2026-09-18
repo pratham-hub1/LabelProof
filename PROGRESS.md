@@ -88,3 +88,4 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 - Fixed F2 gaps: Boundary (1.4-1.6mm), Molded contrast logic test, and Vector PDF.
 | Fix Repo Structure | Prefix backend/ to TASKS.md file paths | 2026-09-18 | System |
 - Fixed F4 gaps: Exempt scan summary test.
+| Fix B9-B12 | G1 bounds check, G3 contiguous digit sequences, G4 exact word matching, G6 schema enforcement | 2026-09-18 | REVIEW_PHASES_1_4.md |
