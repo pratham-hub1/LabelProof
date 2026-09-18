@@ -1,13 +1,15 @@
 import re
 from src.rules.engine import registry
 
-@registry.register("r1_manufacturer_details", requires=[])
+@registry.register("r1_manufacturer_details", requires=["manufacturer_name", "manufacturer_address"])
 def check_r1(context):
     """
     R1: Manufacturer Name and Address presence and completeness.
     """
     field_status = context.get("field_status", {})
-    if field_status.get("manufacturer_name") != "VERIFIED" or field_status.get("manufacturer_address") != "VERIFIED":
+    if field_status.get("manufacturer_name") == "ABSENT":
+        return {"status": "FAIL", "fix": "manufacturer name not found on label"}
+    if field_status.get("manufacturer_address") == "ABSENT":
         return {"status": "FAIL", "fix": "print the manufacturer's name and address"}
         
     address = context["extraction"]["fields"]["manufacturer_address"]["raw"]
