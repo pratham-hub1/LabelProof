@@ -42,7 +42,7 @@ def generate_cases(scenario, count=10):
             })
         elif scenario == "clean":
             cases.append({
-                "claim": {"raw": "Net Wt 200g", "confidence": 0.9, "box": [10, 10, 100, 30]},
+                "claim": {"raw": "Net Wt 200g", "confidence": 0.9, "box": [10, 10, 100, 30], "parsed": {"unit": "g", "value": 200}},
                 "word_index": [{"word": "Net", "box": [10, 10, 40, 30]}, {"word": "Wt", "box": [45, 10, 65, 30]}, {"word": "200g", "box": [70, 10, 100, 30]}],
                 "is_readable": True
             })
@@ -109,3 +109,4 @@ def test_f1_reason_codes(anchors):
         if res["gauntlet_status"] in ["VERIFY_FAILED", "UNREADABLE", "NEEDS_REVIEW", "ABSENT"]:
             assert "reason_code" in res
             assert res["reason_code"] is not None
+
