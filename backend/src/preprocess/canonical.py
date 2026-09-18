@@ -43,4 +43,5 @@ def _preprocess_pdf(raw_bytes: bytes) -> Image.Image:
     if img.mode != 'RGB':
         img = img.convert('RGB')
         
+    img.info['page_count'] = len(doc)
     return img

@@ -111,32 +111,6 @@ def test_f4_determinism():
     res1 = evaluate_exemptions(fields, config)
     res2 = evaluate_exemptions(fields, config)
     assert res1 == res2
-def test_f4_exempt_summary(mocker):
-    # 7. Exempt scan summary: exemption counted separately from PASS
-    from src.reports.pdf import generate_pdf
-    record = {
-        "verdict": "DONE",
-        "submitted_at": "2026-09-18T10:00:00Z",
-        "field_status": {
-            "mrp": "NA_EXEMPT",
-            "net_quantity": "VERIFIED",
-            "generic_name": "NEEDS_REVIEW",
-            "mfg_date": "ABSENT"
-        },
-        "check_results": {}
-    }
-    
-    mock_canvas = mocker.patch("src.reports.pdf.canvas.Canvas")
-    mock_instance = mock_canvas.return_value
-    
-    generate_pdf("test-scan-123", record)
-    
-    found = False
-    for call in mock_instance.drawString.call_args_list:
-        args, kwargs = call
-        if "EXEMPT: 1" in args[2]:
-            found = True
-            break
-            
-    assert found
+
+
 

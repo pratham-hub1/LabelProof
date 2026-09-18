@@ -96,3 +96,18 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | Fix Repo Structure | Prefix backend/ to TASKS.md file paths | 2026-09-18 | System |
 - Fixed F4 gaps: Exempt scan summary test.
 | Fix B9-B12 | G1 bounds check, G3 contiguous digit sequences, G4 exact word matching, G6 schema enforcement | 2026-09-18 | REVIEW_PHASES_1_4.md |
+| T5.1 | generate_scan_id and PENDING record | 2026-09-18 | F5 |
+| T5.2 | presign_upload | 2026-09-18 | F5 |
+| T5.3 | claim_scan | 2026-09-18 | F5 |
+| T5.4 | mark_terminal | 2026-09-18 | F5 |
+| T5.5 | reap_stale_processing, reap_stale_pending | 2026-09-18 | F5 |
+| T5.6 | ingestion.config + tests | 2026-09-18 | F5 |
+| T5.7 | handler.py (upload & s3 event) | 2026-09-18 | F5 |
+| T5.8 | F5 acceptance fixtures | 2026-09-18 | F5 |
+| T6.1 | render_annotated (boxes, grouping, colors, banner) | 2026-09-18 | F6 |
+| T6.2 | render_display_image (max edge 1600) | 2026-09-18 | F6 |
+| T6.3 | sanitize_pdf_text + build_pdf_report (invariant mode) | 2026-09-18 | F6 |
+| T6.4 | build_csv_report (RFC 4180 + BOM) + JSON serializer | 2026-09-18 | F6 |
+| T6.5 | reports.config + summary logic | 2026-09-18 | F6 |
+| T6.6 | Pipeline wiring (5 in-memory artifacts -> S3 PUTs) | 2026-09-18 | F6 |
+| T6.7 | F6 acceptance fixtures | 2026-09-18 | F6 |

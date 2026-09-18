@@ -76,6 +76,15 @@ def create_buckets():
     }
     s3.put_bucket_cors(Bucket=outputs_bucket, CORSConfiguration=cors_outputs)
     
+    print("Setting static website for web bucket...")
+    s3.put_bucket_website(
+        Bucket=web_bucket,
+        WebsiteConfiguration={
+            'ErrorDocument': {'Key': 'index.html'},
+            'IndexDocument': {'Suffix': 'index.html'}
+        }
+    )
+    
     print("Buckets created and configured.")
 
 if __name__ == "__main__":

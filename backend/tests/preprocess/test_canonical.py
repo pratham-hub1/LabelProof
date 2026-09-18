@@ -33,6 +33,8 @@ def test_preprocess_pdf():
     doc = fitz.open()
     page = doc.new_page(width=72, height=72) # 1x1 inch
     page.draw_rect(page.rect, color=(1, 0, 0), fill=(1, 0, 0)) # red page
+    page2 = doc.new_page(width=72, height=72) # 1x1 inch
+    page2.draw_rect(page2.rect, color=(0, 1, 0), fill=(0, 1, 0)) # green page
     raw_bytes = doc.write()
     
     canonical = preprocess(raw_bytes, 'application/pdf')
@@ -41,6 +43,7 @@ def test_preprocess_pdf():
     # 72 * (200/72) = 200
     assert canonical.size == (200, 200)
     assert canonical.mode == 'RGB'
+    assert canonical.info.get('page_count') == 2
 
 def test_unsupported_content_type():
     with pytest.raises(ValueError, match="Unsupported content type: text/plain"):
