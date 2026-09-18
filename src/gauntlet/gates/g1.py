@@ -7,10 +7,14 @@ def check_g1(claim, word_index=None, image_meta=None):
         return False
         
     box = claim["box"]
-    if not all(k in box for k in ["left", "top", "width", "height"]):
+    if len(box) != 4:
         return False
         
-    if box["width"] <= 0 or box["height"] <= 0:
+    left, top, right, bottom = box
+    width = right - left
+    height = bottom - top
+    
+    if width <= 0 or height <= 0:
         return False
         
     if image_meta and "width" in image_meta and "height" in image_meta:
@@ -18,10 +22,10 @@ def check_g1(claim, word_index=None, image_meta=None):
         img_h = image_meta["height"]
         
         # Check if box is completely outside or degenerate relative to image
-        if box["left"] >= img_w or box["top"] >= img_h:
+        if left >= img_w or top >= img_h:
             return False
             
-        if box["left"] + box["width"] <= 0 or box["top"] + box["height"] <= 0:
+        if right <= 0 or bottom <= 0:
             return False
             
     return True

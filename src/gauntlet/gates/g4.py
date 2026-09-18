@@ -26,16 +26,14 @@ def get_words_in_box(word_index, box):
     if not word_index or not box:
         return ""
         
-    left = box["left"]
-    top = box["top"]
-    right = left + box["width"]
-    bottom = top + box["height"]
+    left, top, right, bottom = box
     
     inside_words = []
     for w in word_index:
         wb = w["box"]
-        cx = wb["left"] + wb["width"] / 2.0
-        cy = wb["top"] + wb["height"] / 2.0
+        w_left, w_top, w_right, w_bottom = wb
+        cx = (w_left + w_right) / 2.0
+        cy = (w_top + w_bottom) / 2.0
         
         if left <= cx <= right and top <= cy <= bottom:
             inside_words.append(w)
@@ -43,7 +41,7 @@ def get_words_in_box(word_index, box):
     # Sort roughly by Y then X
     # Assume lines are roughly 10-20 pixels high, so grouping by Y//15 can help
     # To be robust, sort by Y coordinate
-    inside_words.sort(key=lambda x: (x["box"]["top"], x["box"]["left"]))
+    inside_words.sort(key=lambda x: (x["box"][1], x["box"][0]))
     return " ".join(w["word"] for w in inside_words)
 
 def check_g4(claim, word_index, image_meta=None):
