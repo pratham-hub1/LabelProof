@@ -1,6 +1,6 @@
 from src.rules.engine import registry
 
-@registry.register("r6_consumer_care", requires=[])
+@registry.register("r6_consumer_care", requires=["consumer_care"])
 def check_r6(context):
     """
     R6: Consumer Care presence.
@@ -11,10 +11,12 @@ def check_r6(context):
     if status == "VERIFIED":
         return {"status": "PASS"}
         
-    config = context.get("config", {})
-    fix = config.get("r6", {}).get("fixes", {}).get("no_contact", "no contactable channel")
-    
-    return {"status": "FAIL", "fix": fix}
+    if status == "ABSENT":
+        config = context.get("config", {})
+        fix = config.get("r6", {}).get("fixes", {}).get("no_contact", "no contactable channel")
+        return {"status": "FAIL", "fix": fix}
+        
+    return {"status": "NEEDS_REVIEW", "reason": "unexpected status"}
 
 @registry.register("r11_qualifiers", requires=["net_quantity"])
 def check_r11(context):
@@ -39,7 +41,8 @@ def check_r11(context):
     qualifiers = r11_config.get("qualifiers", [])
     import re
     
-    text_to_check = (nq_raw + " " + gn_raw).lower()
+    # Scope: quantity declaration's raw text ONLY
+    text_to_check = nq_raw.lower()
     for q in qualifiers:
         # Require the qualifier to be followed by a quantity word or number
         # e.g., "about 200g", "about net wt"
