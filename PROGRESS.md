@@ -78,3 +78,4 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 
 | Fix B1 | check_r1 properly declares dependencies and handles ABSENT | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | Fix B13 | calibrate_photo sanity checks 0.5-4.0mm text height using word_index | 2026-09-18 | REVIEW_PHASES_1_4.md |
+| Fix B2 | check_r2 properly declares dependencies and handles ABSENT | 2026-09-18 | REVIEW_PHASES_1_4.md |
