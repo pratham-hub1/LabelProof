@@ -3,7 +3,7 @@ from src.rules.exemptions import evaluate_exemptions
 from src.rules.statuses import resolve_field_statuses
 
 def load_tobacco_config():
-    with open("config/tobacco.config", "r") as f:
+    with open("backend/config/tobacco.config", "r") as f:
         return json.load(f)
 
 def test_f4_sachet_exempt():
