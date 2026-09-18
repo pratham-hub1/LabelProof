@@ -36,6 +36,8 @@ def create_pending_record(table_name: str, filename: str, content_type: str, lab
             'status': {'S': 'PENDING'},
             'created_at': {'S': now},
             'updated_at': {'S': now},
+            'gsi1_pk': {'S': 'SCAN'},
+            'gsi1_sk': {'S': f"{now}#{scan_id}"},
             'input': {'M': {
                 'filename': {'S': filename},
                 'content_type': {'S': content_type},

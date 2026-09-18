@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def mark_terminal(table_name: str, scan_id: str, status: str, error_code: str = None, error_msg: str = None, 
                   product: dict = None, extraction: dict = None, summary: dict = None, results: list = None, 
-                  artifacts: dict = None, exemption: dict = None, from_pending: bool = False):
+                  artifacts: dict = None, exemption: dict = None, from_pending: bool = False, created_at: str = None):
     """
     Conditional write guarded on status = PROCESSING (or PENDING if from_pending=True for upload timeouts).
     """
@@ -64,6 +64,31 @@ def mark_terminal(table_name: str, scan_id: str, status: str, error_code: str = 
         
     if ':null_val' in expr_set[-1] or error_code is None: # ensure :null_val is defined if used
         expr_vals[':null_val'] = {'NULL': True}
+        
+    # F7 Search keys
+    from src.api.serialize import normalize_key
+    if product:
+        if 'brand_guess' in product:
+            brand_key = normalize_key(product['brand_guess'])
+            if brand_key:
+                expr_set.extend(['brand_key = :bk', 'gsi2_pk = :g2pk'])
+                expr_vals[':bk'] = {'S': brand_key}
+                expr_vals[':g2pk'] = {'S': 'BRAND'}
+                if created_at:
+                    expr_set.append('gsi2_sk = :g2sk')
+                    expr_vals[':g2sk'] = {'S': f"{brand_key}#{created_at}#{scan_id}"}
+        
+        if 'product_name' in product:
+            product_key = normalize_key(product['product_name'])
+            if product_key:
+                expr_set.append('product_key = :pk')
+                expr_vals[':pk'] = {'S': product_key}
+                
+    if results:
+        failed = [k for k, v in results.items() if v.get('status') == 'FAIL']
+        if failed:
+            expr_set.append('failed_rules = :fr')
+            expr_vals[':fr'] = {'SS': failed}
     
     # if successful scan, we also write F7's GSI attributes here. (F5 doc says they are added here if we reached F7). 
     # But F7 says "All computed at the terminal write... F5's conditional-guard design is unchanged"

@@ -111,3 +111,11 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | T6.5 | reports.config + summary logic | 2026-09-18 | F6 |
 | T6.6 | Pipeline wiring (5 in-memory artifacts -> S3 PUTs) | 2026-09-18 | F6 |
 | T6.7 | F6 acceptance fixtures | 2026-09-18 | F6 |
+| T7.1 | router.py (method, path) dispatch, trailing-slash strip | 2026-09-18 | F7 |
+| T7.2 | list_scans (GSI-1 query, filters, cursor encode/decode) | 2026-09-18 | F7 |
+| T7.3 | search_scans (GSI-2 prefix + Scan fallback, limit looping) | 2026-09-18 | F7 |
+| T7.4 | get_scan (consistent GetItem + reaper wiring) | 2026-09-18 | F7 |
+| T7.5 | get_stats (Scan + aggregate + warm cache) | 2026-09-18 | F7 |
+| T7.6 | redirect_report (status check -> 302 Location) | 2026-09-18 | F7 |
+| T7.7 | serialize + normalize_key | 2026-09-18 | F7 |
+| T7.8 | api.config + F7 acceptance fixtures | 2026-09-18 | F7 |

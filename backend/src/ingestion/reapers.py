@@ -18,9 +18,14 @@ def reap_stale_processing(table_name: str, item: dict):
     Checks if a PROCESSING item is stale (> 5 minutes).
     If so, transitions to FAILED(STALE_PROCESSING).
     """
-    scan_id = item['scan_id']['S']
-    updated_at_str = item['updated_at']['S']
-    updated_at = dateutil.parser.isoparse(updated_at_str)
+    scan_id = item['scan_id']
+    if isinstance(scan_id, dict):
+        scan_id = scan_id['S']
+        
+    updated_at = item['updated_at']
+    if isinstance(updated_at, dict):
+        updated_at = updated_at['S']
+    updated_at = dateutil.parser.isoparse(updated_at)
     
     now = datetime.now(timezone.utc)
     delta = (now - updated_at).total_seconds()
@@ -34,15 +39,22 @@ def reap_stale_processing(table_name: str, item: dict):
             error_code='STALE_PROCESSING',
             error_msg='Pipeline timed out during processing'
         )
+        return True
+    return False
 
 def reap_stale_pending(table_name: str, item: dict, bucket_name: str):
     """
     Checks if a PENDING item is stale (> 960 seconds).
     If so, does a HeadObject. If 404, transitions to FAILED(UPLOAD_TIMEOUT).
     """
-    scan_id = item['scan_id']['S']
-    created_at_str = item['created_at']['S']
-    created_at = dateutil.parser.isoparse(created_at_str)
+    scan_id = item['scan_id']
+    if isinstance(scan_id, dict):
+        scan_id = scan_id['S']
+        
+    created_at = item['created_at']
+    if isinstance(created_at, dict):
+        created_at = created_at['S']
+    created_at = dateutil.parser.isoparse(created_at)
     
     now = datetime.now(timezone.utc)
     delta = (now - created_at).total_seconds()
@@ -75,5 +87,8 @@ def reap_stale_pending(table_name: str, item: dict, bucket_name: str):
                     error_msg='Upload did not complete within the window',
                     from_pending=True
                 )
+                return True
             else:
                 raise e
+        return True
+    return False

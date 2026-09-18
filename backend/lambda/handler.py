@@ -24,7 +24,7 @@ WEB_BUCKET = os.environ.get('WEB_BUCKET')
 def handler(event, context):
     logger.info(f"Received event: {json.dumps(event)}")
     
-    # 1. Function URL / API Gateway invocation (POST /upload)
+    # 1. Function URL / API Gateway invocation
     if 'requestContext' in event and 'http' in event['requestContext']:
         method = event['requestContext']['http']['method']
         path = event['requestContext']['http']['path']
@@ -85,7 +85,9 @@ def handler(event, context):
                 logger.error(f"Error processing upload: {e}")
                 return _error_response(500, 'INTERNAL', 'Internal server error')
                 
-        return _error_response(404, 'NOT_FOUND', 'Path not found')
+        if path != '/upload' or method != 'POST':
+            from src.api.router import route_api
+            return route_api(event, context)
         
     # 2. S3 Event invocation
     if 'Records' in event and len(event['Records']) > 0 and 's3' in event['Records'][0]:
@@ -143,7 +145,8 @@ def handler(event, context):
                 summary=result.get('summary'),
                 results=result.get('results'),
                 artifacts=result.get('artifacts'),
-                exemption=result.get('exemption')
+                exemption=result.get('exemption'),
+                created_at=scan_fields.get('created_at')
             )
         except Exception as e:
             logger.error(f"Pipeline failed for {scan_id}: {e}")
