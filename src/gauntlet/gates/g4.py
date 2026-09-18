@@ -67,9 +67,18 @@ def check_g4(claim, word_index, image_meta=None):
     norm_raw = normalize_text(raw)
     norm_ocr = normalize_text(ocr_text)
     
-    # Check if norm_raw is present in norm_ocr (edit distance 0 means exact substring match, or exact match?)
-    # "normalized OCR text inside the claimed box must match the claimed raw (normalized, edit distance = 0)"
-    # A crop might have extra words (e.g., surrounding text), but wait.
-    # The spec says "must match". If the LLM drew a loose box, the crop has extra words.
-    # So `norm_raw in norm_ocr` is the safe definition of "crop contains the claim".
-    return norm_raw in norm_ocr
+    # To avoid substring matches of numerals (e.g., "12" inside "120"),
+    # we match the exact sequence of normalized words.
+    raw_words = norm_raw.split()
+    ocr_words = norm_ocr.split()
+    
+    if not raw_words:
+        return False
+        
+    n_raw = len(raw_words)
+    n_ocr = len(ocr_words)
+    for i in range(n_ocr - n_raw + 1):
+        if ocr_words[i:i+n_raw] == raw_words:
+            return True
+            
+    return False

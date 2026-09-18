@@ -73,3 +73,5 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 2. Benchmark collection trip planning -- stratification minimums, 2 labelers, materials (ruler/calipers, phone)
 3. Backend: Phase 0 infra + Phase 1 (Feature 1 modules, pure Python, no AWS needed) in parallel -- AWS-unfamiliarity never blocks anyone (DECISIONS.md 7)
 4. Frontend: start against CONTRACTS.md mocks in parallel
+
+| Fix B9-B12 | G1 bounds check, G3 contiguous digit sequences, G4 exact word matching, G6 schema enforcement | 2026-09-18 | REVIEW_PHASES_1_4.md |

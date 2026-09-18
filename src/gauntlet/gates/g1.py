@@ -17,11 +17,11 @@ def check_g1(claim, word_index=None, image_meta=None):
         img_w = image_meta["width"]
         img_h = image_meta["height"]
         
-        # Check if box is completely outside or degenerate relative to image
-        if box["left"] >= img_w or box["top"] >= img_h:
+        # Check if box is completely or partially outside
+        if box["left"] < 0 or box["top"] < 0:
             return False
             
-        if box["left"] + box["width"] <= 0 or box["top"] + box["height"] <= 0:
+        if box["left"] + box["width"] > img_w or box["top"] + box["height"] > img_h:
             return False
             
     return True
