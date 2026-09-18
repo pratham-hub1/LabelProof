@@ -1,0 +1,25 @@
+.three-d-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 120px;
+}
+
+.three-d-container {
+  width: 100%;
+  max-width: 960px;
+  height: 480px;
+  border: 1px dashed var(--color-border-hover);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-elevated);
+}
+
+.three-d-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+}
