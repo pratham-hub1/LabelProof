@@ -1,6 +1,6 @@
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import PackageScene from './components/scene/PackageScene'
+import PackageScrollSequence from './components/cinematic/PackageScrollSequence'
 import './App.css'
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
       <Navbar />
       <main className="main">
         <Hero />
-        <PackageScene />
+        <PackageScrollSequence />
       </main>
     </div>
   )
