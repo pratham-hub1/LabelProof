@@ -6,7 +6,7 @@ def test_check_r5_pass():
         "extraction": {
             "fields": {
                 "mrp": {
-                    "raw": "MRP Rs. 20 (inclusive of all taxes)"
+                    "raw": "Maximum Retail Price Rs. 20 (inclusive of all taxes)"
                 }
             }
         },
@@ -19,12 +19,30 @@ def test_check_r5_pass():
     res = check_r5(context)
     assert res["status"] == "PASS"
 
+def test_check_r5_needs_review_shorthand():
+    context = {
+        "extraction": {
+            "fields": {
+                "mrp": {
+                    "raw": "MRP Rs. 20 (inclusive of all taxes)"
+                }
+            }
+        },
+        "config": {
+            "r5": {
+                "taxes_clauses": ["(inclusive of all taxes)"]
+            }
+        }
+    }
+    res = check_r5(context)
+    assert res["status"] == "NEEDS_REVIEW"
+
 def test_check_r5_fail_taxes():
     context = {
         "extraction": {
             "fields": {
                 "mrp": {
-                    "raw": "MRP Rs. 20"
+                    "raw": "Maximum Retail Price Rs. 20"
                 }
             }
         },
@@ -39,12 +57,12 @@ def test_check_r5_fail_taxes():
     assert res["status"] == "FAIL"
     assert res["fix"] == "taxes clause is unambiguous in law"
 
-def test_check_r5_fail_multiple():
+def test_check_r5_needs_review_multiple():
     context = {
         "extraction": {
             "fields": {
                 "mrp": {
-                    "raw": "MRP Rs. 20 (inclusive of all taxes) Rs. 25 in some states"
+                    "raw": "Maximum Retail Price Rs. 20 (inclusive of all taxes) Rs. 25 in some states"
                 }
             }
         },
@@ -56,4 +74,4 @@ def test_check_r5_fail_multiple():
         }
     }
     res = check_r5(context)
-    assert res["status"] == "FAIL"
+    assert res["status"] == "NEEDS_REVIEW"
