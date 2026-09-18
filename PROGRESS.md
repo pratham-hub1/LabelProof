@@ -81,3 +81,4 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | Fix B2 | check_r2 properly declares dependencies and handles ABSENT | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | Fix B3 & B4 | R6 handles ABSENT and declares deps; R11 restricts scope to nq_raw | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | Fix B5 | R3 sub-kilogram rule enforces values < 1 kg/l | 2026-09-18 | REVIEW_PHASES_1_4.md |
+| Fix B6 | R5 sweeps for multiple MRPs and detects shorthand MRP/taxes | 2026-09-18 | REVIEW_PHASES_1_4.md |
