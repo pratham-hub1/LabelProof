@@ -38,6 +38,7 @@
 | T2.3 | check_r8 + tests | 2026-09-18 | F2 2.7 item 3 |
 | T2.4 | check_r9 + tests | 2026-09-18 | F2 2.7 item 4 |
 | T2.5 | check_r10 + tests | 2026-09-18 | F2 2.7 item 5 |
+| T3.1 | resolve_field_statuses + tests | 2026-09-18 | F3 3.7 item 1 |
 
 ## Not started
 
