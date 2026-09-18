@@ -24,6 +24,7 @@
 | Design decision session | 2026-09-17 — 11 decisions + 2 approach calls locked (decision log); docs synced: field-status bridge, R1/R5/R7/R8 specs, σ = 0.05 × H, 200 g boundary, scan-level NEEDS_REVIEW rule, CONTRACTS additive changes (brand_guess, summary.exempt, measurement schema, EXTRACTION_FAILED / EXTRACTION_MISS). Remaining design: Feature 9 extraction, preprocess, minAreaRect, embossed detector, ground-truth shape |
 | Design + legal-correction pass | 2026-09-18 — 12 decisions (D12–D23) applied (decision log): R8 migrated to the 2018 area-based Rule 7 Table-I (GSR 629(E); supersedes the 200 g boundary decision), Features 9 (extraction module) + 10 (preprocess) written and PROVEN, class-interval rule, embossed/molded detector, minAreaRect spec, CONTRACTS §5 fixture shape, anchors + taxes initial content, unanchored-verified tag, PDF ink-coverage for R9, TASKS rewiring (T1.8/T1.9, H5–H7), model-ID defaults. Docs now implementation-complete |
 | T0.1 | Repo init — monorepo layout (frontend/ + backend/), 8 docs placed (L_6), folder skeleton per TASKS, .gitignore + README stub; §8 layout locked in the decision log | 2026-09-18 | DECISIONS 0, 8; decision log |
+| T1.8 | Bedrock extraction client (schema, prompt, fallback logic) | 2026-09-18 | F9 |
 
 ## Not started
 
