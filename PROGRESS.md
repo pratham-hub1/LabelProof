@@ -30,6 +30,7 @@
 | T1.4 | reasons.config + result mapper + tests | 2026-09-18 | F1 1.9 items 4, 6 |
 | T1.5 | Readability score + tests | 2026-09-18 | F1 1.9 item 5 |
 | T1.6 | Extraction cache interface + tests | 2026-09-18 | F1 1.9 item 7 |
+| T1.7 | Main gauntlet orchestrator + tests | 2026-09-18 | F1 1.9 item 8 |
 
 ## Not started
 
