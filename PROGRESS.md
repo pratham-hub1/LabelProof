@@ -44,10 +44,11 @@
 | T3.3 | Checks R1 + R2 + tests | 2026-09-18 | F3 3.3 |
 | T3.4 | Checks R4 + R5 + tests | 2026-09-18 | F3 3.3 |
 | T3.5 | Checks R6 + R11 + tests | 2026-09-18 | F3 3.3, 3.6 |
-| T3.6 | Checks R3 + evaluate_exemptions + tests | 2026-09-18 | F3 3.1, 3.3 |
-| T4.1 | final_verdict + tests | 2026-09-18 | F4 4.3 |
-| T4.2 | generate_pdf + tests | 2026-09-18 | F4 4.1 |
-| T4.3 | pipeline benchmark + tests | 2026-09-18 | F4 4.1 |
+| T3.6 | Checks R3 + tests | 2026-09-18 | F3 3.3 |
+| T3.8 | F3 acceptance fixtures | 2026-09-18 | F3 3.8 |
+| T4.1 | evaluate_exemptions + tests | 2026-09-18 | F4 4.8 |
+| T4.2 | tobacco.config | 2026-09-18 | F4 4.8 |
+| T4.3 | F4 acceptance fixtures | 2026-09-18 | F4 4.9 |
 
 ## Not started
 

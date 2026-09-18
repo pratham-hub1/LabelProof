@@ -37,10 +37,14 @@ def check_r11(context):
         return {"status": "PASS"}
         
     qualifiers = r11_config.get("qualifiers", [])
+    import re
     
     text_to_check = (nq_raw + " " + gn_raw).lower()
     for q in qualifiers:
-        if q.lower() in text_to_check:
+        # Require the qualifier to be followed by a quantity word or number
+        # e.g., "about 200g", "about net wt"
+        pattern = r'\b' + re.escape(q.lower()) + r'\b\s*(?:net|wt|weight|volume|content|[\d\.])'
+        if re.search(pattern, text_to_check):
             fix = r11_config.get("fixes", {}).get("misleading", "misleading qualifier present")
             return {"status": "FAIL", "fix": fix}
             
