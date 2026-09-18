@@ -24,8 +24,9 @@ def test_measure_numeral_height():
     
     height = measure_numeral_height(img_bytes, box)
     
-    # We expect median of 20 and 22, which is 21.0
-    assert height == 22.0
+    # We expect median of 20 and 22, which is 21.0 (or 21/23 -> 22.0 depending on inclusive pixels)
+    # Actually PCA extents on pixel centers is 20 and 22, median is 21.0
+    assert height == 21.0
     
 def test_measure_numeral_height_empty():
     img = Image.new('RGB', (100, 100), color='white')

@@ -37,18 +37,28 @@ def measure_numeral_height(image, box):
     if num_features == 0:
         return 0.0
         
+    from src.geometry.calibrate import min_area_rect
     objects = find_objects(labeled_array)
     
     heights = []
-    for obj in objects:
+    for i, obj in enumerate(objects, start=1):
         if obj is None:
             continue
-        h = obj[0].stop - obj[0].start
-        w = obj[1].stop - obj[1].start
+            
+        h_bb = obj[0].stop - obj[0].start
+        w_bb = obj[1].stop - obj[1].start
         
         # Basic noise filtering
-        if h > 2 and w > 1:
-            heights.append(h)
+        if h_bb > 2 and w_bb > 1:
+            # Use PCA minAreaRect for rotation-invariant dimensions
+            y, x = np.nonzero(labeled_array[obj] == i)
+            # Offset by object start to get global coordinates if needed, 
+            # but min_area_rect centers them anyway, so local coordinates are fine!
+            points = np.column_stack((y, x))
+            w, h = min_area_rect(points)
+            
+            # min_area_rect returns (max_extent, min_extent). For numerals, height is the max extent.
+            heights.append(max(w, h))
             
     if not heights:
         return 0.0
