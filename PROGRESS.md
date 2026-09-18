@@ -75,3 +75,4 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 4. Frontend: start against CONTRACTS.md mocks in parallel
 
 | Fix Repo Structure | Prefix backend/ to TASKS.md file paths | 2026-09-18 | System |
+- Fixed F4 gaps: Exempt scan summary test.
