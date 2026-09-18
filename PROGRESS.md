@@ -33,6 +33,7 @@
 | T1.7 | Main gauntlet orchestrator + tests | 2026-09-18 | F1 1.9 item 8 |
 | T1.8 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
 | T2.1 | measure_numeral_height + tests | 2026-09-18 | F2 2.7 item 1 |
+| T2.6 | thresholds.config + loader + tests | 2026-09-18 | F2 2.7 item 6 |
 
 ## Not started
 
