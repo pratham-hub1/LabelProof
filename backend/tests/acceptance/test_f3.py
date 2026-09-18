@@ -44,8 +44,8 @@ def test_f3_classification_bar():
                 "mrp": "VERIFIED",
                 "net_quantity": "VERIFIED",
                 "mfg_date": "VERIFIED",
-                "contact_email": "VERIFIED",
-                "contact_phone": "VERIFIED",
+                "consumer_care": "VERIFIED",
+                
                 "ingredient_list": "VERIFIED"
             },
             "extraction": {
@@ -53,7 +53,7 @@ def test_f3_classification_bar():
                     "manufacturer_name": {"parsed": {"value": "Test Mfg"}, "raw": "Test Mfg"},
                     "manufacturer_address": {"raw": "123 Test St, Test City, DL 110001"},
                     "generic_name": {"parsed": {"value": "Biscuits"}, "raw": "Biscuits"},
-                    "mrp": {"parsed": {"taxes_clause": "inclusive of all taxes"}, "raw": "MRP Rs. 20 (inclusive of all taxes)"},
+                    "mrp": {"parsed": {"taxes_clause": "inclusive of all taxes"}, "raw": "Maximum Retail Price Rs. 20 (inclusive of all taxes)"},
                     "net_quantity": {"parsed": {"unit": "g", "value": 200}, "raw": "Net Wt 200g"},
                     "mfg_date": {"parsed": {"date": "01/2026", "prefix": "MFD"}, "raw": "MFD 01/2026"},
                     "contact_email": {"raw": "care@test.com"},
@@ -175,3 +175,4 @@ def test_f3_determinism():
     res1 = run_checks(ctx)
     res2 = run_checks(ctx)
     assert res1 == res2
+
