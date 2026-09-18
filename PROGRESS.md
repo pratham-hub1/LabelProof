@@ -27,6 +27,7 @@
 | T1.1 | Word-index builder (Tesseract + pdfplumber) and tests | 2026-09-18 | F1 1.9 item 1 |
 | T1.2 | Gates G1-G6 pure functions and tests | 2026-09-18 | F1 1.9 item 2 |
 | T1.3 | anchors.config + loader + tests | 2026-09-18 | F1 1.9 item 3 |
+| T1.4 | reasons.config + result mapper + tests | 2026-09-18 | F1 1.9 items 4, 6 |
 
 ## Not started
 
