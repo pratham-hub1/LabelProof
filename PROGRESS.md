@@ -86,3 +86,5 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | Fix B7 | measure_numeral_height uses minAreaRect for rotation invariance | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | Fix B8 | test_exemptions.py updated to match signature and return format | 2026-09-18 | REVIEW_PHASES_1_4.md |
 - Fixed F2 gaps: Boundary (1.4-1.6mm), Molded contrast logic test, and Vector PDF.
+| Fix Repo Structure | Prefix backend/ to TASKS.md file paths | 2026-09-18 | System |
+- Fixed F4 gaps: Exempt scan summary test.

@@ -76,7 +76,7 @@ def pipeline(image_bytes, label_width_mm, s3_client):
     pdp_area = calib["pdp_area_cm2"]
     
     # 3. Exemptions
-    exemptions = evaluate_exemptions(extraction)
+    import json; tobacco_config = json.load(open("backend/config/tobacco.config")); exemptions = evaluate_exemptions(extraction, tobacco_config)
     
     # 4. Resolve Statuses
     field_status = resolve_field_statuses(gauntlet_results, is_readable, exemptions)

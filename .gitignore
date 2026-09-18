@@ -28,3 +28,5 @@ Thumbs.db
 # Build artifacts / Lambda layers (rebuilt, not committed)
 *.zip
 layers/*/
+
+scratch/

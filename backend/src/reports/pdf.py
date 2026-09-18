@@ -32,6 +32,14 @@ def generate_pdf(scan_id, record):
         y -= 20
         
     y -= 20
+    counts = {"VERIFIED": 0, "NEEDS_REVIEW": 0, "ABSENT": 0, "NA_EXEMPT": 0, "UNREADABLE": 0}
+    for status in field_statuses.values():
+        counts[status] = counts.get(status, 0) + 1
+    
+    c.drawString(50, y, "Scan Summary:")
+    y -= 20
+    c.drawString(70, y, f"PASS (VERIFIED): {counts.get('VERIFIED',0)} | EXEMPT: {counts.get('NA_EXEMPT',0)} | FAIL (ABSENT): {counts.get('ABSENT',0)}")
+    y -= 20
     c.drawString(50, y, "Check Results:")
     y -= 20
     check_results = record.get("check_results", {})
@@ -44,3 +52,4 @@ def generate_pdf(scan_id, record):
     
     c.save()
     return buffer.getvalue()
+
