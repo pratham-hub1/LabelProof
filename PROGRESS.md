@@ -34,6 +34,7 @@
 | T1.8 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
 | T2.1 | measure_numeral_height + tests | 2026-09-18 | F2 2.7 item 1 |
 | T2.6 | thresholds.config + loader + tests | 2026-09-18 | F2 2.7 item 6 |
+| T2.7 | F2 acceptance fixtures + tests | 2026-09-18 | F2 2.8 |
 | T2.2 | calibrate_photo + tests | 2026-09-18 | F2 2.7 item 2 |
 | T2.3 | check_r8 + tests | 2026-09-18 | F2 2.7 item 3 |
 | T2.4 | check_r9 + tests | 2026-09-18 | F2 2.7 item 4 |

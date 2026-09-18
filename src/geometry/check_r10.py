@@ -15,8 +15,7 @@ def check_r10(image, digit_pixels, box, is_molded):
     if isinstance(image, bytes):
         image = Image.open(io.BytesIO(image))
         
-    left, top = int(box["left"]), int(box["top"])
-    right, bottom = left + int(box["width"]), top + int(box["height"])
+    left, top, right, bottom = box
     
     crop = image.crop((left, top, right, bottom)).convert('RGB')
     arr = np.array(crop)
