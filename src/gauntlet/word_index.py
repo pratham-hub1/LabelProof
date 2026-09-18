@@ -2,6 +2,11 @@ import io
 import pytesseract
 import pdfplumber
 from PIL import Image
+import os
+
+tess_path = os.environ.get("TESSERACT_CMD_PATH", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+if os.path.exists(tess_path):
+    pytesseract.pytesseract.tesseract_cmd = tess_path
 
 def build_word_index(document_bytes, content_type="image/jpeg"):
     """
