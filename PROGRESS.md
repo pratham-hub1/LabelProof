@@ -31,6 +31,7 @@
 | T1.5 | Readability score + tests | 2026-09-18 | F1 1.9 item 5 |
 | T1.6 | Extraction cache interface + tests | 2026-09-18 | F1 1.9 item 7 |
 | T1.7 | Main gauntlet orchestrator + tests | 2026-09-18 | F1 1.9 item 8 |
+| T1.8 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
 
 ## Not started
 
