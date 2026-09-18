@@ -45,6 +45,7 @@
 | T3.4 | Checks R4 + R5 + tests | 2026-09-18 | F3 3.3 |
 | T3.5 | Checks R6 + R11 + tests | 2026-09-18 | F3 3.3, 3.6 |
 | T3.6 | Checks R3 + evaluate_exemptions + tests | 2026-09-18 | F3 3.1, 3.3 |
+| T4.1 | final_verdict + tests | 2026-09-18 | F4 4.3 |
 
 ## Not started
 
