@@ -30,8 +30,9 @@
 | T1.4 | reasons.config + result mapper + tests | 2026-09-18 | F1 1.9 items 4, 6 |
 | T1.5 | Readability score + tests | 2026-09-18 | F1 1.9 item 5 |
 | T1.6 | Extraction cache interface + tests | 2026-09-18 | F1 1.9 item 7 |
-| T1.7 | Main gauntlet orchestrator + tests | 2026-09-18 | F1 1.9 item 8 |
-| T1.8 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
+| T1.7 | F1 acceptance fixtures (hallucination, misread, missing, etc) + tests | 2026-09-18 | F1 1.10 |
+| T1.8 | Main gauntlet orchestrator + tests | 2026-09-18 | F1 1.9 item 8 |
+| T1.9 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
 | T2.1 | measure_numeral_height + tests | 2026-09-18 | F2 2.7 item 1 |
 | T2.6 | thresholds.config + loader + tests | 2026-09-18 | F2 2.7 item 6 |
 | T2.7 | F2 acceptance fixtures + tests | 2026-09-18 | F2 2.8 |
