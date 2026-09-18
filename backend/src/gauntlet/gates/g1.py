@@ -10,7 +10,11 @@ def check_g1(claim, word_index=None, image_meta=None):
     if len(box) != 4:
         return False
         
-    left, top, right, bottom = box
+    if isinstance(box, dict):
+        left, top = box.get("left", 0), box.get("top", 0)
+        right, bottom = left + box.get("width", 0), top + box.get("height", 0)
+    else:
+        left, top, right, bottom = box
     width = right - left
     height = bottom - top
     

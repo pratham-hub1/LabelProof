@@ -12,7 +12,11 @@ def measure_numeral_height(image, box):
     if isinstance(image, bytes):
         image = Image.open(io.BytesIO(image))
         
-    left, top, right, bottom = box
+    if isinstance(box, dict):
+        left, top = box.get("left", 0), box.get("top", 0)
+        right, bottom = left + box.get("width", 0), top + box.get("height", 0)
+    else:
+        left, top, right, bottom = box
     
     left, top = max(0, left), max(0, top)
     right, bottom = min(image.width, right), min(image.height, bottom)

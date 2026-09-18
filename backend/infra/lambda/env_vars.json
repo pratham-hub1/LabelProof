@@ -1,0 +1,9 @@
+{
+    "Variables": {
+        "TABLE_NAME": "scans",
+        "UPLOADS_BUCKET": "labelcheck-uploads",
+        "OUTPUTS_BUCKET": "labelcheck-outputs",
+        "WEB_BUCKET": "labelcheck-web",
+        "REGION": "ap-south-1"
+    }
+}

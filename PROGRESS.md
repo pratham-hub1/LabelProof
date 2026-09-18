@@ -24,6 +24,11 @@
 | Design decision session | 2026-09-17 — 11 decisions + 2 approach calls locked (decision log); docs synced: field-status bridge, R1/R5/R7/R8 specs, σ = 0.05 × H, 200 g boundary, scan-level NEEDS_REVIEW rule, CONTRACTS additive changes (brand_guess, summary.exempt, measurement schema, EXTRACTION_FAILED / EXTRACTION_MISS). Remaining design: Feature 9 extraction, preprocess, minAreaRect, embossed detector, ground-truth shape |
 | Design + legal-correction pass | 2026-09-18 — 12 decisions (D12–D23) applied (decision log): R8 migrated to the 2018 area-based Rule 7 Table-I (GSR 629(E); supersedes the 200 g boundary decision), Features 9 (extraction module) + 10 (preprocess) written and PROVEN, class-interval rule, embossed/molded detector, minAreaRect spec, CONTRACTS §5 fixture shape, anchors + taxes initial content, unanchored-verified tag, PDF ink-coverage for R9, TASKS rewiring (T1.8/T1.9, H5–H7), model-ID defaults. Docs now implementation-complete |
 | T0.1 | Repo init — monorepo layout (frontend/ + backend/), 8 docs placed (L_6), folder skeleton per TASKS, .gitignore + README stub; §8 layout locked in the decision log | 2026-09-18 | DECISIONS 0, 8; decision log |
+| T0.3 | 3 S3 buckets infra configs + scripts | 2026-09-18 | F5, F6, F7 |
+| T0.4 | DynamoDB scans table infra script | 2026-09-18 | F7 |
+| T0.5 | Lambda skeleton & infra configs | 2026-09-18 | F5 |
+| T0.6 | Lambda layers requirements | 2026-09-18 | F1, F6, F8, F10 |
+| T0.7 | Bedrock access check script (blocked invoke) | 2026-09-18 | F9 |
 | T1.1 | Word-index builder (Tesseract + pdfplumber) and tests | 2026-09-18 | F1 1.9 item 1 |
 | T1.2 | Gates G1-G6 pure functions and tests | 2026-09-18 | F1 1.9 item 2 |
 | T1.3 | anchors.config + loader + tests | 2026-09-18 | F1 1.9 item 3 |
@@ -32,7 +37,7 @@
 | T1.6 | Extraction cache interface + tests | 2026-09-18 | F1 1.9 item 7 |
 | T1.7 | F1 acceptance fixtures (hallucination, misread, missing, etc) + tests | 2026-09-18 | F1 1.10 |
 | T1.8 | Main gauntlet orchestrator + tests | 2026-09-18 | F1 1.9 item 8 |
-| T1.9 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
+| T1.9 | preprocess(raw_bytes, content_type) -> canonical image + tests | 2026-09-18 | F10 |
 | T2.1 | measure_numeral_height + tests | 2026-09-18 | F2 2.7 item 1 |
 | T2.6 | thresholds.config + loader + tests | 2026-09-18 | F2 2.7 item 6 |
 | T2.7 | F2 acceptance fixtures + tests | 2026-09-18 | F2 2.8 |
@@ -55,8 +60,8 @@
 
 ## Not started
 
-- **Repo code** -- every implementation task, tracked in TASKS.md (all tasks TODO)
-- **AWS infra** -- buckets, Lambda (Function URL + S3 trigger), DynamoDB `scans` table + 2 GSIs, IAM users/policies, Lambda layers (Tesseract, reportlab)
+- **Repo code** -- every implementation task, tracked in TASKS.md (all tasks TODO except Phase 1-4 and Phase 0/T1.9)
+- **AWS infra** -- IAM users/policies (User handling IAM manually)
 - **Benchmark label collection** -- the long-lead human task: 80-100 real supermarket labels, 2-labeler + adjudication protocol, stratified minimums (ENGINEERING F8 8.6). Phasing: ~30 fully-verified labels by day 2, remainder by day 3. START NOW -- it gates the demo numbers.
 - **Frontend track** -- builds against CONTRACTS.md only (upload UI, polling report card, history/search/stats, download buttons); may keep its own UI-focused doc
 
