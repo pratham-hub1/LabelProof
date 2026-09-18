@@ -74,8 +74,8 @@ def extract(canonical_image_bytes, config, model_client=None, cache_client=None)
     downscaled_bytes, scale = downscale_image_if_needed(canonical_image_bytes)
     
     # model IDs from env or defaults
-    haiku_id = os.environ.get("BEDROCK_HAIKU_ID", "anthropic.claude-3-5-haiku-20241022-v1:0")
-    sonnet_id = os.environ.get("BEDROCK_SONNET_ID", "anthropic.claude-sonnet-4-20250514-v1:0")
+    haiku_id = os.environ.get("BEDROCK_HAIKU_ID", "us.anthropic.claude-3-5-haiku-20241022-v1:0")
+    sonnet_id = os.environ.get("BEDROCK_SONNET_ID", "us.anthropic.claude-sonnet-4-20250514-v1:0")
     
     prompt = read_prompt()
     

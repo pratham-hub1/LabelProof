@@ -72,5 +72,6 @@ def run_gauntlet(image_bytes, content_type, bucket_name, etag, bedrock_caller, s
     return {
         "extraction": extraction,
         "gauntlet_results": gauntlet_results,
-        "readability": is_readable
+        "readability": is_readable,
+        "word_index": word_index
     }

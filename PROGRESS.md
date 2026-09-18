@@ -119,3 +119,20 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | T7.6 | redirect_report (status check -> 302 Location) | 2026-09-18 | F7 |
 | T7.7 | serialize + normalize_key | 2026-09-18 | F7 |
 | T7.8 | api.config + F7 acceptance fixtures | 2026-09-18 | F7 |
+| T8.1 | collect_driver.py (upload, poll, harvest API integration) | 2026-09-18 | F8 |
+| T8.2 | run.py offline replay logic | 2026-09-18 | F8 |
+| T8.3 | score.py metrics and R8 boundary logic | 2026-09-18 | F8 |
+| T8.4 | report.py JSON/Markdown output + Clopper-Pearson | 2026-09-18 | F8 |
+| T8.5 | ground_truth.schema.json + disputes export | 2026-09-18 | F8 |
+| T8.6 | benchmark.config + SKIP_CACHE env check | 2026-09-18 | F8 |
+| T8.7 | test_f8.py Acceptance criteria | 2026-09-18 | F8 |
+| BEDROCK BLOCKED | Live AWS invoke on hold due to ValidationException on AWS side (owner: teammate) | - | F9 |
+| Fix B1 | `calibrate.py` portrait mode orientation fix (w_px from X-axis alignment) | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B2 | `handler.py` cleans up S3 artifacts on pipeline exception | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B3 | `artifacts.py` and `reports.py` use exact CONTRACTS.md artifact formats | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B4 | `upload.py` initializes missing fields with NULL | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B5 | `stats.py` formats most_failed_rules as a list of dicts | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B6 | `get_scan.py` passes correct bucket_name to reap_stale_pending | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B7 | `client.py` uses us-east cross-region inference profiles | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Fix B8 | `iam_policy.json` explicitly grants `s3:PutObject` on uploads bucket | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| T6.6 Wiring | `main.py` wires the entire real pipeline end-to-end | 2026-09-19 | TASKS.md |

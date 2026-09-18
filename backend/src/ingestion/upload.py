@@ -48,7 +48,10 @@ def create_pending_record(table_name: str, filename: str, content_type: str, lab
             'product': {'NULL': True},
             'summary': {'NULL': True},
             'results': {'NULL': True},
-            'error': {'NULL': True}
+            'error': {'NULL': True},
+            'artifacts': {'NULL': True},
+            'exemption': {'NULL': True},
+            'extraction': {'NULL': True}
         }
         
         if label_width_mm is not None:

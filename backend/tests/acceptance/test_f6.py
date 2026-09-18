@@ -70,21 +70,27 @@ def test_f6_criteria_4_12_determinism(dummy_image, mock_s3_env, mocker):
     )
     
     # We must fetch them from S3 to compare
-    obj1 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="reports/SC-111/annotated.jpg")['Body'].read()
-    pdf1 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="reports/SC-111/report.pdf")['Body'].read()
+    obj1 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/annotated.jpg")['Body'].read()
+    obj2 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/display.jpg")['Body'].read()
+    obj3 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/report.pdf")['Body'].read()
+    obj4 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/data.csv")['Body'].read()
+    obj5 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/record.json")['Body'].read()
     
-    # Run again
     summary2, artifacts2 = generate_and_upload_artifacts(
-        "SC-222", dummy_image, scan_fields, results, {"applied": False}, field_status, "labelcheck-outputs"
+        "SC-111", dummy_image, scan_fields, results, {"applied": False}, field_status, "labelcheck-outputs"
     )
     
-    obj2 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="reports/SC-222/annotated.jpg")['Body'].read()
-    pdf2 = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="reports/SC-222/report.pdf")['Body'].read()
+    obj1_b = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/annotated.jpg")['Body'].read()
+    obj2_b = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/display.jpg")['Body'].read()
+    obj3_b = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/report.pdf")['Body'].read()
+    obj4_b = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/data.csv")['Body'].read()
+    obj5_b = mock_s3_env.get_object(Bucket="labelcheck-outputs", Key="outputs/reports/SC-111/record.json")['Body'].read()
     
-    assert obj1 == obj2
-    
-    # reportlab has IDs that can change unless invariant=1 is used
-    assert pdf1 == pdf2
+    assert obj1 == obj1_b
+    assert obj2 == obj2_b
+    assert obj3 == obj3_b
+    assert obj4 == obj4_b
+    assert obj5 == obj5_b
     
 def test_f6_criteria_5_9_10():
     # 5: Devanagari -> placeholder

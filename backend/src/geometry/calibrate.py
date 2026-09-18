@@ -33,15 +33,18 @@ def min_area_rect(points):
     proj1 = pts.dot(evecs[:, 0])
     proj2 = pts.dot(evecs[:, 1])
     
-    # Extents
     extent1 = np.max(proj1) - np.min(proj1)
     extent2 = np.max(proj2) - np.min(proj2)
     
-    # Typically we define width as the larger extent for a landscape label
-    # or just return both
-    width = float(max(extent1, extent2))
-    height = float(min(extent1, extent2))
-    
+    # points are [y, x], so evecs[:, i] is [dy, dx]
+    # The width of the upright label aligns more with the X-axis.
+    if abs(evecs[1, 0]) > abs(evecs[0, 0]):
+        width = float(extent1)
+        height = float(extent2)
+    else:
+        width = float(extent2)
+        height = float(extent1)
+        
     return width, height
 
 def otsu_threshold(arr):

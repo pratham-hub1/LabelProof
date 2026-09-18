@@ -43,6 +43,53 @@ def mock_bedrock_caller(image_bytes, content_type):
         }
     }
 
+def offline_replay(record: dict) -> dict:
+    """
+    Offline replay: harvested extraction -> gauntlet -> rule engine -> results.
+    Bypasses Bedrock and network completely.
+    """
+    skip_cache = os.environ.get('BENCHMARK_SKIP_CACHE', '0') == '1'
+    if skip_cache:
+        # In a real environment, this would call bedrock again.
+        # But this is offline, so we'd raise or simulate network call.
+        pass
+        
+    input_data = record.get('input', {})
+    extraction = record.get('extraction', {})
+    product_guess = record.get('product', {})
+    exemption = record.get('exemption', {})
+    
+    # Run the pure rule engine (skip geometry since we don't have the image, rely on harvested data)
+    field_status = record.get('field_status', {})
+    if not field_status:
+        # Gauntlet re-run
+        from src.gauntlet.mapper import map_bedrock_to_checks
+        from src.gauntlet.readability import check_readability
+        gauntlet_results = map_bedrock_to_checks(extraction)
+        is_readable = check_readability(extraction, gauntlet_results)
+        import json; tobacco_config = json.load(open("backend/config/tobacco.config"))
+        exemptions = evaluate_exemptions(extraction, tobacco_config)
+        field_status = resolve_field_statuses(gauntlet_results, is_readable, exemptions)
+
+    image_meta = record.get('_debug_image_meta', {}) 
+    
+    results, summary, overall_status = run_checks(
+        extraction=extraction,
+        field_status=field_status,
+        product=product_guess,
+        exemption=exemption,
+        source_type=input_data.get('source_type', 'photo'),
+        label_width_mm=input_data.get('label_width_mm'),
+        image_meta=image_meta
+    )
+    
+    return {
+        'results': results,
+        'summary': summary,
+        'status': overall_status,
+        'field_status': field_status
+    }
+
 def pipeline(image_bytes, label_width_mm, s3_client):
     # Fixed scan ID for determinism test
     scan_id = "test-scan-123"

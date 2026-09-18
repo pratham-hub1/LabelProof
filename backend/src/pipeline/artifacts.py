@@ -75,11 +75,11 @@ def generate_and_upload_artifacts(
     s3 = boto3.client('s3', region_name=os.environ.get('REGION', 'ap-south-1'))
     
     uploads = [
-        (f"reports/{scan_id}/annotated.jpg", annotated_bytes, "image/jpeg"),
-        (f"reports/{scan_id}/display.jpg", display_bytes, "image/jpeg"),
-        (f"reports/{scan_id}/report.pdf", pdf_bytes, "application/pdf"),
-        (f"reports/{scan_id}/data.csv", csv_bytes, "text/csv"),
-        (f"reports/{scan_id}/record.json", json_bytes, "application/json")
+        ("annotated_image", f"outputs/reports/{scan_id}/annotated.jpg", annotated_bytes, "image/jpeg"),
+        ("display_image", f"outputs/reports/{scan_id}/display.jpg", display_bytes, "image/jpeg"),
+        ("report_pdf", f"outputs/reports/{scan_id}/report.pdf", pdf_bytes, "application/pdf"),
+        ("report_csv", f"outputs/reports/{scan_id}/data.csv", csv_bytes, "text/csv"),
+        ("report_json", f"outputs/reports/{scan_id}/record.json", json_bytes, "application/json")
     ]
     
     artifacts = {}
@@ -87,7 +87,7 @@ def generate_and_upload_artifacts(
     retry_count = config.get('retry_count', 1)
     backoff = config.get('retry_backoff_seconds', 2)
     
-    for key, data_bytes, content_type in uploads:
+    for art_key, key, data_bytes, content_type in uploads:
         success = False
         for attempt in range(retry_count + 1):
             try:
@@ -107,6 +107,7 @@ def generate_and_upload_artifacts(
         if not success:
             raise Exception(f"Failed to upload artifact {key} after {retry_count} retries")
             
-        artifacts[key.split('/')[-1].split('.')[0]] = f"s3://{outputs_bucket}/{key}"
+        # Write exact S3 key as per CONTRACTS.md (no s3:// prefix)
+        artifacts[art_key] = key
         
     return summary, artifacts

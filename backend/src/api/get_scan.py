@@ -33,7 +33,8 @@ def get_scan(scan_id: str) -> dict:
             item = response.get('Item')
     elif status == 'PENDING':
         from src.ingestion.reapers import reap_stale_pending
-        if reap_stale_pending(table.name, item):
+        bucket_name = os.environ.get('UPLOADS_BUCKET', 'labelcheck-uploads')
+        if reap_stale_pending(table.name, item, bucket_name):
             response = table.get_item(Key={'scan_id': scan_id}, ConsistentRead=True)
             item = response.get('Item')
             

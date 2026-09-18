@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["label_id", "source_type", "fields", "expected_verdicts"],
+    "properties": {
+      "label_id": { "type": "string" },
+      "source_type": { "type": "string", "enum": ["photo", "pdf"] },
+      "measured_width_mm": { "type": "number" },
+      "pdp_width_mm": { "type": "number" },
+      "pdp_height_mm": { "type": "number" },
+      "numeral_heights_mm": {
+        "type": "object",
+        "additionalProperties": { "type": "number" }
+      },
+      "fields": {
+        "type": "object",
+        "required": ["brand", "product_name", "net_quantity", "mrp", "manufactured_date", "best_before", "contact_info"],
+        "properties": {
+          "brand": { "type": ["string", "null"] },
+          "product_name": { "type": ["string", "null"] },
+          "net_quantity": { "type": ["string", "null"] },
+          "mrp": { "type": ["string", "null"] },
+          "manufactured_date": { "type": ["string", "null"] },
+          "best_before": { "type": ["string", "null"] },
+          "contact_info": { "type": ["string", "null"] },
+          "is_hindi": { "type": "boolean" }
+        }
+      },
+      "expected_verdicts": {
+        "type": "object",
+        "additionalProperties": { "type": "string", "enum": ["PASS", "FAIL", "NA", "NEEDS_REVIEW"] }
+      }
+    }
+  }
+}

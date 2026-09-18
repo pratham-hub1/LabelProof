@@ -54,3 +54,15 @@ def test_calibrate_shadow_merge():
     # Wait, low resolution check runs AFTER rectangularity check.
     res = calibrate_photo(img_bytes.getvalue(), 100.0)
     assert res["error"] == "SHADOW_MERGE"
+
+def test_calibrate_portrait():
+    # 50x100 mm label (portrait) at 25 px/mm -> 1250x2500 px
+    # Physical width is 50mm, physical height is 100mm.
+    # The image is taken upright, so X-axis is width (1250px) and Y-axis is height (2500px).
+    img_bytes = create_synthetic_image(2000, 3000, 1250, 2500)
+    res = calibrate_photo(img_bytes, 50.0)
+    
+    assert "error" not in res
+    assert np.isclose(res["scale"], 25.0, rtol=0.05) 
+    assert np.isclose(res["pdp_area_cm2"], 50.0, rtol=0.05)
+

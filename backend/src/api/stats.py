@@ -78,7 +78,7 @@ def get_stats() -> dict:
                 rule_fail_counts.append((r_id, counts['fail']))
                 
     rule_fail_counts.sort(key=lambda x: x[1], reverse=True)
-    most_failed_rules = [r[0] for r in rule_fail_counts]
+    most_failed_rules = [{"rule_id": r[0], "count": r[1]} for r in rule_fail_counts]
     
     data = {
         'total_scans': total_scans,

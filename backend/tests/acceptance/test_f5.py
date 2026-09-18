@@ -160,10 +160,53 @@ def test_f5_pipeline_exception(setup_aws, mocker):
     
     mocker.patch('src.pipeline.main.run_pipeline', side_effect=Exception("Boom"))
     
+    # Pre-populate some artifacts to simulate crash AFTER upload
+    setup_aws['s3'].create_bucket(Bucket='labelcheck-outputs')
+    setup_aws['s3'].put_object(Bucket='labelcheck-outputs', Key=f"outputs/reports/{scan_id}/annotated.jpg", Body=b"image")
+    
     res = handler(event, None)
     assert res['status'] == 'success' # Lambda succeeds, error written to DB
     
     resp = setup_aws['dynamodb'].get_item(TableName='test_scans', Key={'scan_id': {'S': scan_id}})
     assert resp['Item']['status']['S'] == 'FAILED'
     assert resp['Item']['error']['M']['code']['S'] == 'INTERNAL'
+    
+    # Verify cleanup occurred
+    objs = setup_aws['s3'].list_objects_v2(Bucket='labelcheck-outputs', Prefix=f"outputs/reports/{scan_id}/")
+    assert 'Contents' not in objs or len(objs['Contents']) == 0
+
+@mock_aws
+def test_f5_clean_success(setup_aws, mocker):
+    scan_id = create_pending_record('test_scans', 'test.jpg', 'image/jpeg')
+    event = {
+        'Records': [{
+            's3': {
+                'bucket': {'name': 'labelcheck-uploads'},
+                'object': {'key': f'uploads/{scan_id}.jpg', 'size': 1024}
+            }
+        }]
+    }
+    
+    setup_aws['s3'].create_bucket(Bucket='labelcheck-outputs')
+    
+    def fake_run_pipeline(*args, **kwargs):
+        # Simulate artifact upload
+        setup_aws['s3'].put_object(Bucket='labelcheck-outputs', Key=f"outputs/reports/{scan_id}/annotated.jpg", Body=b"image")
+        return {
+            'status': 'DONE',
+            'summary': {'pass': 1},
+            'artifacts': {'annotated_image': f"outputs/reports/{scan_id}/annotated.jpg"}
+        }
+        
+    mocker.patch('src.pipeline.main.run_pipeline', side_effect=fake_run_pipeline)
+    
+    res = handler(event, None)
+    assert res['status'] == 'success'
+    
+    resp = setup_aws['dynamodb'].get_item(TableName='test_scans', Key={'scan_id': {'S': scan_id}})
+    assert resp['Item']['status']['S'] == 'DONE'
+    
+    # Verify artifacts still exist (no cleanup on success)
+    objs = setup_aws['s3'].list_objects_v2(Bucket='labelcheck-outputs', Prefix=f"outputs/reports/{scan_id}/")
+    assert len(objs['Contents']) == 1
 

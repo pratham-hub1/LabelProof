@@ -157,6 +157,24 @@ def handler(event, context):
                 error_code='INTERNAL',
                 error_msg='Internal pipeline error'
             )
+            # B2 Fix: FAILED status must never coexist with public artifacts
+            # Cleanup any artifacts that might have been uploaded before the crash/DB failure
+            s3_client = boto3.client('s3', region_name=os.environ.get('REGION', 'ap-south-1'))
+            outputs_bucket = os.environ.get('OUTPUTS_BUCKET', 'labelcheck-outputs')
+            keys_to_delete = [
+                f"outputs/reports/{scan_id}/annotated.jpg",
+                f"outputs/reports/{scan_id}/display.jpg",
+                f"outputs/reports/{scan_id}/report.pdf",
+                f"outputs/reports/{scan_id}/data.csv",
+                f"outputs/reports/{scan_id}/record.json"
+            ]
+            try:
+                s3_client.delete_objects(
+                    Bucket=outputs_bucket,
+                    Delete={'Objects': [{'Key': k} for k in keys_to_delete], 'Quiet': True}
+                )
+            except Exception as del_err:
+                logger.error(f"Failed to cleanup artifacts for {scan_id}: {del_err}")
             
         return {'status': 'success'}
         

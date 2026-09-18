@@ -185,12 +185,12 @@ def test_f7_criteria_9(mock_dynamodb, mocker):
     
     mark_terminal(
         'labelcheck-scans', 'SC-R', 'DONE', 
-        artifacts={'report': 's3://out/reports/SC-R/report.pdf'}
+        artifacts={'report_pdf': 'outputs/reports/SC-R/report.pdf'}
     )
     
     res = route_api(make_event('/reports/SC-R.pdf'), None)
     assert res['statusCode'] == 302
-    assert res['headers']['Location'] == 'https://out.s3.ap-south-1.amazonaws.com/reports/SC-R/report.pdf'
+    assert res['headers']['Location'] == 'https://labelcheck-outputs.s3.ap-south-1.amazonaws.com/outputs/reports/SC-R/report.pdf'
 
 def test_f7_criteria_7(mock_dynamodb, mocker):
     # 7: Stats
@@ -214,7 +214,7 @@ def test_f7_criteria_7(mock_dynamodb, mocker):
     assert b['total_scans'] == 2 # 1 PENDING + 1 DONE
     assert b['overall']['pass'] == 1
     assert b['by_rule']['R2']['fail'] == 1
-    assert b['most_failed_rules'] == ['R2']
+    assert b['most_failed_rules'] == [{'rule_id': 'R2', 'count': 1}]
 
 def test_f7_criteria_10_stale(mock_dynamodb, mocker):
     mocker.patch('src.ingestion.upload.generate_scan_id', return_value='SC-STALE')
@@ -234,3 +234,19 @@ def test_f7_criteria_10_stale(mock_dynamodb, mocker):
     b = json.loads(res['body'])
     assert b['status'] == 'FAILED'
     assert b['error']['code'] == 'STALE_PROCESSING'
+
+def test_f7_criteria_10_pending(mock_dynamodb, mocker):
+    mocker.patch('src.ingestion.upload.generate_scan_id', return_value='SC-PENDING')
+    create_pending_record('labelcheck-scans', 'test.jpg', 'image/jpeg')
+    
+    # We mock reap_stale_pending so it doesn't try to call S3 head_object in the mock without setup
+    # actually mock_aws s3 might just return 404 which is fine, it will mark it UPLOAD_TIMEOUT if it's old.
+    # But if it's new (which it is, since we just created it), it should just return the PENDING record.
+    res = route_api({'requestContext': {'http': {'method': 'GET', 'path': '/scans/SC-PENDING'}}}, None)
+    assert res['statusCode'] == 200
+    b = json.loads(res['body'])
+    assert b['status'] == 'PENDING'
+    # Ensure missing fields are present as null
+    assert 'artifacts' in b and b['artifacts'] is None
+    assert 'exemption' in b and b['exemption'] is None
+    assert 'extraction' in b and b['extraction'] is None
