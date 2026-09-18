@@ -47,6 +47,7 @@
 | T3.6 | Checks R3 + evaluate_exemptions + tests | 2026-09-18 | F3 3.1, 3.3 |
 | T4.1 | final_verdict + tests | 2026-09-18 | F4 4.3 |
 | T4.2 | generate_pdf + tests | 2026-09-18 | F4 4.1 |
+| T4.3 | pipeline benchmark + tests | 2026-09-18 | F4 4.1 |
 
 ## Not started
 
