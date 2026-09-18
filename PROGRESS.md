@@ -34,6 +34,7 @@
 | T1.8 | Bedrock caller interface + tests | 2026-09-18 | F9 9.3 |
 | T2.1 | measure_numeral_height + tests | 2026-09-18 | F2 2.7 item 1 |
 | T2.6 | thresholds.config + loader + tests | 2026-09-18 | F2 2.7 item 6 |
+| T2.7 | F2 acceptance fixtures + tests | 2026-09-18 | F2 2.8 |
 | T2.2 | calibrate_photo + tests | 2026-09-18 | F2 2.7 item 2 |
 | T2.3 | check_r8 + tests | 2026-09-18 | F2 2.7 item 3 |
 | T2.4 | check_r9 + tests | 2026-09-18 | F2 2.7 item 4 |
@@ -84,3 +85,4 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | Fix B6 | R5 sweeps for multiple MRPs and detects shorthand MRP/taxes | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | Fix B7 | measure_numeral_height uses minAreaRect for rotation invariance | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | Fix B8 | test_exemptions.py updated to match signature and return format | 2026-09-18 | REVIEW_PHASES_1_4.md |
+- Fixed F2 gaps: Boundary (1.4-1.6mm), Molded contrast logic test, and Vector PDF.
