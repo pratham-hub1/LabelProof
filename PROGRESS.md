@@ -36,6 +36,7 @@
 | T2.6 | thresholds.config + loader + tests | 2026-09-18 | F2 2.7 item 6 |
 | T2.2 | calibrate_photo + tests | 2026-09-18 | F2 2.7 item 2 |
 | T2.3 | check_r8 + tests | 2026-09-18 | F2 2.7 item 3 |
+| T2.4 | check_r9 + tests | 2026-09-18 | F2 2.7 item 4 |
 
 ## Not started
 
