@@ -238,6 +238,9 @@ export default function PackageScrollSequence() {
   const scanOpacity = (progress > 0.15 && progress < 0.30) ? Math.sin(((progress - 0.15) / 0.15) * Math.PI) : 0;
   const recognizeOpacity = (progress >= 0.30 && progress < 0.45) ? Math.sin(((progress - 0.30) / 0.15) * Math.PI) : 0;
   const inspectOpacity = (progress >= 0.45 && progress < 0.60) ? Math.sin(((progress - 0.45) / 0.15) * Math.PI) : 0;
+  
+  // Transition into next section (darken package slightly at the very end)
+  const endDarkenOpacity = progress >= 0.90 ? (progress - 0.90) * 8 : 0; // reaches 0.8 opacity at 1.0
 
   return (
     <section 
@@ -272,10 +275,13 @@ export default function PackageScrollSequence() {
           style={{ width: '100%', height: '100%', display: 'block', transform: canvasTransform }}
         />
 
+        <div className="cinematic-darken-overlay" style={{ opacity: Math.min(0.8, endDarkenOpacity) }}></div>
+
         <InspectionOverlay progress={progress} />
         <CinematicStory progress={progress} />
         <CinematicNavigation progress={progress} />
       </div>
+      <div className="cinematic-handoff-bridge"></div>
     </section>
   )
 }
