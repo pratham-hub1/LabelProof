@@ -1,5 +1,7 @@
 .package-sequence {
   position: relative;
+  /* Used to provide scroll distance */
+  background: #050505;
   height: 400vh;
   width: 100%;
   background-color: #050505;
@@ -21,4 +23,30 @@
   width: 100%;
   height: 100vh;
   display: block;
+  z-index: 1;
+  position: relative;
+  will-change: transform;
+}
+
+.ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: opacity;
+}
+
+.scan-glow {
+  background: radial-gradient(circle at center, rgba(255, 80, 80, 0.15) 0%, transparent 60%);
+}
+
+.recognize-glow {
+  background: radial-gradient(circle at center, rgba(100, 255, 150, 0.15) 0%, transparent 60%);
+}
+
+.inspect-glow {
+  background: radial-gradient(circle at center, rgba(100, 200, 255, 0.15) 0%, transparent 60%);
 }

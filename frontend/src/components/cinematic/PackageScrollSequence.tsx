@@ -1,5 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './PackageScrollSequence.css'
+import CinematicStory from './CinematicStory'
+import InspectionOverlay from './InspectionOverlay'
+import CinematicNavigation from './CinematicNavigation'
 
 const TOTAL_FRAMES = 300
 const FRAME_PREFIX = '/frames/package/ezgif-frame-'
@@ -15,6 +18,9 @@ export default function PackageScrollSequence() {
   
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null))
   const activeFrameRef = useRef(0)
+  
+  // Expose scroll progress to UI overlay layers
+  const [progress, setProgress] = useState(0)
 
   // Optimization: render only when needed
   const renderFrame = (index: number) => {
@@ -134,14 +140,17 @@ export default function PackageScrollSequence() {
       const viewportHeight = window.innerHeight
       const scrollDistance = sectionHeight - viewportHeight
 
-      let progress = 0
+      let currentProgress = 0
       if (scrollDistance > 0) {
-        progress = (scrollTop - sectionTop) / scrollDistance
+        currentProgress = (scrollTop - sectionTop) / scrollDistance
       }
       
-      progress = Math.max(0, Math.min(1, progress))
+      currentProgress = Math.max(0, Math.min(1, currentProgress))
+      
+      // Sync UI progress
+      setProgress(currentProgress)
 
-      const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1))
+      const targetFrame = Math.round(currentProgress * (TOTAL_FRAMES - 1))
       
       // Update Canvas State
       if (targetFrame !== activeFrameRef.current) {
@@ -198,6 +207,38 @@ export default function PackageScrollSequence() {
     }
   }, [])
 
+  // Derived camera illusion based on progress
+  let canvasTransform = 'scale(1) translate3d(0,0,0) rotateZ(0deg)'
+  if (progress < 0.15) {
+     const local = progress / 0.15
+     canvasTransform = `scale(${1 + local * 0.02}) translate3d(0,0,0) rotateZ(0deg)`
+  } else if (progress < 0.30) {
+     const local = (progress - 0.15) / 0.15
+     const tilt = local * 1.5 // 0 to 1.5 deg
+     canvasTransform = `scale(1.02) translate3d(0,0,0) rotateZ(${tilt}deg)`
+  } else if (progress < 0.45) {
+     canvasTransform = `scale(1.02) translate3d(0,0,0) rotateZ(1.5deg)`
+  } else if (progress < 0.60) {
+     const local = (progress - 0.45) / 0.15
+     const driftX = Math.sin(local * Math.PI) * 20 // lateral drift up to 20px
+     canvasTransform = `scale(1.02) translate3d(${driftX}px,0,0) rotateZ(1.5deg)`
+  } else if (progress < 0.80) {
+     const local = (progress - 0.60) / 0.20
+     // tilt goes from 1.5 to -1.0
+     const tilt = 1.5 - (local * 2.5) 
+     canvasTransform = `scale(${1.02 - local * 0.02}) translate3d(0,0,0) rotateZ(${tilt}deg)`
+  } else {
+     const local = (progress - 0.80) / 0.20
+     // tilt goes from -1.0 to 0
+     const tilt = -1.0 * (1 - local)
+     canvasTransform = `scale(1) translate3d(0,0,0) rotateZ(${tilt}deg)`
+  }
+
+  // Calculate ambient glow opacities
+  const scanOpacity = (progress > 0.15 && progress < 0.30) ? Math.sin(((progress - 0.15) / 0.15) * Math.PI) : 0;
+  const recognizeOpacity = (progress >= 0.30 && progress < 0.45) ? Math.sin(((progress - 0.30) / 0.15) * Math.PI) : 0;
+  const inspectOpacity = (progress >= 0.45 && progress < 0.60) ? Math.sin(((progress - 0.45) / 0.15) * Math.PI) : 0;
+
   return (
     <section 
       className="package-sequence" 
@@ -221,11 +262,19 @@ export default function PackageScrollSequence() {
           overflow: 'hidden'
         }}
       >
+        <div className="ambient-glow scan-glow" style={{ opacity: scanOpacity }} />
+        <div className="ambient-glow recognize-glow" style={{ opacity: recognizeOpacity }} />
+        <div className="ambient-glow inspect-glow" style={{ opacity: inspectOpacity }} />
+        
         <canvas 
           ref={canvasRef} 
           className="package-sequence-canvas" 
-          style={{ width: '100%', height: '100%', display: 'block' }}
+          style={{ width: '100%', height: '100%', display: 'block', transform: canvasTransform }}
         />
+
+        <InspectionOverlay progress={progress} />
+        <CinematicStory progress={progress} />
+        <CinematicNavigation progress={progress} />
       </div>
     </section>
   )
