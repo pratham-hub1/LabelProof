@@ -75,3 +75,9 @@ def test_check_r5_needs_review_multiple():
     }
     res = check_r5(context)
     assert res["status"] == "NEEDS_REVIEW"
+
+def test_r5_none():
+    context = {"extraction": {"fields": {"mrp": {"raw": None}}}}
+    res = check_r5(context)
+    assert res["status"] == "NA"
+    assert res["reason_code"] == "DEPENDENCY_UNAVAILABLE"

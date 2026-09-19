@@ -19,6 +19,7 @@ def check_g1(claim, word_index=None, image_meta=None):
     height = bottom - top
     
     if width <= 0 or height <= 0:
+        print(f"G1 FAIL: width={width}, height={height}")
         return False
         
     if image_meta and "width" in image_meta and "height" in image_meta:
@@ -27,9 +28,11 @@ def check_g1(claim, word_index=None, image_meta=None):
         
         # Check if box is completely or partially outside bounds
         if left < 0 or top < 0:
+            print(f"G1 FAIL: left={left}, top={top}")
             return False
             
         if right > img_w or bottom > img_h:
+            print(f"G1 FAIL: right={right} > {img_w} OR bottom={bottom} > {img_h}")
             return False
             
     return True

@@ -40,3 +40,9 @@ def test_check_r4_fail():
     res = check_r4(context)
     assert res["status"] == "FAIL"
     assert res["fix"] == "valid formats"
+
+def test_r4_none():
+    context = {"extraction": {"fields": {"mfg_date": {"raw": None}}}}
+    res = check_r4(context)
+    assert res["status"] == "NA"
+    assert res["reason_code"] == "DEPENDENCY_UNAVAILABLE"

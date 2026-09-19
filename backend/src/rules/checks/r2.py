@@ -10,6 +10,9 @@ def check_r2(context):
     status = field_status.get("generic_name")
     
     if status == "VERIFIED":
+        raw = context.get("extraction", {}).get("fields", {}).get("generic_name", {}).get("raw")
+        if not raw:
+            return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing generic_name text"}
         return {"status": "PASS"}
         
     if status == "ABSENT":

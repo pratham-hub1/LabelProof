@@ -7,7 +7,10 @@ def check_r4(context):
     """
     R4: Manufacturing Date format.
     """
-    raw_date = context["extraction"]["fields"]["mfg_date"]["raw"].upper()
+    raw_date = context.get("extraction", {}).get("fields", {}).get("mfg_date", {}).get("raw")
+    if not raw_date:
+        return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing mfg_date text"}
+    raw_date = raw_date.upper()
     config = context.get("config", {})
     r4_config = config.get("r4", {})
     

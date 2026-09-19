@@ -61,29 +61,49 @@ def test_f9_schema_valid():
     assert "gemini" in model.calls[0]
     assert res == valid_json
 
-def test_f9_malformed_retry():
+def test_f9_malformed_retry(monkeypatch):
     # 2. Malformed -> Sonnet retry
     img = create_image()
     valid_json = create_valid_json()
     model = MockModelClient([{"bad": "json"}, valid_json])
-    
-    res = extract(img, {}, model_client=model)
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(img, config, model_client=model)
     
     assert len(model.calls) == 2
     assert "gemini" in model.calls[0]
     assert "nim" in model.calls[1]
     assert res == valid_json
 
-def test_f9_both_fail():
+def test_f9_both_fail(monkeypatch):
     # 3. Both fail -> ExtractionError
     img = create_image()
     model = MockModelClient([{"bad": "json"}, {"bad": "json"}])
-    
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
     with pytest.raises(ExtractionError) as excinfo:
-        extract(img, {}, model_client=model)
+        extract(img, config, model_client=model)
     assert "EXTRACTION_FAILED" in str(excinfo.value)
 
-def test_f9_weak_read_retry():
+def test_f9_weak_read_retry(monkeypatch):
     # 4. 2 fields < 0.60 -> retry
     img = create_image()
     weak_json = create_valid_json()
@@ -92,8 +112,18 @@ def test_f9_weak_read_retry():
     
     valid_json = create_valid_json()
     model = MockModelClient([weak_json, valid_json])
-    
-    res = extract(img, {}, model_client=model)
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(img, config, model_client=model)
     
     assert len(model.calls) == 2
     assert "gemini" in model.calls[0]
@@ -180,8 +210,17 @@ def test_f9_clean_json_parsing(monkeypatch):
     monkeypatch.setattr(requests, "post", mock_post)
     monkeypatch.setenv("GEMINI_API_KEY", "test")
     monkeypatch.setenv("NIM_API_KEY", "test")
-    
-    res = extract(create_image(), {})
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(create_image(), config)
     assert res == valid_json
 
 def test_f9_fenced_json_parsing(monkeypatch):
@@ -203,8 +242,17 @@ def test_f9_fenced_json_parsing(monkeypatch):
     monkeypatch.setattr(requests, "post", mock_post)
     monkeypatch.setenv("GEMINI_API_KEY", "test")
     monkeypatch.setenv("NIM_API_KEY", "test")
-    
-    res = extract(create_image(), {})
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(create_image(), config)
     assert res == valid_json
 
 def test_f9_reasoning_mixed_parsing(monkeypatch):
@@ -226,8 +274,17 @@ def test_f9_reasoning_mixed_parsing(monkeypatch):
     monkeypatch.setattr(requests, "post", mock_post)
     monkeypatch.setenv("GEMINI_API_KEY", "test")
     monkeypatch.setenv("NIM_API_KEY", "test")
-    
-    res = extract(create_image(), {})
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(create_image(), config)
     assert res == valid_json
 
 def test_f9_429_then_success(monkeypatch):
@@ -254,8 +311,17 @@ def test_f9_429_then_success(monkeypatch):
     monkeypatch.setattr("time.sleep", lambda x: None) # speed up
     monkeypatch.setenv("GEMINI_API_KEY", "test")
     monkeypatch.setenv("NIM_API_KEY", "test")
-    
-    res = extract(create_image(), {})
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(create_image(), config)
     assert res == valid_json
     assert len(calls) == 2
 
@@ -281,10 +347,58 @@ def test_f9_timeout_failure_then_success(monkeypatch):
     monkeypatch.setattr(requests, "post", mock_post)
     monkeypatch.setenv("GEMINI_API_KEY", "test")
     monkeypatch.setenv("NIM_API_KEY", "test")
-    
-    res = extract(create_image(), {})
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    res = extract(create_image(), config)
     assert res == valid_json
     assert len(calls) == 2
     assert "gemini" in calls[0]
-    assert "GLM" in calls[1]
+    assert "nim" in calls[1]
 
+
+def test_f9_schema_fail_fallback_disabled():
+    # primary schema-fail + fallback disabled -> EXTRACTION_FAILED
+    img = create_image()
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": False}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    model = MockModelClient([{"bad": "json"}])
+    with pytest.raises(ExtractionError) as excinfo:
+        extract(img, config, model_client=model)
+    assert "EXTRACTION_FAILED" in str(excinfo.value)
+    assert len(model.calls) == 1
+
+def test_f9_schema_fail_fallback_enabled(monkeypatch):
+    # primary schema-fail + fallback enabled -> fallback invoked
+    img = create_image()
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    config = {
+        "providers_config": {
+            "providers": [
+                {"id": "gemini", "base_url": "https://api", "model": "gemini", "api_key_env": "GEMINI_API_KEY", "enabled": True},
+                {"id": "nim", "base_url": "https://api", "model": "nim", "api_key_env": "NIM_API_KEY", "enabled": True}
+            ],
+            "active_provider": "gemini",
+            "fallback_provider": "nim"
+        }
+    }
+    valid_json = create_valid_json()
+    model = MockModelClient([{"bad": "json"}, valid_json])
+    res = extract(img, config, model_client=model)
+    assert res == valid_json
+    assert len(model.calls) == 2

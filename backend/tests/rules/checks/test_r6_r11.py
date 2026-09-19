@@ -9,6 +9,7 @@ def test_check_r6_pass():
         "extraction": {
             "fields": {
                 "consumer_care": {
+                    "raw": "1234567890",
                     "parsed": {"phone": "1234567890"}
                 }
             }
@@ -82,3 +83,15 @@ def test_check_r11_pass_clean():
     }
     res = check_r11(context)
     assert res["status"] == "PASS"
+
+def test_r6_none():
+    context = {"field_status": {"consumer_care": "VERIFIED"}, "extraction": {"fields": {"consumer_care": {"raw": None}}}}
+    res = check_r6(context)
+    assert res["status"] == "NA"
+    assert res["reason_code"] == "DEPENDENCY_UNAVAILABLE"
+
+def test_r11_none():
+    context = {"extraction": {"fields": {"net_quantity": {"raw": None}, "generic_name": {"raw": "biscuits"}}}}
+    res = check_r11(context)
+    assert res["status"] == "NA"
+    assert res["reason_code"] == "DEPENDENCY_UNAVAILABLE"

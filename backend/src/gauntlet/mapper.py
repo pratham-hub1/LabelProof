@@ -72,12 +72,12 @@ def map_field_result(field_name, claim, word_index, is_readable, anchors_config,
         else:
             return {"gauntlet_status": "ABSENT", "reason_code": "NOT_PRINTED"}
             
-    # Claim present
     # Run G1-G5
+    # G4 runs first to find the box and overwrite claim["box"], making LLM boxes optional
+    g4_pass = check_g4(claim, word_index, image_meta)
     g1_pass = check_g1(claim, word_index, image_meta)
     g2_pass = check_g2(claim, word_index, image_meta)
     g3_pass = check_g3(claim, word_index, image_meta)
-    g4_pass = check_g4(claim, word_index, image_meta)
     g5_pass = check_g5(claim, field_name, word_index, anchors_config, image_meta)
     
     if not (g1_pass and g2_pass and g3_pass and g4_pass and g5_pass):

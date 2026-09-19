@@ -12,7 +12,9 @@ def check_r1(context):
     if field_status.get("manufacturer_address") == "ABSENT":
         return {"status": "FAIL", "fix": "print the manufacturer's name and address"}
         
-    address = context["extraction"]["fields"]["manufacturer_address"]["raw"]
+    address = context.get("extraction", {}).get("fields", {}).get("manufacturer_address", {}).get("raw")
+    if not address:
+        return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing manufacturer_address text"}
         
     config = context.get("config", {})
     r1_config = config.get("r1", {})

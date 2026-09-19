@@ -59,5 +59,6 @@ def test_run_checks_dependency_absent():
     }
     res = run_checks(context)
     
-    # ABSENT is allowed for dependency check (the rule handles ABSENT logic)
-    assert res["mock_r1"]["status"] == "PASS"
+    # Engine was fixed to short-circuit ABSENT to NA, so rule doesn't crash on None.
+    assert res["mock_r1"]["status"] == "NA"
+    assert res["mock_r1"]["reason_code"] == "DEPENDENCY_UNAVAILABLE"

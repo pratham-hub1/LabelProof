@@ -9,6 +9,9 @@ def check_r6(context):
     status = field_status.get("consumer_care")
     
     if status == "VERIFIED":
+        raw = context.get("extraction", {}).get("fields", {}).get("consumer_care", {}).get("raw")
+        if not raw:
+            return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing consumer_care text"}
         cc_parsed = context.get("extraction", {}).get("fields", {}).get("consumer_care", {}).get("parsed", {})
         if isinstance(cc_parsed, dict) and (cc_parsed.get("phone") or cc_parsed.get("email")):
             return {"status": "PASS"}
@@ -33,8 +36,10 @@ def check_r11(context):
     extraction = context.get("extraction", {})
     fields = extraction.get("fields", {})
     
-    nq_raw = fields.get("net_quantity", {}).get("raw", "") or ""
-    gn_raw = fields.get("generic_name", {}).get("raw", "") or ""
+    nq_raw = fields.get("net_quantity", {}).get("raw")
+    if not nq_raw:
+        return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing net_quantity text"}
+    gn_raw = fields.get("generic_name", {}).get("raw") or ""
     
     config = context.get("config", {})
     r11_config = config.get("r11", {})

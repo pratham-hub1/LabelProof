@@ -6,7 +6,9 @@ def check_r5(context):
     """
     R5: MRP format and taxes clause.
     """
-    raw_mrp = context["extraction"]["fields"]["mrp"]["raw"]
+    raw_mrp = context.get("extraction", {}).get("fields", {}).get("mrp", {}).get("raw")
+    if not raw_mrp:
+        return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing mrp text"}
     config = context.get("config", {})
     r5_config = config.get("r5", {})
     

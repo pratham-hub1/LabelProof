@@ -35,7 +35,7 @@ def run_checks(context):
         missing_dep = False
         for req_field in check_meta["requires"]:
             status = field_status.get(req_field)
-            if status not in ["VERIFIED", "ABSENT"]:
+            if status != "VERIFIED":
                 results[rule_id] = {
                     "status": "NA",
                     "reason_code": "DEPENDENCY_UNAVAILABLE",

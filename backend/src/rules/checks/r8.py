@@ -35,7 +35,7 @@ def check_r8(context):
         
     # 2. Measure
     net_quantity = ext_ctx.get("fields", {}).get("net_quantity")
-    if not net_quantity or not net_quantity.get("box"):
+    if not net_quantity or not net_quantity.get("raw") or not net_quantity.get("box"):
         return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE"}
         
     h_px = measure_numeral_height(img_bytes, net_quantity["box"])

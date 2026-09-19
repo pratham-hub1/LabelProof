@@ -114,7 +114,17 @@ def call_openai_compatible(image_bytes, prompt, provider_config):
     }
     
     for k, v in provider_config.get("params", {}).items():
-        payload[k] = v
+        if k == "response_format" and isinstance(v, dict) and v.get("type") == "json_object":
+            payload[k] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "extraction",
+                    "schema": EXTRACTION_SCHEMA,
+                    "strict": True
+                }
+            }
+        else:
+            payload[k] = v
         
     for attempt in range(2):
         try:
@@ -178,8 +188,15 @@ def extract(canonical_image_bytes, config, model_client=None, cache_client=None)
             return cached
             
     downscaled_bytes, scale = downscale_image_if_needed(canonical_image_bytes)
-    prompt = read_prompt()
     
+    import io
+    from PIL import Image
+    w, h = Image.open(io.BytesIO(downscaled_bytes)).size
+    
+    prompt = read_prompt()
+    if "{width}" in prompt and "{height}" in prompt:
+        prompt = prompt.replace("{width}", str(w)).replace("{height}", str(h))
+        
     def try_provider(provider_conf):
         try:
             if model_client:
@@ -195,10 +212,18 @@ def extract(canonical_image_bytes, config, model_client=None, cache_client=None)
     res = try_provider(first_provider)
     
     if isinstance(res, Exception) or needs_fallback(res):
-        res2 = try_provider(second_provider)
-        if isinstance(res2, Exception):
-            raise ExtractionError("EXTRACTION_FAILED") from res2
-        res = res2
+        is_enabled = second_provider.get("enabled", True)
+        has_key = bool(os.environ.get(second_provider.get("api_key_env", "")))
+        
+        if not is_enabled or not has_key:
+            if isinstance(res, Exception):
+                raise ExtractionError("EXTRACTION_FAILED") from res
+            # If not an exception, it's just a weak read, so we keep res.
+        else:
+            res2 = try_provider(second_provider)
+            if isinstance(res2, Exception):
+                raise ExtractionError("EXTRACTION_FAILED") from res2
+            res = res2
         
     if cache_client:
         cache_client.put(etag, res)

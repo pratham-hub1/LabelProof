@@ -12,6 +12,10 @@ def test_g1():
     assert not check_g1({"box": {"left": 1000, "top": 10, "width": 100, "height": 50}}, None, image_meta)
     assert not check_g1({"box": {"left": 10, "top": 10, "width": -10, "height": 50}}, None, image_meta)
     assert not check_g1({"box": None}, None, image_meta)
+    
+    # Asserting the CONTRACTS.md [left, top, right, bottom] array convention
+    assert check_g1({"box": [10, 10, 110, 60]}, None, image_meta) # right=110, bottom=60 -> width=100, height=50
+    assert not check_g1({"box": [110, 10, 10, 60]}, None, image_meta) # right=10, left=110 -> width=-100
 
 def test_g2():
     assert check_g2({"raw": "hello"})
@@ -42,12 +46,22 @@ def test_g4():
         {"word": "20", "box": {"left": 80, "top": 10, "width": 20, "height": 10}}
     ]
     
-    box = {"left": 0, "top": 0, "width": 100, "height": 20}
+    # Box is now optional/ignored initially
+    claim1 = {"raw": "MRP Rs. 20"}
+    assert check_g4(claim1, word_index)
+    # The box should be derived as the union of the matched words:
+    # Left min: 10, Top min: 10
+    # Right max: 80+20 = 100, Bottom max: 10+10 = 20
+    assert claim1["box"] == [10, 10, 100, 20]
     
-    assert check_g4({"raw": "MRP Rs. 20", "box": box}, word_index)
-    assert not check_g4({"raw": "MRP Rs. 25", "box": box}, word_index)
-    assert check_g4({"raw": "mrp rs 20", "box": box}, word_index) # normalize matches
-    assert not check_g4({"raw": "Net Wt.", "box": box}, word_index)
+    claim2 = {"raw": "MRP Rs. 25"}
+    assert not check_g4(claim2, word_index)
+    
+    claim3 = {"raw": "mrp rs 20"}
+    assert check_g4(claim3, word_index)
+    
+    claim4 = {"raw": "Net Wt."}
+    assert not check_g4(claim4, word_index)
 
 def test_g5():
     word_index = [

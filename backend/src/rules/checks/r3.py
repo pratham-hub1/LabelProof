@@ -8,6 +8,10 @@ def check_r3(context):
     nq = context.get("extraction", {}).get("fields", {}).get("net_quantity", {})
     parsed = nq.get("parsed")
     
+    raw = nq.get("raw")
+    if not raw:
+        return {"status": "NA", "reason_code": "DEPENDENCY_UNAVAILABLE", "message": "Missing net_quantity text"}
+    
     if not parsed or not parsed.get("unit") or parsed.get("value") is None:
         return {"status": "FAIL", "fix": "print standard unit (e.g. g, ml, pcs)"}
         

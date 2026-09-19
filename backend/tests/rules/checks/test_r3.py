@@ -6,7 +6,7 @@ def test_check_r3_pass():
         "extraction": {
             "fields": {
                 "net_quantity": {
-                    "parsed": {"value": 10, "unit": "g"}
+                    "raw": "10 g", "parsed": {"value": 10, "unit": "g"}
                 }
             }
         }
@@ -18,7 +18,7 @@ def test_check_r3_fail_invalid_unit():
         "extraction": {
             "fields": {
                 "net_quantity": {
-                    "parsed": {"value": 10, "unit": "oz"}
+                    "raw": "10 oz", "parsed": {"value": 10, "unit": "oz"}
                 }
             }
         }
@@ -45,7 +45,7 @@ def test_check_r3_fail_sub_kg():
         'extraction': {
             'fields': {
                 'net_quantity': {
-                    'parsed': {'value': 0.5, 'unit': 'kg'}
+                    'raw': '0.5 kg', 'parsed': {'value': 0.5, 'unit': 'kg'}
                 }
             }
         }
@@ -53,3 +53,9 @@ def test_check_r3_fail_sub_kg():
     res = check_r3(context)
     assert res['status'] == 'FAIL'
     assert res['fix'] == '<1 kg must be grams / <1 L must be ml'
+
+def test_r3_none():
+    context = {"extraction": {"fields": {"net_quantity": {"raw": None}}}}
+    res = check_r3(context)
+    assert res["status"] == "NA"
+    assert res["reason_code"] == "DEPENDENCY_UNAVAILABLE"

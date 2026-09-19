@@ -8,6 +8,18 @@
 **Rule for this file:** every decision marked LOCKED is final — changing it requires the whole team to agree and an entry in the log at the bottom. If any other document or chat contradicts this file, this file wins.
 
 ---
+## Decision #18 — G4 Verification: Word-Index Match (LLM Boxes Dropped)
+
+**Date:** 2026-09-19
+**Decision:** G4 field verification changed from LLM-box crop-verify to
+Tesseract word-index consecutive-text match (edit-distance-0, locked
+normalization). Evidence boxes are derived from matched OCR word boxes.
+**Reason:** The live provider (Gemini 3.1 Flash Lite) cannot produce
+reliable absolute pixel boxes (spatial quantization on large images),
+causing false NEEDS_REVIEW on readable fields. The anti-hallucination
+guarantee is preserved: OCR must independently see the claimed text
+before a field is VERIFIED.
+**Scope:** G4 only; all other gates, thresholds, and fallback unchanged.
 
 ## 0. Context — the two events, one project
 

@@ -57,3 +57,9 @@ def test_check_r1_missing_state():
     }
     res = check_r1(context)
     assert res["status"] == "NEEDS_REVIEW"
+
+def test_r1_none():
+    context = {"extraction": {"fields": {"manufacturer_name": {"raw": None}, "manufacturer_address": {"raw": None}}}}
+    res = check_r1(context)
+    assert res["status"] == "NA"
+    assert res["reason_code"] == "DEPENDENCY_UNAVAILABLE"
