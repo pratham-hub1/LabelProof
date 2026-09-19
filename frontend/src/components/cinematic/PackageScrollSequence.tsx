@@ -3,6 +3,7 @@ import './PackageScrollSequence.css'
 import CinematicStory from './CinematicStory'
 import InspectionOverlay from './InspectionOverlay'
 import CinematicNavigation from './CinematicNavigation'
+import ComplianceIntelligenceOverlay from './ComplianceIntelligenceOverlay'
 
 const TOTAL_FRAMES = 300
 const FRAME_PREFIX = '/frames/package/ezgif-frame-'
@@ -278,6 +279,7 @@ export default function PackageScrollSequence() {
         <div className="cinematic-darken-overlay" style={{ opacity: Math.min(0.8, endDarkenOpacity) }}></div>
 
         <InspectionOverlay progress={progress} />
+        <ComplianceIntelligenceOverlay progress={progress} />
         <CinematicStory progress={progress} />
         <CinematicNavigation progress={progress} />
       </div>

@@ -71,8 +71,8 @@ export default function CinematicStory({ progress }: CinematicStoryProps) {
         <p className="story-supporting">Understanding the package means understanding the information it presents.</p>
       </div>
 
-      {/* 80-100%: EXPLODED STATE */}
-      <div className="story-block exploded-block" style={getStyle(0.80, 1.0)}>
+      {/* 94-100%: EXPLODED STATE (After Callouts) */}
+      <div className="story-block exploded-block" style={getStyle(0.94, 1.0)}>
         <div className="story-eyebrow">05 / REVEAL</div>
         <h2 className="story-heading large">From label to compliance.</h2>
         <p className="story-supporting">Structured evidence for a clearer view of packaged-commodity requirements.</p>
