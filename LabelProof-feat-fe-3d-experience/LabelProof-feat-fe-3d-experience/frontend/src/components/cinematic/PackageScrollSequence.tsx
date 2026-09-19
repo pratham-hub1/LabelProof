@@ -1,0 +1,235 @@
+import { useEffect, useRef } from 'react'
+import './PackageScrollSequence.css'
+
+const TOTAL_FRAMES = 240
+const FRAME_PREFIX = '/frames/package/ezgif-frame-'
+
+function getFrameUrl(index: number) {
+  const fileNumber = (index + 1).toString().padStart(3, '0')
+  return `${FRAME_PREFIX}${fileNumber}.jpg`
+}
+
+export default function PackageScrollSequence() {
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  
+  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null))
+  const activeFrameRef = useRef(0)
+
+  // Optimization: render only when needed
+  const renderFrame = (index: number) => {
+    if (!canvasRef.current) return
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Find closest loaded frame
+    let renderIndex = index
+    if (!imagesRef.current[index]) {
+      let fallback = 0
+      for (let i = index; i >= 0; i--) {
+        if (imagesRef.current[i]) {
+          fallback = i
+          break
+        }
+      }
+      renderIndex = fallback
+    }
+
+    const img = imagesRef.current[renderIndex]
+    if (!img) return
+
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    
+    // Explicit sizing for canvas context to prevent blur
+    const targetW = Math.max(1, Math.round(rect.width * dpr))
+    const targetH = Math.max(1, Math.round(rect.height * dpr))
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW
+      canvas.height = targetH
+    }
+
+    // Clear background
+    ctx.fillStyle = '#050505'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Calculate containment
+    const hRatio = canvas.width / img.width
+    const vRatio = canvas.height / img.height
+    const ratio = Math.min(hRatio, vRatio)
+
+    const drawW = img.width * ratio
+    const drawH = img.height * ratio
+
+    const dx = (canvas.width - drawW) / 2
+    const dy = (canvas.height - drawH) / 2
+
+    ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, drawW, drawH)
+  }
+
+  useEffect(() => {
+    let isComponentMounted = true;
+
+    // Load a single frame
+    const loadFrame = (index: number): Promise<void> => {
+      return new Promise((resolve) => {
+        if (imagesRef.current[index]) return resolve()
+        
+        const img = new Image()
+        img.src = getFrameUrl(index)
+        img.onload = () => {
+          if (!isComponentMounted) return resolve()
+          imagesRef.current[index] = img
+          
+          // Re-render if it might improve the currently displayed frame
+          requestAnimationFrame(() => {
+             if (isComponentMounted) renderFrame(activeFrameRef.current)
+          })
+          resolve()
+        }
+        img.onerror = () => resolve() // Fail gracefully
+      })
+    }
+
+    const preloadSequence = async () => {
+      // 1. Critical frames first (await them to ensure we have something)
+      await loadFrame(0)
+      if (!isComponentMounted) return
+      renderFrame(0)
+      
+      await loadFrame(TOTAL_FRAMES - 1)
+      await loadFrame(Math.floor(TOTAL_FRAMES * 0.25))
+      await loadFrame(Math.floor(TOTAL_FRAMES * 0.5))
+      await loadFrame(Math.floor(TOTAL_FRAMES * 0.75))
+      
+      // 2. Load the rest progressively (WITHOUT blocking await so they load much faster)
+      for (let i = 1; i < TOTAL_FRAMES - 1; i++) {
+        if (!isComponentMounted) break
+        if (!imagesRef.current[i]) {
+          loadFrame(i) // Non-blocking!
+        }
+      }
+    }
+    
+    preloadSequence()
+
+    const updateScrollState = () => {
+      if (!sectionRef.current) return
+
+      // 4. SCROLL PROGRESS
+      const section = sectionRef.current
+      const rect = section.getBoundingClientRect()
+      
+      // Get the true scroll top whether it's document scrolling or body scrolling
+      const scrollTop = document.scrollingElement ? document.scrollingElement.scrollTop : window.scrollY;
+      
+      const sectionTop = rect.top + scrollTop
+      const sectionHeight = section.offsetHeight
+      const viewportHeight = window.innerHeight
+      const scrollDistance = sectionHeight - viewportHeight
+
+      let progress = 0
+      if (scrollDistance > 0) {
+        progress = (scrollTop - sectionTop) / scrollDistance
+      }
+      
+      progress = Math.max(0, Math.min(1, progress))
+
+      const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1))
+      
+      // Update Canvas State
+      if (targetFrame !== activeFrameRef.current) {
+        activeFrameRef.current = targetFrame
+        renderFrame(targetFrame)
+      }
+    }
+
+    let scrollTicking = false
+    const handleScroll = () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(() => {
+          updateScrollState()
+          scrollTicking = false
+        })
+        scrollTicking = true
+      }
+    }
+
+    let resizeTicking = false
+    const handleResize = () => {
+      if (!resizeTicking) {
+        requestAnimationFrame(() => {
+          renderFrame(activeFrameRef.current)
+          updateScrollState()
+          resizeTicking = false
+        })
+        resizeTicking = true
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
+    
+    // Initial calculation after a slight delay to ensure layout is complete
+    setTimeout(() => {
+      if (isComponentMounted) {
+        const section = sectionRef.current
+        if (section) {
+          console.log('PACKAGE SECTION:', section)
+          console.log('PACKAGE SECTION RECT:', section.getBoundingClientRect())
+          console.log('PACKAGE SECTION COMPUTED:', window.getComputedStyle(section))
+          console.log('PARENT:', section.parentElement)
+        }
+        handleResize()
+        updateScrollState()
+      }
+    }, 100)
+    
+    // Fallback: update again after 1s just in case fonts or other elements shift layout
+    setTimeout(() => {
+      if (isComponentMounted) {
+        updateScrollState()
+      }
+    }, 1000)
+
+    return () => {
+      isComponentMounted = false
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  return (
+    <section 
+      className="package-sequence" 
+      ref={sectionRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '400vh',
+        minHeight: '400vh',
+        display: 'block' // guarantees it is not display: contents
+      }}
+    >
+      <div 
+        className="package-sequence-sticky"
+        style={{
+          position: 'sticky',
+          top: 0,
+          width: '100%',
+          height: '100vh',
+          minHeight: '100vh',
+          overflow: 'hidden'
+        }}
+      >
+        <canvas 
+          ref={canvasRef} 
+          className="package-sequence-canvas" 
+          style={{ width: '100%', height: '100%', display: 'block' }}
+        />
+      </div>
+    </section>
+  )
+}

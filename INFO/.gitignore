@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / React
+node_modules/
+dist/
+build/
+.vite/
+
+# Secrets & AWS credentials — NEVER in the repo (AGENTS.md rule 9)
+.env*
+*.pem
+.aws/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Build artifacts / Lambda layers (rebuilt, not committed)
+*.zip
+layers/*/
