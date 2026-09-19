@@ -2,7 +2,7 @@ import csv
 import io
 import json
 
-def build_csv_report(results: dict, summary: dict) -> bytes:
+def build_csv_report(results: list, summary: dict) -> bytes:
     """
     Builds a CSV report.
     RFC 4180 quoting, UTF-8 with BOM.
@@ -15,7 +15,7 @@ def build_csv_report(results: dict, summary: dict) -> bytes:
     writer.writerow(["Rule ID", "Name", "Status", "Evidence", "Fix", "Anchored"])
     
     # Results
-    for rule_id, res in results.items():
+    for res in results:
         evidence = res.get('evidence', '')
         if isinstance(evidence, (dict, list)):
             evidence = json.dumps(evidence)
@@ -23,7 +23,7 @@ def build_csv_report(results: dict, summary: dict) -> bytes:
             evidence = json.dumps(res.get('measurement'))
             
         writer.writerow([
-            rule_id,
+            res.get('rule_id', ''),
             res.get('name', ''),
             res.get('status', 'NA'),
             evidence,
@@ -47,4 +47,5 @@ def build_json_report(record: dict) -> bytes:
     """
     Serializes the final scan record to JSON bytes.
     """
-    return json.dumps(record, indent=2, sort_keys=True).encode('utf-8')
+    from src.api.serialize import normalize_scalars
+    return json.dumps(normalize_scalars(record), indent=2, sort_keys=True).encode('utf-8')

@@ -20,16 +20,26 @@ def check_r4(context):
     
     # We can try parsing with all formats
     matched = False
+    parsed_date = None
     for fmt in r4_config.get("date_formats", []):
         try:
             # We want exact match for the format. We can use datetime.strptime
-            datetime.strptime(raw_date, fmt)
+            parsed_date = datetime.strptime(raw_date, fmt)
             matched = True
             break
         except ValueError:
             pass
             
     if matched:
+        # N-B8 fix: use record_time instead of wall-clock
+        record_time_iso = context.get("scan_fields", {}).get("created_at")
+        if record_time_iso:
+            record_time = datetime.fromisoformat(record_time_iso.replace("Z", "+00:00")).replace(tzinfo=None)
+        else:
+            record_time = datetime.now()
+            
+        if parsed_date > record_time:
+            return {"status": "NEEDS_REVIEW", "reason": "manufacturing date is in the future"}
         return {"status": "PASS"}
     else:
         fix = r4_config.get("fixes", {}).get("invalid", "valid formats")

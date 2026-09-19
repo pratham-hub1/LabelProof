@@ -1,6 +1,22 @@
 import pytest
 from src.gauntlet.run import run_gauntlet
 
+DUMMY_EXTRACTION = {
+    "schema_version": "1.0",
+    "source_type": "photo",
+    "language": "en",
+    "image": {"width": 100, "height": 100},
+    "fields": {
+        "manufacturer_name": {"raw": "Test Co", "parsed": {"name": "Test Co"}, "confidence": 0.9, "box": [0,0,1,1]},
+        "manufacturer_address": {"raw": "123 Test St", "parsed": {}, "confidence": 0.9, "box": [0,0,1,1]},
+        "generic_name": {"raw": None, "parsed": None, "confidence": None, "box": None},
+        "net_quantity": {"raw": None, "parsed": None, "confidence": None, "box": None},
+        "mfg_date": {"raw": None, "parsed": None, "confidence": None, "box": None},
+        "mrp": {"raw": "MRP 20", "parsed": {"value": 20, "currency": "INR"}, "confidence": 0.9, "box": [0,0,1,1]},
+        "consumer_care": {"raw": None, "parsed": None, "confidence": None, "box": None}
+    }
+}
+
 def test_run_gauntlet_schema_invalid(mocker):
     # Mock cache miss
     mocker.patch("src.gauntlet.run.get_extraction_cache", return_value=None)
@@ -8,18 +24,10 @@ def test_run_gauntlet_schema_invalid(mocker):
     bedrock_caller = mocker.MagicMock(return_value={"schema_version": "0.1"})
     
     res = run_gauntlet(b"image", "image/jpeg", "bucket", "etag", bedrock_caller, s3_client=mocker.MagicMock())
-    assert res == {"error": "G0_SCHEMA_INVALID"}
+    assert res == {"error": "EXTRACTION_FAILED"}
 
 def test_run_gauntlet_cache_hit(mocker):
-    valid_extraction = {
-        "schema_version": "1.0",
-        "image": {"width": 100, "height": 100},
-        "fields": {
-            "mrp": {"raw": "MRP 20", "box": {"left": 0, "top": 0, "width": 10, "height": 10}, "confidence": 0.9}
-        }
-    }
-    
-    mocker.patch("src.gauntlet.run.get_extraction_cache", return_value=valid_extraction)
+    mocker.patch("src.gauntlet.run.get_extraction_cache", return_value=DUMMY_EXTRACTION)
     bedrock_caller = mocker.MagicMock()
     
     # Mock word index
@@ -38,17 +46,9 @@ def test_run_gauntlet_cache_hit(mocker):
     assert res["gauntlet_results"]["mrp"] == {"gauntlet_status": "VERIFIED", "reason_code": None}
 
 def test_run_gauntlet_cache_miss_valid_schema(mocker):
-    valid_extraction = {
-        "schema_version": "1.0",
-        "image": {"width": 100, "height": 100},
-        "fields": {
-            "mrp": {"raw": "MRP 20", "box": {"left": 0, "top": 0, "width": 10, "height": 10}, "confidence": 0.9}
-        }
-    }
-    
     mocker.patch("src.gauntlet.run.get_extraction_cache", return_value=None)
     mock_put_cache = mocker.patch("src.gauntlet.run.put_extraction_cache")
-    bedrock_caller = mocker.MagicMock(return_value=valid_extraction)
+    bedrock_caller = mocker.MagicMock(return_value=DUMMY_EXTRACTION)
     
     mocker.patch("src.gauntlet.run.build_word_index", return_value=[])
     mocker.patch("src.gauntlet.run.compute_readability", return_value=True)

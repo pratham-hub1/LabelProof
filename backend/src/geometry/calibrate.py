@@ -116,14 +116,58 @@ def calibrate_photo(image, label_width_mm, word_index=None):
     # 2. minAreaRect
     y, x = np.nonzero(blob)
     points = np.column_stack((y, x))
-    w_px, h_px = min_area_rect(points)
+    if len(points) == 0:
+        return {"error": "UNREADABLE_IMAGE", "message": "Invalid label shape"}
+        
+    center = np.mean(points, axis=0)
+    pts = points - center
+    cov = np.cov(pts, rowvar=False)
+    evals, evecs = np.linalg.eigh(cov)
+    
+    proj1 = pts.dot(evecs[:, 0])
+    proj2 = pts.dot(evecs[:, 1])
+    
+    extent1 = float(np.max(proj1) - np.min(proj1))
+    extent2 = float(np.max(proj2) - np.min(proj2))
+    
+    w_px = max(extent1, extent2)
+    h_px = min(extent1, extent2)
     
     if w_px == 0 or h_px == 0:
         return {"error": "UNREADABLE_IMAGE", "message": "Invalid label shape"}
         
+    # Check if aspect ratio is near 1:1, return NA
+    if (w_px / h_px) < 1.1:
+        return {"error": "AMBIGUOUS_ORIENTATION", "message": "Aspect ratio near 1:1, cannot map physical width to axis"}
+        
+    # Map label_width_mm to the PCA axis parallel to text reading direction if word_index is present
+    if word_index:
+        word_w = [w["box"]["width"] for w in word_index if "box" in w and w["box"]]
+        word_h = [w["box"]["height"] for w in word_index if "box" in w and w["box"]]
+        if word_w and word_h:
+            median_w = np.median(word_w)
+            median_h = np.median(word_h)
+            # If text is rotated 90 degrees, characters/boxes are taller than they are wide.
+            # Usually text boxes are horizontal (wider). If they are vertical, image is rotated.
+            # If rotated, the physical width (horizontal to text) corresponds to the vertical PCA axis in the image!
+            is_rotated = median_h > median_w
+            
+            # The PCA axis most vertical in the image is the one with larger Y component
+            vert_extent = extent1 if abs(evecs[0, 0]) > abs(evecs[1, 0]) else extent2
+            horz_extent = extent2 if abs(evecs[0, 0]) > abs(evecs[1, 0]) else extent1
+            
+            # So if rotated, physical width = vert_extent. If upright, physical width = horz_extent.
+            physical_width_px = vert_extent if is_rotated else horz_extent
+        else:
+            # Fallback to horizontal extent if no boxes
+            physical_width_px = extent1 if abs(evecs[1, 0]) > abs(evecs[0, 0]) else extent2
+    else:
+        # Default: physical width maps to the horizontal extent in the image frame
+        physical_width_px = extent1 if abs(evecs[1, 0]) > abs(evecs[0, 0]) else extent2
+
     # 3. Rectangularity gate
     blob_area = np.sum(blob)
-    rect_area = w_px * h_px
+    rect_area = extent1 * extent2
     rectangularity = blob_area / rect_area
     if rectangularity < config["rectangularity_min"]:
         return {"error": "SHADOW_MERGE", "message": "Label rectangularity too low. Ensure plain background and no harsh shadows."}
@@ -133,7 +177,7 @@ def calibrate_photo(image, label_width_mm, word_index=None):
     x_sorted = np.sort(points[:, 1])
     
     # 5. Scale and Sanity
-    scale = w_px / label_width_mm # px per mm
+    scale = physical_width_px / label_width_mm # px per mm
     
     if scale < config["resolution_min_px_per_mm"]:
         return {"error": "LOW_RESOLUTION", "message": "Image resolution too low"}
@@ -143,7 +187,10 @@ def calibrate_photo(image, label_width_mm, word_index=None):
         heights = []
         for w in word_index:
             if "box" in w and w["box"]:
-                heights.append(w["box"]["height"])
+                # If rotated, the text height is the box width
+                is_word_rotated = w["box"]["height"] > w["box"]["width"]
+                true_h_px = w["box"]["width"] if is_word_rotated else w["box"]["height"]
+                heights.append(true_h_px)
         if heights:
             median_h_px = np.median(heights)
             median_h_mm = median_h_px / scale
@@ -151,9 +198,8 @@ def calibrate_photo(image, label_width_mm, word_index=None):
                 return {"error": "IMPLAUSIBLE_SCALE", "message": "Calibration sanity check failed: text height out of bounds"}
         
     # 6. PDP area
-    # scale s = pixel width / label_width_mm -> A = (w_px/s) * (h_px/s) in cm^2
-    # which is label_width_mm * (h_px / scale) / 100
-    label_height_mm = h_px / scale
+    physical_height_px = extent2 if physical_width_px == extent1 else extent1
+    label_height_mm = physical_height_px / scale
     pdp_area_cm2 = (label_width_mm / 10.0) * (label_height_mm / 10.0)
     
     # error budget sigma = 5%

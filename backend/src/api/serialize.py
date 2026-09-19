@@ -13,6 +13,20 @@ def normalize_key(s: str) -> str:
     s = re.sub(r'\s+', ' ', s).strip()
     return s.lower()
 
+import decimal
+
+def normalize_scalars(obj):
+    if isinstance(obj, list):
+        return [normalize_scalars(x) for x in obj]
+    elif isinstance(obj, dict):
+        return {k: normalize_scalars(v) for k, v in obj.items()}
+    elif isinstance(obj, decimal.Decimal):
+        if obj % 1 == 0:
+            return int(obj)
+        return float(obj)
+    else:
+        return obj
+
 def serialize(record: dict) -> dict:
     """
     Whitelist serializer emitting the contract shape only.
@@ -27,7 +41,7 @@ def serialize(record: dict) -> dict:
     out = {}
     for k in whitelist:
         if k in record:
-            out[k] = record[k]
+            out[k] = normalize_scalars(record[k])
     return out
 
 def encode_cursor(key: dict) -> str:

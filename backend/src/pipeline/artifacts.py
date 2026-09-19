@@ -36,14 +36,17 @@ def generate_and_upload_artifacts(
     """
     config = get_reports_config()
     
+    # Results is now a list of 11 objects from the pipeline boundary
+    results_dict = {res["rule_id"]: res for res in results} if isinstance(results, list) else results
+    
     # 1. Compute summary counts
     found_declarations = compute_found_declarations(field_status)
-    summary = compute_summary_counts(results, exemption.get('applied', False))
+    summary = compute_summary_counts(results_dict if isinstance(results_dict, list) else list(results_dict.values()), exemption.get('applied', False))
     summary['found_declarations'] = found_declarations
     
     # 2. Generate artifacts in memory
     # Annotated Image
-    annotated_img = render_annotated(canonical_image, results, exemption, summary, config)
+    annotated_img = render_annotated(canonical_image, results_dict, exemption, summary, config)
     annotated_io = io.BytesIO()
     # JPEG fixed quality 85, EXIF stripped (PIL save without exif strips it)
     annotated_img.save(annotated_io, format='JPEG', quality=config.get('jpeg_quality', 85))
@@ -56,10 +59,10 @@ def generate_and_upload_artifacts(
     display_bytes = display_io.getvalue()
     
     # PDF
-    pdf_bytes = build_pdf_report(scan_fields, results, exemption, found_declarations, config, annotated_bytes)
+    pdf_bytes = build_pdf_report(scan_fields, results_dict, exemption, found_declarations, config, annotated_bytes)
     
     # CSV
-    csv_bytes = build_csv_report(results, summary)
+    csv_bytes = build_csv_report(list(results_dict.values()), summary)
     
     # JSON
     # For JSON we need the full terminal record shape, but we don't have it fully yet 

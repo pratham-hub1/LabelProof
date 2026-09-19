@@ -119,16 +119,16 @@ def test_f7_criteria_1_2_3_4_5_8_12_13(mock_dynamodb, mocker):
     res1 = route_api(make_event('/scans', qsp={'limit': '10'}), None)
     b1 = json.loads(res1['body'])
     assert len(b1['items']) == 10
-    assert 'next_key' in b1
+    assert 'last_key' in b1
     
-    res2 = route_api(make_event('/scans', qsp={'limit': '10', 'last_key': b1['next_key']}), None)
+    res2 = route_api(make_event('/scans', qsp={'limit': '10', 'last_key': b1['last_key']}), None)
     b2 = json.loads(res2['body'])
     assert len(b2['items']) == 10
     
-    res3 = route_api(make_event('/scans', qsp={'limit': '10', 'last_key': b2['next_key']}), None)
+    res3 = route_api(make_event('/scans', qsp={'limit': '10', 'last_key': b2['last_key']}), None)
     b3 = json.loads(res3['body'])
     assert len(b3['items']) == 5
-    assert b3.get('next_key') is None
+    assert b3.get('last_key') is None
     
     all_items = b1['items'] + b2['items'] + b3['items']
     assert len(all_items) == 25

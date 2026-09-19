@@ -14,7 +14,7 @@ os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
 os.environ['AWS_SECURITY_TOKEN'] = 'testing'
 os.environ['AWS_SESSION_TOKEN'] = 'testing'
-os.environ['TABLE_NAME'] = 'test_scans'
+os.environ['TABLE_NAME'] = 'labelcheck-scans'
 os.environ['UPLOADS_BUCKET'] = 'labelcheck-uploads'
 os.environ['OUTPUTS_BUCKET'] = 'labelcheck-outputs'
 os.environ['WEB_BUCKET'] = 'labelcheck-web'
@@ -33,7 +33,7 @@ def setup_aws():
     with mock_aws():
         dynamodb = boto3.client('dynamodb', region_name='us-east-1')
         dynamodb.create_table(
-            TableName='test_scans',
+            TableName='labelcheck-scans',
             KeySchema=[{'AttributeName': 'scan_id', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'scan_id', 'AttributeType': 'S'}],
             BillingMode='PAY_PER_REQUEST'
@@ -66,7 +66,7 @@ def test_f5_1000_scan_ids():
 
 @mock_aws
 def test_f5_duplicate_events(setup_aws, mocker):
-    scan_id = create_pending_record('test_scans', 'test.jpg', 'image/jpeg')
+    scan_id = create_pending_record('labelcheck-scans', 'test.jpg', 'image/jpeg')
     event = {
         'Records': [{
             's3': {
@@ -102,15 +102,15 @@ def test_f5_no_record_phantom(setup_aws):
     assert res['status'] == 'skipped'
     
     # Assert no record created
-    resp = setup_aws['dynamodb'].get_item(TableName='test_scans', Key={'scan_id': {'S': 'SC-ABCDEF'}})
+    resp = setup_aws['dynamodb'].get_item(TableName='labelcheck-scans', Key={'scan_id': {'S': 'SC-ABCDEF'}})
     assert 'Item' not in resp
 
 @mock_aws
 def test_f5_late_event_after_terminal(setup_aws):
-    scan_id = create_pending_record('test_scans', 'test.jpg', 'image/jpeg')
+    scan_id = create_pending_record('labelcheck-scans', 'test.jpg', 'image/jpeg')
     
     setup_aws['dynamodb'].update_item(
-        TableName='test_scans',
+        TableName='labelcheck-scans',
         Key={'scan_id': {'S': scan_id}},
         UpdateExpression='SET #st = :done',
         ExpressionAttributeNames={'#st': 'status'},
@@ -130,7 +130,7 @@ def test_f5_late_event_after_terminal(setup_aws):
     
 @mock_aws
 def test_f5_oversized_file(setup_aws):
-    scan_id = create_pending_record('test_scans', 'test.jpg', 'image/jpeg')
+    scan_id = create_pending_record('labelcheck-scans', 'test.jpg', 'image/jpeg')
     event = {
         'Records': [{
             's3': {
@@ -142,13 +142,13 @@ def test_f5_oversized_file(setup_aws):
     res = handler(event, None)
     assert res['status'] == 'oversized'
     
-    resp = setup_aws['dynamodb'].get_item(TableName='test_scans', Key={'scan_id': {'S': scan_id}})
+    resp = setup_aws['dynamodb'].get_item(TableName='labelcheck-scans', Key={'scan_id': {'S': scan_id}})
     assert resp['Item']['status']['S'] == 'FAILED'
     assert resp['Item']['error']['M']['code']['S'] == 'OVERSIZED_FILE'
 
 @mock_aws
 def test_f5_pipeline_exception(setup_aws, mocker):
-    scan_id = create_pending_record('test_scans', 'test.jpg', 'image/jpeg')
+    scan_id = create_pending_record('labelcheck-scans', 'test.jpg', 'image/jpeg')
     event = {
         'Records': [{
             's3': {
@@ -167,7 +167,7 @@ def test_f5_pipeline_exception(setup_aws, mocker):
     res = handler(event, None)
     assert res['status'] == 'success' # Lambda succeeds, error written to DB
     
-    resp = setup_aws['dynamodb'].get_item(TableName='test_scans', Key={'scan_id': {'S': scan_id}})
+    resp = setup_aws['dynamodb'].get_item(TableName='labelcheck-scans', Key={'scan_id': {'S': scan_id}})
     assert resp['Item']['status']['S'] == 'FAILED'
     assert resp['Item']['error']['M']['code']['S'] == 'INTERNAL'
     
@@ -177,7 +177,7 @@ def test_f5_pipeline_exception(setup_aws, mocker):
 
 @mock_aws
 def test_f5_clean_success(setup_aws, mocker):
-    scan_id = create_pending_record('test_scans', 'test.jpg', 'image/jpeg')
+    scan_id = create_pending_record('labelcheck-scans', 'test.jpg', 'image/jpeg')
     event = {
         'Records': [{
             's3': {
@@ -203,7 +203,7 @@ def test_f5_clean_success(setup_aws, mocker):
     res = handler(event, None)
     assert res['status'] == 'success'
     
-    resp = setup_aws['dynamodb'].get_item(TableName='test_scans', Key={'scan_id': {'S': scan_id}})
+    resp = setup_aws['dynamodb'].get_item(TableName='labelcheck-scans', Key={'scan_id': {'S': scan_id}})
     assert resp['Item']['status']['S'] == 'DONE'
     
     # Verify artifacts still exist (no cleanup on success)

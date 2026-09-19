@@ -5,7 +5,7 @@ def check_r3(context):
     """
     R3: Net Quantity format and legal unit.
     """
-    nq = context["extraction"]["fields"]["net_quantity"]
+    nq = context.get("extraction", {}).get("fields", {}).get("net_quantity", {})
     parsed = nq.get("parsed")
     
     if not parsed or not parsed.get("unit") or parsed.get("value") is None:

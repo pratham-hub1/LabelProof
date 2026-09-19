@@ -2,11 +2,11 @@ def resolve_field_statuses(gauntlet_results, readability, exemptions=None):
     """
     Resolves the gauntlet results into the standard field_status map.
     gauntlet_results: dict of field -> {"gauntlet_status": ..., "reason_code": ...}
-    exemptions: dict from evaluate_exemptions (e.g., {"status": "EXEMPT", "reason": None})
+    exemptions: dict from evaluate_exemptions (e.g., {"status_override": "EXEMPT", ...})
     """
     field_status_map = {}
     
-    exempt_status = exemptions.get("status") if isinstance(exemptions, dict) else exemptions
+    exempt_status = exemptions.get("status_override") if isinstance(exemptions, dict) else exemptions
     
     for field, res in gauntlet_results.items():
         if exempt_status == "EXEMPT":

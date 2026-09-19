@@ -18,14 +18,13 @@ def compute_found_declarations(field_status: dict) -> int:
             count += 1
     return count
 
-def compute_summary_counts(results: dict, is_exempt: bool = False) -> dict:
+def compute_summary_counts(results: list, is_exempt: bool = False) -> dict:
     """
     Computes PASS, FAIL, NA, NEEDS_REVIEW, and EXEMPT counts from rule results.
     If is_exempt is True, all rules are NA, but for summary we count the scan as EXEMPT.
-    Actually, the banner needs '7 PASS · 3 FAIL · 1 NA · 0 NEEDS_REVIEW' or 'EXEMPT — Rule 26(a)'
     """
     counts = {'pass': 0, 'fail': 0, 'na': 0, 'needs_review': 0, 'exempt': 1 if is_exempt else 0}
-    for res in results.values():
+    for res in results:
         st = res.get('status', 'NA').lower()
         if st in counts:
             counts[st] += 1

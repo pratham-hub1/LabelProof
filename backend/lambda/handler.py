@@ -136,18 +136,23 @@ def handler(event, context):
             result = run_pipeline(scan_id, bucket_name, object_key, size_bytes, scan_fields)
             
             # mark terminal
-            mark_terminal(
-                table_name=TABLE_NAME,
-                scan_id=scan_id,
-                status=result['status'],
-                product=result.get('product'),
-                extraction=result.get('extraction'),
-                summary=result.get('summary'),
-                results=result.get('results'),
-                artifacts=result.get('artifacts'),
-                exemption=result.get('exemption'),
-                created_at=scan_fields.get('created_at')
-            )
+            kwargs = {
+                'table_name': TABLE_NAME,
+                'scan_id': scan_id,
+                'status': result['status'],
+                'product': result.get('product'),
+                'extraction': result.get('extraction'),
+                'summary': result.get('summary'),
+                'results': result.get('results'),
+                'artifacts': result.get('artifacts'),
+                'exemption': result.get('exemption'),
+                'created_at': scan_fields.get('created_at')
+            }
+            if result['status'] == 'FAILED':
+                kwargs['error_code'] = result.get('error_code', 'INTERNAL')
+                kwargs['error_msg'] = result.get('error_msg', 'Pipeline failed')
+                
+            mark_terminal(**kwargs)
         except Exception as e:
             logger.error(f"Pipeline failed for {scan_id}: {e}")
             mark_terminal(

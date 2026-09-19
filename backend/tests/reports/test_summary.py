@@ -15,13 +15,13 @@ def test_compute_found_declarations():
     assert compute_found_declarations(field_status) == 5
 
 def test_compute_summary_counts():
-    results = {
-        "R1": {"status": "PASS"},
-        "R2": {"status": "FAIL"},
-        "R3": {"status": "NA"},
-        "R4": {"status": "NEEDS_REVIEW"},
-        "R5": {"status": "PASS"},
-    }
+    results = [
+        {"status": "PASS"},
+        {"status": "FAIL"},
+        {"status": "NA"},
+        {"status": "NEEDS_REVIEW"},
+        {"status": "PASS"},
+    ]
     counts = compute_summary_counts(results)
     assert counts['pass'] == 2
     assert counts['fail'] == 1

@@ -3,10 +3,10 @@ import json
 from src.reports.csv import build_csv_report, build_json_report
 
 def test_build_csv_report():
-    results = {
-        "R1": {"name": "Rule 1", "status": "PASS", "evidence": "good", "anchored": True},
-        "R2": {"name": "Rule 2", "status": "FAIL", "evidence": {"val": 10}, "fix": "fix it", "anchored": False}
-    }
+    results = [
+        {"rule_id": "R1", "name": "Rule 1", "status": "PASS", "evidence": "good", "anchored": True},
+        {"rule_id": "R2", "name": "Rule 2", "status": "FAIL", "evidence": {"val": 10}, "fix": "fix it", "anchored": False}
+    ]
     summary = {
         "found_declarations": 5,
         "pass": 1,

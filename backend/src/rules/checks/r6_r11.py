@@ -9,7 +9,14 @@ def check_r6(context):
     status = field_status.get("consumer_care")
     
     if status == "VERIFIED":
-        return {"status": "PASS"}
+        cc_parsed = context.get("extraction", {}).get("fields", {}).get("consumer_care", {}).get("parsed", {})
+        if isinstance(cc_parsed, dict) and (cc_parsed.get("phone") or cc_parsed.get("email")):
+            return {"status": "PASS"}
+        else:
+            # Need contact channel
+            config = context.get("config", {})
+            fix = config.get("r6", {}).get("fixes", {}).get("no_contact", "Provide contactable phone or email")
+            return {"status": "FAIL", "fix": fix}
         
     if status == "ABSENT":
         config = context.get("config", {})

@@ -25,10 +25,32 @@ def check_r1(context):
     states = r1_config.get("states", [])
     has_state = any(state.lower() in address.lower() for state in states)
     
-    if not has_pin and not has_state:
-        return {"status": "FAIL", "fix": r1_config.get("fixes", {}).get("street_missing", "street-level detail missing")}
-    elif not has_pin or not has_state:
-        # One present -> NEEDS_REVIEW
+    # Defense 3: City pattern (approximate) or dilated-box region analysis
+    has_city = bool(re.search(r'\b[A-Z][a-z]{3,}\b,\s*[A-Z]', address)) # rudimentary pattern
+    
+    # Documented dilated-box region check
+    has_region = False
+    addr_box = context["extraction"]["fields"]["manufacturer_address"].get("box")
+    word_index = context.get("extraction", {}).get("word_index", [])
+    if addr_box and word_index:
+        left, top, right, bottom = addr_box
+        w, h = right - left, bottom - top
+        # Dilate by 1.5x
+        dl, dt, dr, db = left - 0.5*w, top - 0.5*h, right + 0.5*w, bottom + 0.5*h
+        words_in_region = 0
+        for word in word_index:
+            wl, wt, wr, wb = word["box"]
+            cx, cy = (wl + wr) / 2, (wt + wb) / 2
+            if dl <= cx <= dr and dt <= cy <= db:
+                words_in_region += 1
+        has_region = words_in_region >= 4
+    else:
+        # Fallback to word count if no box/index available
+        has_region = len(address.split()) >= 4
+    
+    if has_pin and has_state:
+        return {"status": "PASS"}
+    elif has_pin or has_state or has_city or has_region:
         return {"status": "NEEDS_REVIEW", "reason": "address completeness ambiguous"}
     else:
-        return {"status": "PASS"}
+        return {"status": "FAIL", "fix": r1_config.get("fixes", {}).get("street_missing", "print the manufacturer's name and address")}

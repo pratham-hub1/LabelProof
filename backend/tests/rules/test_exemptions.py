@@ -4,7 +4,7 @@ from src.rules.exemptions import evaluate_exemptions
 def test_exemptions_not_applicable():
     ext = {"mrp": {"gauntlet_status": "VERIFIED", "parsed": {"value": 5.0}}}
     res = evaluate_exemptions(ext, {})
-    assert res["status"] == "NONE"
+    assert res["status_override"] == "NONE"
 
 def test_exemptions_nq_exempt():
     ext = {
@@ -12,7 +12,7 @@ def test_exemptions_nq_exempt():
         "generic_name": {"gauntlet_status": "VERIFIED", "raw": "Candies"}
     }
     res = evaluate_exemptions(ext, {})
-    assert res["status"] == "EXEMPT"
+    assert res["status_override"] == "EXEMPT"
 
 def test_exemptions_none():
     ext = {
@@ -20,4 +20,4 @@ def test_exemptions_none():
         "net_quantity": {"gauntlet_status": "VERIFIED", "parsed": {"value": 15.0, "unit": "g"}}
     }
     res = evaluate_exemptions(ext, {})
-    assert res["status"] == "NONE"
+    assert res["status_override"] == "NONE"

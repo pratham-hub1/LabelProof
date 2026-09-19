@@ -23,7 +23,7 @@ import src.rules.checks.r4
 import src.rules.checks.r5
 import src.rules.checks.r6_r11
 from src.rules.verdict import final_verdict
-from src.reports.pdf import generate_pdf
+
 
 def mock_bedrock_caller(image_bytes, content_type):
     # Mock extraction based on synthetic image
@@ -139,7 +139,8 @@ def pipeline(image_bytes, label_width_mm, s3_client):
         "field_status": field_status,
         "readability": is_readable,
         "config": config,
-        "calibration": calib
+        "image": image_bytes, # pass image
+        "input": {"source_type": "photo", "label_width_mm": label_width_mm}
     }
     check_results = run_checks(context)
     
@@ -147,6 +148,17 @@ def pipeline(image_bytes, label_width_mm, s3_client):
     verdict = final_verdict(field_status, check_results)
     
     # 7. PDF
+    scan_fields = {
+        "scan_id": scan_id,
+        "created_at": submitted_at,
+        "input": {"source_type": "photo", "label_width_mm": label_width_mm}
+    }
+    
+    # Dummy annotated image for determinism test
+    annotated_bytes = image_bytes 
+    from src.reports.pdf import build_pdf_report
+    pdf_bytes = build_pdf_report(scan_fields, list(check_results.values()), exemptions, 7, {}, annotated_bytes)
+    
     record = {
         "scan_id": scan_id,
         "submitted_at": submitted_at,
@@ -155,7 +167,6 @@ def pipeline(image_bytes, label_width_mm, s3_client):
         "check_results": check_results,
         "extraction": extraction
     }
-    pdf_bytes = generate_pdf(scan_id, record)
     
     return scan_id, record, pdf_bytes
 

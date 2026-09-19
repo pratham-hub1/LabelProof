@@ -13,6 +13,9 @@ class CheckRegistry:
 
 registry = CheckRegistry()
 
+# Explicitly register all 11 checks
+from src.rules.checks import r1, r2, r3, r4, r5, r6_r11, r7, r8, r9, r10
+
 def run_checks(context):
     """
     Runs all registered checks.
@@ -42,14 +45,6 @@ def run_checks(context):
                 break
                 
         if not missing_dep:
-            try:
-                results[rule_id] = check_meta["func"](context)
-            except Exception as e:
-                # Fallback if a check raises unexpectedly, though they should be pure
-                results[rule_id] = {
-                    "status": "NEEDS_REVIEW",
-                    "reason_code": "CHECK_ERROR",
-                    "message": str(e)
-                }
+            results[rule_id] = check_meta["func"](context)
                 
     return results

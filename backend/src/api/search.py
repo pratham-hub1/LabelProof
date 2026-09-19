@@ -44,7 +44,7 @@ def search_scans(query_params: dict) -> dict:
         dynamo_cursor = exclusive_start_key.get('key')
         
     items = []
-    next_key = None
+    last_key = None
     
     filter_expr = None
     if status:
@@ -67,15 +67,15 @@ def search_scans(query_params: dict) -> dict:
             
         response = table.query(**kwargs)
         items = [serialize(i) for i in response.get('Items', [])]
-        next_key = response.get('LastEvaluatedKey')
+        last_key = response.get('LastEvaluatedKey')
         
-        if items or next_key or dynamo_cursor:
+        if items or last_key or dynamo_cursor:
             # We have results or are paginating GSI-2. Do not fallback.
             return {
                 'statusCode': 200,
                 'body': json.dumps({
                     'items': items,
-                    'next_key': encode_cursor({'leg': 'gsi2', 'key': next_key}) if next_key else None
+                    'last_key': encode_cursor({'leg': 'gsi2', 'key': last_key}) if last_key else None
                 })
             }
             
@@ -112,16 +112,16 @@ def search_scans(query_params: dict) -> dict:
         if len(items) == limit and dynamo_cursor:
             # We might have overfetched locally, but we must return a cursor.
             # In a real app we'd paginate precisely, but here the contract says "fallback LOOPS until limit RESULTS".
-            # The next_key is just the LastEvaluatedKey from the last scan page. 
+            # The last_key is just the LastEvaluatedKey from the last scan page. 
             # Note: if we overfetched, we lose the skipped items. This is a hackathon known limitation.
-            next_key = dynamo_cursor
+            last_key = dynamo_cursor
         else:
-            next_key = dynamo_cursor if len(items) == limit else None
+            last_key = dynamo_cursor if len(items) == limit else None
             
         return {
             'statusCode': 200,
             'body': json.dumps({
                 'items': items,
-                'next_key': encode_cursor({'leg': 'scan', 'key': next_key}) if next_key else None
+                'last_key': encode_cursor({'leg': 'scan', 'key': last_key}) if last_key else None
             })
         }

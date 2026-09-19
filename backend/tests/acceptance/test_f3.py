@@ -165,7 +165,7 @@ def test_f3_determinism():
             "fields": {
                 "manufacturer_name": {"parsed": {"value": "Test"}},
                 "manufacturer_address": {"raw": "St, DL 110001"},
-                "mrp": {"parsed": {"taxes_clause": "incl. of all taxes"}}
+                "mrp": {"parsed": {"taxes_clause": "incl. of all taxes"}, "raw": "MRP 20 incl. of all taxes"}
             }
         },
         "config": config,

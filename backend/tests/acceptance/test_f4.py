@@ -20,7 +20,7 @@ def test_f4_sachet_exempt():
     }
     config = load_tobacco_config()
     res = evaluate_exemptions(fields, config)
-    assert res["status"] == "EXEMPT"
+    assert res["status_override"] == "EXEMPT"
     
     # All checks NA, handled by engine (we can check field_status_map)
     gauntlet = {
@@ -43,7 +43,7 @@ def test_f4_sachet_gutkha():
         }
     }
     res = evaluate_exemptions(fields, load_tobacco_config())
-    assert res["status"] == "NEEDS_REVIEW"
+    assert res["status_override"] == "NEEDS_REVIEW"
     assert "tobacco" in res["reason"]
 
 def test_f4_unverified_commodity():
@@ -58,7 +58,7 @@ def test_f4_unverified_commodity():
         }
     }
     res = evaluate_exemptions(fields, load_tobacco_config())
-    assert res["status"] == "NEEDS_REVIEW"
+    assert res["status_override"] == "NEEDS_REVIEW"
     assert "unverified" in res["reason"]
 
 def test_f4_30kg():
@@ -70,7 +70,7 @@ def test_f4_30kg():
         }
     }
     res = evaluate_exemptions(fields, load_tobacco_config())
-    assert res["status"] == "NEEDS_REVIEW"
+    assert res["status_override"] == "NEEDS_REVIEW"
     assert "Chapter II" in res["reason"]
 
 def test_f4_pcs():
@@ -82,7 +82,7 @@ def test_f4_pcs():
         }
     }
     res = evaluate_exemptions(fields, load_tobacco_config())
-    assert res["status"] == "NONE"
+    assert res.get("status_override", "NONE") == "NONE"
 
 def test_f4_10_5g():
     # 6. 10.5g boundary -> no exemption
@@ -93,7 +93,7 @@ def test_f4_10_5g():
         }
     }
     res = evaluate_exemptions(fields, load_tobacco_config())
-    assert res["status"] == "NONE"
+    assert res.get("status_override", "NONE") == "NONE"
 
 def test_f4_determinism():
     # 8. Determinism

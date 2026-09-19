@@ -51,12 +51,12 @@ def list_scans(query_params: dict) -> dict:
         
     response = table.query(**kwargs)
     items = [serialize(i) for i in response.get('Items', [])]
-    next_key = response.get('LastEvaluatedKey')
+    last_key = response.get('LastEvaluatedKey')
     
     return {
         'statusCode': 200,
         'body': json.dumps({
             'items': items,
-            'next_key': encode_cursor(next_key) if next_key else None
+            'last_key': encode_cursor(last_key) if last_key else None
         })
     }

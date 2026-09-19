@@ -82,20 +82,7 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 3. Backend: Phase 0 infra + Phase 1 (Feature 1 modules, pure Python, no AWS needed) in parallel -- AWS-unfamiliarity never blocks anyone (DECISIONS.md 7)
 4. Frontend: start against CONTRACTS.md mocks in parallel
 
-- 2026-09-18: Fixed B1 (R1 dependency bypass causing wrong FAIL)
 
-| Fix B1 | check_r1 properly declares dependencies and handles ABSENT | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B13 | calibrate_photo sanity checks 0.5-4.0mm text height using word_index | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B2 | check_r2 properly declares dependencies and handles ABSENT | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B3 & B4 | R6 handles ABSENT and declares deps; R11 restricts scope to nq_raw | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B5 | R3 sub-kilogram rule enforces values < 1 kg/l | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B6 | R5 sweeps for multiple MRPs and detects shorthand MRP/taxes | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B7 | measure_numeral_height uses minAreaRect for rotation invariance | 2026-09-18 | REVIEW_PHASES_1_4.md |
-| Fix B8 | test_exemptions.py updated to match signature and return format | 2026-09-18 | REVIEW_PHASES_1_4.md |
-- Fixed F2 gaps: Boundary (1.4-1.6mm), Molded contrast logic test, and Vector PDF.
-| Fix Repo Structure | Prefix backend/ to TASKS.md file paths | 2026-09-18 | System |
-- Fixed F4 gaps: Exempt scan summary test.
-| Fix B9-B12 | G1 bounds check, G3 contiguous digit sequences, G4 exact word matching, G6 schema enforcement | 2026-09-18 | REVIEW_PHASES_1_4.md |
 | T5.1 | generate_scan_id and PENDING record | 2026-09-18 | F5 |
 | T5.2 | presign_upload | 2026-09-18 | F5 |
 | T5.3 | claim_scan | 2026-09-18 | F5 |
@@ -127,12 +114,7 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | T8.6 | benchmark.config + SKIP_CACHE env check | 2026-09-18 | F8 |
 | T8.7 | test_f8.py Acceptance criteria | 2026-09-18 | F8 |
 | BEDROCK BLOCKED | Live AWS invoke on hold due to ValidationException on AWS side (owner: teammate) | - | F9 |
-| Fix B1 | `calibrate.py` portrait mode orientation fix (w_px from X-axis alignment) | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B2 | `handler.py` cleans up S3 artifacts on pipeline exception | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B3 | `artifacts.py` and `reports.py` use exact CONTRACTS.md artifact formats | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B4 | `upload.py` initializes missing fields with NULL | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B5 | `stats.py` formats most_failed_rules as a list of dicts | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B6 | `get_scan.py` passes correct bucket_name to reap_stale_pending | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B7 | `client.py` uses us-east cross-region inference profiles | 2026-09-19 | REVIEW_PHASES_5_8.md |
-| Fix B8 | `iam_policy.json` explicitly grants `s3:PutObject` on uploads bucket | 2026-09-19 | REVIEW_PHASES_5_8.md |
 | T6.6 Wiring | `main.py` wires the entire real pipeline end-to-end | 2026-09-19 | TASKS.md |
+| Phase 1-4 Fixes | B1-B13 | 2026-09-18 | REVIEW_PHASES_1_4.md |
+| Phase 5-8 Fixes | B1-B8 | 2026-09-19 | REVIEW_PHASES_5_8.md |
+| Day 3 Fixes | N-B1..N-B12, N-S1..N-S8 | 2026-09-19 | nex_findings_day3.md |

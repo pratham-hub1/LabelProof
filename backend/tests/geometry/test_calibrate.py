@@ -44,9 +44,9 @@ def test_calibrate_low_resolution():
 def test_calibrate_shadow_merge():
     # Needs a shadow that breaks rectangularity < 0.8
     # We can just mock a mask or create one
-    img = Image.new('L', (1000, 1000), color=255)
+    img = Image.new('L', (1200, 1000), color=255)
     draw = ImageDraw.Draw(img)
-    draw.ellipse([200, 200, 800, 800], fill=100) # Circle has rectangularity pi/4 ~ 0.785 < 0.80
+    draw.ellipse([100, 200, 1100, 800], fill=100) # Ellipse has rectangularity pi/4 < 0.80
     img_bytes = io.BytesIO()
     img.save(img_bytes, format='PNG')
     
@@ -65,4 +65,24 @@ def test_calibrate_portrait():
     assert "error" not in res
     assert np.isclose(res["scale"], 25.0, rtol=0.05) 
     assert np.isclose(res["pdp_area_cm2"], 50.0, rtol=0.05)
+
+def test_calibrate_90_degree():
+    # 50x100 mm label rotated 90 degrees -> 2500x1250 px
+    # The image is rotated, so horizontal extent is 2500px, vertical is 1250px.
+    # Without word_index, it assumes it's landscape and maps 50mm to 2500px -> scale = 50.0
+    # WITH word_index showing vertical text, it maps 50mm to 1250px -> scale = 25.0
+    img_bytes = create_synthetic_image(3000, 2000, 2500, 1250)
+    
+    # 1. No word_index (fallback to horizontal extent)
+    res_no_text = calibrate_photo(img_bytes, 50.0)
+    assert np.isclose(res_no_text["scale"], 50.0, rtol=0.05) # WRONG physically, but correct per fallback logic
+    
+    # 2. With vertical word_index (height > width * 1.5)
+    word_index = [
+        {"box": {"width": 20, "height": 100}} # text is vertical
+    ]
+    res_text = calibrate_photo(img_bytes, 50.0, word_index)
+    assert "error" not in res_text
+    assert np.isclose(res_text["scale"], 25.0, rtol=0.05) 
+    assert np.isclose(res_text["pdp_area_cm2"], 50.0, rtol=0.05)
 

@@ -5,6 +5,13 @@ def test_check_r6_pass():
     context = {
         "field_status": {
             "consumer_care": "VERIFIED"
+        },
+        "extraction": {
+            "fields": {
+                "consumer_care": {
+                    "parsed": {"phone": "1234567890"}
+                }
+            }
         }
     }
     res = check_r6(context)

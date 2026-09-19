@@ -11,28 +11,29 @@ def check_r5(context):
     r5_config = config.get("r5", {})
     
     # 1. Multiple instances sweep
-    word_index = context.get("word_index", [])
-    if word_index:
-        from src.gauntlet.anchors_loader import load_anchors_config
-        anchors = load_anchors_config().get("mrp", [])
-        
-        anchor_matches = 0
-        for w in word_index:
-            w_text = w.get("word", "")
-            if any(re.search(a, w_text, re.IGNORECASE) for a in anchors):
-                anchor_matches += 1
-
-        
-        # If we see multiple anchor words spaced apart, it could be multiple instances.
-        # A more robust way is to join the word index and count non-overlapping anchor regions,
-        # but counting occurrences of price-like clusters works.
-        # The spec says: "sweep the whole word index for MRP anchor matches... >= 2 distinct values -> NEEDS_REVIEW"
+    word_index = context.get("extraction", {}).get("word_index", [])
     
-    # Let's count price numbers in the raw text as a proxy for the word index sweep,
-    # because the raw string is the extracted region. If the LLM captured multiple "Rs 20 ... Rs 30"
-    mrp_value_count = len(re.findall(r'(?:Rs\.?|₹|MRP)\s*\d+', raw_mrp, re.IGNORECASE))
-    if mrp_value_count > 1:
-        return {"status": "NEEDS_REVIEW", "reason": "multiple MRP instances detected"}
+    from src.gauntlet.anchors_loader import load_anchors_config
+    mrp_anchors = load_anchors_config().get("mrp", [])
+    
+    # Combine anchors into one regex, adding common price prefixes like Rs.
+    anchors_regex = "|".join(mrp_anchors + [r"Rs\.?", r",1"])
+    
+    if word_index:
+        full_text = " ".join([w.get("word", "") for w in word_index])
+        
+        # Look for numbers following any MRP anchor anywhere in the label
+        prices = re.findall(rf'(?:{anchors_regex})\s*(\d+(?:\.\d{{1,2}})?)', full_text, re.IGNORECASE)
+        
+        # Deduplicate values
+        distinct_prices = set(float(p) for p in prices if p)
+        if len(distinct_prices) > 1:
+            return {"status": "NEEDS_REVIEW", "reason": "multiple distinct MRP values detected"}
+    else:
+        # Fallback if no word index
+        prices = re.findall(rf'(?:{anchors_regex})\s*(\d+(?:\.\d{{1,2}})?)', raw_mrp, re.IGNORECASE)
+        if len(set(float(p) for p in prices if p)) > 1:
+            return {"status": "NEEDS_REVIEW", "reason": "multiple distinct MRP values detected"}
         
     # 2. Shorthand check
     # Check if 'Maximum Retail Price' is present, otherwise it's shorthand 'MRP'

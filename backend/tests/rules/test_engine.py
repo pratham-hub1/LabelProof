@@ -19,7 +19,10 @@ def test_run_checks_all_verified():
         "field_status": {
             "generic_name": "VERIFIED",
             "net_quantity": "VERIFIED"
-        }
+        },
+        "extraction": {"fields": {"net_quantity": {"parsed": {"value": 10, "unit": "g"}}, "mfg_date": {"raw": "10/2025"}}},
+        "config": {},
+        "word_index": []
     }
     res = run_checks(context)
     
@@ -32,7 +35,10 @@ def test_run_checks_dependency_missing():
         "field_status": {
             "generic_name": "VERIFIED",
             "net_quantity": "UNREADABLE"
-        }
+        },
+        "extraction": {"fields": {"net_quantity": {"parsed": {"value": 10, "unit": "g"}}, "mfg_date": {"raw": "10/2025"}}},
+        "config": {},
+        "word_index": []
     }
     res = run_checks(context)
     
@@ -46,7 +52,10 @@ def test_run_checks_dependency_absent():
         "field_status": {
             "generic_name": "ABSENT",
             "net_quantity": "VERIFIED"
-        }
+        },
+        "extraction": {"fields": {"net_quantity": {"parsed": {"value": 10, "unit": "g"}}, "mfg_date": {"raw": "10/2025"}}},
+        "config": {},
+        "word_index": []
     }
     res = run_checks(context)
     

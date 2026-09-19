@@ -4,18 +4,21 @@ from src.gauntlet.readability import compute_readability, load_readability_confi
 from src.gauntlet.anchors_loader import load_anchors_config
 from src.gauntlet.mapper import map_field_result
 
+from src.extraction.schema import validate_schema as full_validate_schema
+
 def validate_schema(extraction):
     """
     Validates that the extraction is valid JSON matching the schema.
     Returns True if valid, False otherwise.
     """
-    if not isinstance(extraction, dict):
+    try:
+        full_validate_schema(extraction)
+        # Extra explicit check for schema_version just in case
+        if extraction.get("schema_version") != "1.0":
+            return False
+        return True
+    except Exception:
         return False
-    if extraction.get("schema_version") != "1.0":
-        return False
-    if "fields" not in extraction:
-        return False
-    return True
 
 def run_gauntlet(image_bytes, content_type, bucket_name, etag, bedrock_caller, s3_client=None):
     """
@@ -31,13 +34,21 @@ def run_gauntlet(image_bytes, content_type, bucket_name, etag, bedrock_caller, s
     # 1. Cache
     extraction = get_extraction_cache(bucket_name, etag, s3_client=s3_client)
     
+    if extraction:
+        # Validate schema for cache hits
+        if not validate_schema(extraction):
+            extraction = None # Invalid cache, ignore it
+            
     if not extraction:
         # 2. Bedrock caller
-        extraction = bedrock_caller(image_bytes, content_type)
+        try:
+            extraction = bedrock_caller(image_bytes, content_type)
+        except Exception:
+            return {"error": "EXTRACTION_FAILED"}
         
         # Validate schema (G0)
         if not validate_schema(extraction):
-            return {"error": "G0_SCHEMA_INVALID"}
+            return {"error": "EXTRACTION_FAILED"}
             
         put_extraction_cache(bucket_name, etag, extraction, s3_client=s3_client)
         

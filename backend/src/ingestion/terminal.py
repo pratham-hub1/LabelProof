@@ -32,35 +32,37 @@ def mark_terminal(table_name: str, scan_id: str, status: str, error_code: str = 
         expr_set.append('#err = :null_val')
         expr_names['#err'] = 'error'
     
-    # helper for mapping json back to dynamodb format (we could use boto3.dynamodb.types.TypeSerializer, but simple here)
-    # wait, it's easier to use the high-level Table resource for complex types, but we'll stick to client for determinism
-    # Let's import TypeSerializer
+    # helper for mapping json back to dynamodb format
     from boto3.dynamodb.types import TypeSerializer
+    import decimal
     serializer = TypeSerializer()
+    
+    def dict_to_decimal(obj):
+        return json.loads(json.dumps(obj), parse_float=decimal.Decimal) if obj else obj
     
     if product:
         expr_set.append('product = :prod')
-        expr_vals[':prod'] = serializer.serialize(product)
+        expr_vals[':prod'] = serializer.serialize(dict_to_decimal(product))
     
     if extraction:
         expr_set.append('extraction = :ext')
-        expr_vals[':ext'] = serializer.serialize(extraction)
+        expr_vals[':ext'] = serializer.serialize(dict_to_decimal(extraction))
         
     if summary:
         expr_set.append('summary = :sum')
-        expr_vals[':sum'] = serializer.serialize(summary)
+        expr_vals[':sum'] = serializer.serialize(dict_to_decimal(summary))
         
     if results is not None:
         expr_set.append('results = :res')
-        expr_vals[':res'] = serializer.serialize(results)
+        expr_vals[':res'] = serializer.serialize(dict_to_decimal(results))
         
     if artifacts:
         expr_set.append('artifacts = :art')
-        expr_vals[':art'] = serializer.serialize(artifacts)
+        expr_vals[':art'] = serializer.serialize(dict_to_decimal(artifacts))
         
     if exemption:
         expr_set.append('exemption = :exm')
-        expr_vals[':exm'] = serializer.serialize(exemption)
+        expr_vals[':exm'] = serializer.serialize(dict_to_decimal(exemption))
         
     if ':null_val' in expr_set[-1] or error_code is None: # ensure :null_val is defined if used
         expr_vals[':null_val'] = {'NULL': True}
@@ -85,7 +87,10 @@ def mark_terminal(table_name: str, scan_id: str, status: str, error_code: str = 
                 expr_vals[':pk'] = {'S': product_key}
                 
     if results:
-        failed = [k for k, v in results.items() if v.get('status') == 'FAIL']
+        if isinstance(results, dict):
+            failed = [k for k, v in results.items() if v.get('status') == 'FAIL']
+        else:
+            failed = [res.get('rule_id', '') for res in results if res.get('status') == 'FAIL']
         if failed:
             expr_set.append('failed_rules = :fr')
             expr_vals[':fr'] = {'SS': failed}

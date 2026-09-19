@@ -28,13 +28,16 @@ def measure_numeral_height(image, box):
     gray = crop.convert('L')
     arr = np.array(gray)
     
-    # Otsu-like behavior or simple mean
     threshold = np.mean(arr)
-    binary = arr < threshold
     
-    # Assume text is foreground (less area than background)
-    if np.sum(binary) > np.sum(~binary):
-        binary = ~binary
+    # Use corners to determine background color instead of area (fixes tight crops)
+    corners = [arr[0,0], arr[0,-1], arr[-1,0], arr[-1,-1]]
+    bg_color = np.median(corners)
+    
+    if bg_color > threshold:
+        binary = arr <= threshold  # text is dark on light background
+    else:
+        binary = arr > threshold   # text is light on dark background
         
     labeled_array, num_features = label(binary)
     if num_features == 0:

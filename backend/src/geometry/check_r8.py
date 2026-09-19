@@ -1,11 +1,12 @@
 import numpy as np
 from PIL import Image
 
-def get_required_mm_candidates(pdp_area_cm2, is_molded, rule7_table):
+def get_required_mm_candidates(pdp_area_cm2, is_molded, rule7_table, sigma_scale):
     """
     Returns (R_min, R_max) based on class intervals and area uncertainty.
     """
-    sigma_A = pdp_area_cm2 * 0.07 # 7%
+    # PDFs use exact lookup (sigma_scale=0), photos use 7% area error margin
+    sigma_A = pdp_area_cm2 * 0.07 if sigma_scale > 0 else 0.0
     area_min = pdp_area_cm2 - 3 * sigma_A
     area_max = pdp_area_cm2 + 3 * sigma_A
     
@@ -20,8 +21,8 @@ def get_required_mm_candidates(pdp_area_cm2, is_molded, rule7_table):
         class_max = row["max_area"]
         
         # Check overlap
-        # Overlap if max(area_min, class_min) < min(area_max, class_max)
-        if max(area_min, class_min) < min(area_max, class_max):
+        # Overlap if max(area_min, class_min) <= min(area_max, class_max)
+        if max(area_min, class_min) <= min(area_max, class_max):
             r = row["molded"] if is_molded else row["normal"]
             candidates.append(r)
             
@@ -38,7 +39,7 @@ def check_r8(height_mm, pdp_area_cm2, is_molded, sigma_scale, config):
     """
     Evaluates R8 (numeral height) using the 3-sigma band.
     """
-    r_min, r_max = get_required_mm_candidates(pdp_area_cm2, is_molded, config["rule7_table"])
+    r_min, r_max = get_required_mm_candidates(pdp_area_cm2, is_molded, config["rule7_table"], sigma_scale)
     
     sigma_H = height_mm * sigma_scale
     
