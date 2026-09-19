@@ -1,6 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import './Hero.css'
 
 function Hero() {
+  const navigate = useNavigate()
+
   return (
     <section className="hero">
       <div className="hero-content">
@@ -13,12 +16,25 @@ function Hero() {
           and explainable compliance results.
         </p>
         <div className="hero-actions">
-          <button className="hero-btn-primary" type="button">
+          <button
+            className="hero-btn-primary"
+            type="button"
+            onClick={() => navigate('/scan')}
+          >
             Start Scanning
           </button>
-          <a className="hero-btn-secondary" href="#how-it-works">
+          <button
+            className="hero-btn-secondary"
+            type="button"
+            onClick={() => {
+              window.scrollTo({
+                top: window.innerHeight * 0.9,
+                behavior: 'smooth'
+              })
+            }}
+          >
             Explore the technology
-          </a>
+          </button>
         </div>
       </div>
     </section>

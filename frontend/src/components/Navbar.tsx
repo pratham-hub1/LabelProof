@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import './Navbar.css'
 
 const navLinks = [
-  { label: 'Overview', href: '#overview' },
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Reports', href: '#reports' },
-  { label: 'History', href: '#history' },
+  { label: 'Overview', to: '/' },
+  { label: 'History', to: '/history' },
+  { label: 'Stats', to: '/stats' },
 ]
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,19 +23,23 @@ function Navbar() {
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-inner">
-        <a className="navbar-brand" href="/">
+        <Link className="navbar-brand" to="/">
           LABELPROOF
-        </a>
+        </Link>
 
         <div className="navbar-links">
           {navLinks.map((link) => (
-            <a key={link.href} className="navbar-link" href={link.href}>
+            <Link key={link.to} className="navbar-link" to={link.to}>
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
-        <button className="navbar-cta" type="button">
+        <button
+          className="navbar-cta"
+          type="button"
+          onClick={() => navigate('/scan')}
+        >
           Scan a package
         </button>
       </div>
