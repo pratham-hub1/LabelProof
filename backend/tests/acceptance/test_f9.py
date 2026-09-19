@@ -58,7 +58,7 @@ def test_f9_schema_valid():
     res = extract(img, {}, model_client=model)
     
     assert len(model.calls) == 1
-    assert "haiku" in model.calls[0]
+    assert "gemini" in model.calls[0]
     assert res == valid_json
 
 def test_f9_malformed_retry():
@@ -70,8 +70,8 @@ def test_f9_malformed_retry():
     res = extract(img, {}, model_client=model)
     
     assert len(model.calls) == 2
-    assert "haiku" in model.calls[0]
-    assert "sonnet" in model.calls[1]
+    assert "gemini" in model.calls[0]
+    assert "nim" in model.calls[1]
     assert res == valid_json
 
 def test_f9_both_fail():
@@ -96,8 +96,8 @@ def test_f9_weak_read_retry():
     res = extract(img, {}, model_client=model)
     
     assert len(model.calls) == 2
-    assert "haiku" in model.calls[0]
-    assert "sonnet" in model.calls[1]
+    assert "gemini" in model.calls[0]
+    assert "nim" in model.calls[1]
     assert res == valid_json
 
 def test_f9_one_weak_field_no_retry():
@@ -160,3 +160,131 @@ def test_f9_determinism():
     res1 = extract(img, {}, model_client=model)
     res2 = extract(img, {}, model_client=model)
     assert res1 == res2
+
+# Additional required tests for new OpenAI-compatible client
+def test_f9_clean_json_parsing(monkeypatch):
+    import requests
+    class MockResponse:
+        def __init__(self, json_data, status_code=200):
+            self.json_data = json_data
+            self.status_code = status_code
+        def json(self):
+            return self.json_data
+        def raise_for_status(self):
+            pass
+
+    valid_json = create_valid_json()
+    def mock_post(*args, **kwargs):
+        payload = {"choices": [{"message": {"content": json.dumps(valid_json)}}]}
+        return MockResponse(payload)
+    monkeypatch.setattr(requests, "post", mock_post)
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    
+    res = extract(create_image(), {})
+    assert res == valid_json
+
+def test_f9_fenced_json_parsing(monkeypatch):
+    import requests
+    class MockResponse:
+        def __init__(self, json_data, status_code=200):
+            self.json_data = json_data
+            self.status_code = status_code
+        def json(self):
+            return self.json_data
+        def raise_for_status(self):
+            pass
+
+    valid_json = create_valid_json()
+    content = f"```json\n{json.dumps(valid_json)}\n```"
+    def mock_post(*args, **kwargs):
+        payload = {"choices": [{"message": {"content": content}}]}
+        return MockResponse(payload)
+    monkeypatch.setattr(requests, "post", mock_post)
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    
+    res = extract(create_image(), {})
+    assert res == valid_json
+
+def test_f9_reasoning_mixed_parsing(monkeypatch):
+    import requests
+    class MockResponse:
+        def __init__(self, json_data, status_code=200):
+            self.json_data = json_data
+            self.status_code = status_code
+        def json(self):
+            return self.json_data
+        def raise_for_status(self):
+            pass
+
+    valid_json = create_valid_json()
+    content = f"Here is my reasoning:\n{{ \"some_thought\": \"bad json\" }}\nAnd the final json:\n```json\n{json.dumps(valid_json)}\n```\nDone."
+    def mock_post(*args, **kwargs):
+        payload = {"choices": [{"message": {"content": content}}]}
+        return MockResponse(payload)
+    monkeypatch.setattr(requests, "post", mock_post)
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    
+    res = extract(create_image(), {})
+    assert res == valid_json
+
+def test_f9_429_then_success(monkeypatch):
+    import requests
+    class MockResponse:
+        def __init__(self, json_data, status_code=200):
+            self.json_data = json_data
+            self.status_code = status_code
+        def json(self):
+            return self.json_data
+        def raise_for_status(self):
+            if self.status_code != 200:
+                raise requests.exceptions.HTTPError()
+
+    valid_json = create_valid_json()
+    calls = []
+    def mock_post(*args, **kwargs):
+        calls.append(True)
+        if len(calls) == 1:
+            return MockResponse({}, 429)
+        payload = {"choices": [{"message": {"content": json.dumps(valid_json)}}]}
+        return MockResponse(payload)
+    monkeypatch.setattr(requests, "post", mock_post)
+    monkeypatch.setattr("time.sleep", lambda x: None) # speed up
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    
+    res = extract(create_image(), {})
+    assert res == valid_json
+    assert len(calls) == 2
+
+def test_f9_timeout_failure_then_success(monkeypatch):
+    import requests
+    class MockResponse:
+        def __init__(self, json_data, status_code=200):
+            self.json_data = json_data
+            self.status_code = status_code
+        def json(self):
+            return self.json_data
+        def raise_for_status(self):
+            pass
+
+    valid_json = create_valid_json()
+    calls = []
+    def mock_post(*args, **kwargs):
+        calls.append(kwargs.get("json", {}).get("model"))
+        if len(calls) == 1:
+            raise requests.exceptions.Timeout("Timeout")
+        payload = {"choices": [{"message": {"content": json.dumps(valid_json)}}]}
+        return MockResponse(payload)
+    monkeypatch.setattr(requests, "post", mock_post)
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.setenv("NIM_API_KEY", "test")
+    
+    res = extract(create_image(), {})
+    assert res == valid_json
+    assert len(calls) == 2
+    assert "gemini" in calls[0]
+    assert "GLM" in calls[1]
+

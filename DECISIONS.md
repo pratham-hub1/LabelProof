@@ -140,7 +140,6 @@ Event rules that shape everything:
 
 1. Final product name
 2. Which member owns Lambda deploys; IAM usernames
-3. Exact Bedrock inference profile IDs (wire during integration)
 
 ---
 
@@ -164,3 +163,22 @@ Event rules that shape everything:
 | 2026-09-17 | Design decision session (owner-approved) — 11 decisions + 2 approach calls locked: D1 σ = 0.05 × measured H (F2 examples corrected: H = 2.5 → PASS). D2 pack-class boundary: exactly 200 g/ml = ≤ 200 class (1 mm normal / 2 mm embossed); the > 200 row starts above 200. D3 scan-level rule: terminal NEEDS_REVIEW iff any result is NEEDS_REVIEW or the exemption layer is uncertain, else DONE. D4 R1: manufacturer_name ABSENT on a readable label → FAIL. D5 brand_guess = optional 8th extraction field, NOT a declaration (gauntlet-exempt, box nullable, never counted in found_declarations) powering product.brand_guess. D6 summary.exempt = NA_EXEMPT result count (additive). D7 R7 predominantly = > 50 % of script-bearing characters per declaration (INTERPRETATION #5). D8 multiple-MRP detection = deterministic word-index anchor sweep, ≥ 2 distinct values. D9 field-status bridge table locked (7 rows) + ABSENT = anchor-qualified + new reason code EXTRACTION_MISS (9th). D10 G4 normalization = casefold + NFKC + strip punctuation + collapse whitespace, numerals exact (same family as ε_ocr). D11 extraction cache = S3 cache/ prefix in the uploads bucket, key = ETag, IAM gains uploads write. Approach calls: extraction = single Haiku call with structured output (7 fields + brand_guess), Sonnet retry once on G0 schema fail or ≥ 2 fields with confidence < 0.60, Bedrock failure → FAILED(EXTRACTION_FAILED); embossed detection = same-ink signature (near-zero chroma distance + low contrast → NA), ambiguous → NEEDS_REVIEW, fixture-calibrated. CONTRACTS additive changes approved: brand_guess field, summary.exempt, results[].measurement schema (R8: measured_mm / sigma_mm / required_mm / pack_class / method), error codes + EXTRACTION_FAILED; DECISIONS §6 results[] gains measurement. Still open (design pass): Feature 9 extraction spec, preprocess module, minAreaRect approach, embossed detector spec, CONTRACTS §5 ground-truth shape, anchors.config content |
 | 2026-09-18 | Design + legal-correction session (owner-approved) — 12 decisions locked: D12 R8 legal correction: Rule 7(2) Table-I as substituted by GSR 629(E), w.e.f. 1.1.2018 is AREA-based (PDP cm² classes: <50 → 1.0/1.5; 50–100 → 1.5/3.0; 100–500 → 2.5/4.0; 500–2500 → 4.0/6.0; >2500 → 6.0/6.0 mm) — the pre-2018 weight/volume table is superseded law (the docs had codified it from the unamended 2011 gazette PDF); the 2026-09-17 200 g boundary decision (D2) is superseded with it. Class key = measured PDP area (photo: same calibration, Rule 7(4)(a); PDF: exact page dims); class-interval rule folds area uncertainty into the 3σ verdict (FAIL only vs R_min, PASS only vs R_max); INTERPRETATION #6 embossed → molded column; #7 exact-boundary A → less strict class; watch note: A<50 molded 1.5 (amendment gazette) vs 2.0 (some compilations) — 1.5 codified, config value; scope stays MRP + quantity numerals (letters + 7(3) width proviso = roadmap). D13 Feature 9 extraction module: one Haiku Converse call with toolConfig schema enforcement, G0 jsonschema, Sonnet retry on G0 fail or ≥2 fields <0.60, EXTRACTION_FAILED, ETag cache, model-ID defaults. D14 Feature 10 preprocess: EXIF transpose / PDF page 1 @ 200 DPI (PyMuPDF; first-page-only per the F6 lock). D15 minAreaRect = PCA extents (pure numpy). D16 embossed/molded detector: ΔE CIE76 + WCAG bands (ΔE<10 ∧ C<2.5 relief; ΔE≥15 ∧ C<2.5 pale print; else NEEDS_REVIEW). D17 CONTRACTS §5 fixture shape locked. D18 anchors.config + taxes-variant initial content locked. D19 TASKS rewiring: T1.8 extraction, T1.9 preprocess, PyMuPDF layer, H5 SIH PPT + H6 demo video + H7 writeup, feature count 8→10, AGENTS reason codes 8→9. D20 R9 PDF ink-coverage via pdfplumber objects. D21 unanchored-verified tag = static display hint (CONTRACTS note). D22 CORS origin placeholder + model-ID defaults. D23 90% accuracy target stated in the F8 report, never a gate. Legal sources: GSR 629(E) amendment gazette (23.06.2017, w.e.f. 1.1.2018); Maharashtra compiled LMPC Rules (as amended up to GSR 629(E)); PIB release ID 1497129 (25.07.2017) |
 | 2026-09-18 | Repo layout (owner-directed) — monorepo with `frontend/` + `backend/`; `CONTRACTS.md` promoted to repo root (the ONLY shared document — the FE track builds against it); backend-only docs moved to `backend/docs/` (ENGINEERING, CHECKS, ARCHITECTURE); §8 doc-structure + scoping paths updated accordingly; 13 path references swept to repo-root-relative paths across AGENTS/PROGRESS/TASKS/backend docs; TASKS-implied folder skeleton created (src/gauntlet, src/geometry, src/rules, src/extraction, src/preprocess, src/ingestion, src/reports, src/api, config, fixtures, benchmark, infra, lambda); .gitignore + README stub (T0.1). Repo created inside the event window (17–20 Sept). `fixtures/` path in §8 now `backend/fixtures/` |
+
+## Decision #17 — LLM Provider: External (Gemini primary, NIM fallback)
+
+**Date:** 2026-09-19
+**Decision:** Live LLM extraction uses external providers through the
+OpenAI-compatible client — **Gemini 3.1 Flash Lite** (`gemini-3.1-flash-lite`,
+key: `GEMINI_API_KEY`) as primary, **NVIDIA NIM GLM-5.3-Flash**
+(`zai-org/GLM-5.3-Flash`, key: `NIM_API_KEY`) as fallback. All provider
+details are config-driven (base_url, model, api_key_env, request params) —
+switching providers requires only config changes, no code changes.
+
+**Reason:** Bedrock was unavailable during the event (ValidationException —
+model access / inference profile issues on the AWS side). The locked
+provider-agnostic extraction design (G0 schema validation, universal
+answer extraction, fallback chain — all upstream of the provider) allowed
+an external switch with zero architectural change.
+
+**Bedrock:** ON HOLD for the event. Can be added back later as another
+provider config row + a small dialect adapter.
