@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import './PackageScrollSequence.css'
 
-const TOTAL_FRAMES = 240
+const TOTAL_FRAMES = 300
 const FRAME_PREFIX = '/frames/package/ezgif-frame-'
 
 function getFrameUrl(index: number) {
   const fileNumber = (index + 1).toString().padStart(3, '0')
-  return `${FRAME_PREFIX}${fileNumber}.jpg`
+  return `${FRAME_PREFIX}${fileNumber}.png`
 }
 
 export default function PackageScrollSequence() {
@@ -50,6 +50,10 @@ export default function PackageScrollSequence() {
       canvas.width = targetW
       canvas.height = targetH
     }
+
+    // High quality rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     // Clear background
     ctx.fillStyle = '#050505'
@@ -175,13 +179,6 @@ export default function PackageScrollSequence() {
     // Initial calculation after a slight delay to ensure layout is complete
     setTimeout(() => {
       if (isComponentMounted) {
-        const section = sectionRef.current
-        if (section) {
-          console.log('PACKAGE SECTION:', section)
-          console.log('PACKAGE SECTION RECT:', section.getBoundingClientRect())
-          console.log('PACKAGE SECTION COMPUTED:', window.getComputedStyle(section))
-          console.log('PARENT:', section.parentElement)
-        }
         handleResize()
         updateScrollState()
       }
