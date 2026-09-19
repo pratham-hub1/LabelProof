@@ -1,0 +1,63 @@
+/* ── Design tokens ───────────────────────────────────────────── */
+
+:root {
+  --color-bg: #050505;
+  --color-bg-elevated: #0a0a0a;
+  --color-bg-subtle: #111111;
+  --color-border: #1a1a1a;
+  --color-border-hover: #333333;
+
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #777777;
+  --color-text-muted: #444444;
+
+  --color-cta-bg: #f0f0f0;
+  --color-cta-text: #050505;
+  --color-cta-hover-bg: #ffffff;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+
+  --navbar-height: 56px;
+}
+
+/* ── Reset ───────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}

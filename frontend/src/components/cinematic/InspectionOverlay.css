@@ -1,0 +1,136 @@
+.inspection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.inspection-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(100, 200, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 200, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(100, 200, 255, 0.4);
+  box-shadow: 0 0 4px rgba(100, 200, 255, 0.2);
+}
+
+.bracket {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(100, 200, 255, 0.2);
+}
+
+.bracket-tl {
+  top: 30%;
+  left: 30%;
+  border-right: none;
+  border-bottom: none;
+}
+
+.bracket-tr {
+  top: 30%;
+  right: 30%;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bracket-bl {
+  bottom: 30%;
+  left: 30%;
+  border-right: none;
+  border-top: none;
+}
+
+.bracket-br {
+  bottom: 30%;
+  right: 30%;
+  border-left: none;
+  border-top: none;
+}
+
+.target-point {
+  position: absolute;
+  display: flex;
+  align-items: center;
+}
+
+.anchor-dot {
+  width: 3px;
+  height: 3px;
+  background: rgba(100, 200, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(100, 200, 255, 0.4);
+}
+
+.connecting-line {
+  height: 1px;
+  background: rgba(100, 200, 255, 0.2);
+  width: 60px;
+}
+
+.connecting-line.line-left {
+  margin-left: 4px;
+}
+
+.connecting-line.line-right {
+  margin-right: 4px;
+  order: -1;
+}
+
+.target-label {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+}
+
+.target-label.right {
+  margin-left: 0;
+  margin-right: 8px;
+  text-align: right;
+  order: -2;
+}
+
+.target-label .technical-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #fff;
+  letter-spacing: 0.05em;
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 8px;
+  border: 1px solid rgba(100, 200, 255, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 2px;
+}
+
+.target-label .coord {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(100, 200, 255, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.target-label .desc {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: rgba(100, 200, 255, 0.8);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}

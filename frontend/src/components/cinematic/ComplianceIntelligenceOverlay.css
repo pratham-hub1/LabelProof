@@ -1,0 +1,153 @@
+.compliance-intelligence-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15; /* Above canvas and glows, below navigation */
+}
+
+.intelligence-callout {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  will-change: opacity, transform;
+}
+
+.callout-left {
+  flex-direction: row-reverse;
+}
+
+.callout-right {
+  flex-direction: row;
+}
+
+.intelligence-callout .anchor-dot {
+  width: 4px;
+  height: 4px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
+}
+
+.intelligence-callout .connector-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.callout-left .connector-line {
+  margin-right: -2px; /* Slight overlap with dot */
+}
+
+.callout-right .connector-line {
+  margin-left: -2px;
+}
+
+.intelligence-callout .callout-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* --- Positioning for Desktop (Generous Negative Space) --- */
+
+.callout-identity {
+  top: 25%;
+  left: 20%;
+}
+.callout-identity .connector-line { width: 100px; }
+
+.callout-quantity {
+  top: 20%;
+  right: 18%;
+}
+.callout-quantity .connector-line { width: 120px; }
+
+.callout-price {
+  top: 50%;
+  right: 12%;
+}
+.callout-price .connector-line { width: 140px; }
+
+.callout-date {
+  top: 45%;
+  left: 15%;
+}
+.callout-date .connector-line { width: 110px; }
+
+.callout-care {
+  top: 75%;
+  left: 22%;
+}
+.callout-care .connector-line { width: 80px; }
+
+.callout-declarations {
+  top: 70%;
+  right: 25%;
+}
+.callout-declarations .connector-line { width: 70px; }
+
+/* --- Tablet Adjustments --- */
+@media (max-width: 1024px) {
+  .intelligence-callout .callout-label {
+    font-size: 0.6rem;
+    padding: 3px 8px;
+  }
+  
+  .callout-identity { left: 10%; }
+  .callout-identity .connector-line { width: 60px; }
+  
+  .callout-quantity { right: 10%; }
+  .callout-quantity .connector-line { width: 70px; }
+  
+  .callout-price { right: 8%; }
+  .callout-price .connector-line { width: 80px; }
+  
+  .callout-date { left: 8%; }
+  .callout-date .connector-line { width: 70px; }
+  
+  .callout-care { left: 12%; }
+  .callout-care .connector-line { width: 50px; }
+  
+  .callout-declarations { right: 12%; }
+  .callout-declarations .connector-line { width: 50px; }
+}
+
+/* --- Mobile Adjustments --- */
+@media (max-width: 767px) {
+  .intelligence-callout .callout-label {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    letter-spacing: 0.1em;
+  }
+  
+  .intelligence-callout .anchor-dot {
+    width: 3px;
+    height: 3px;
+  }
+
+  .intelligence-callout .connector-line {
+    width: 30px !important; /* Force tight connectors on mobile */
+  }
+
+  /* Safe Zones for Mobile */
+  .callout-identity { top: 22%; left: 5%; }
+  .callout-quantity { top: 28%; right: 5%; }
+  .callout-price { top: 62%; right: 5%; }
+  .callout-date { top: 58%; left: 5%; }
+  
+  /* Hide the lowest 2 to avoid cluttering the smaller vertical space */
+  .callout-care { display: none; }
+  .callout-declarations { display: none; }
+}
