@@ -28,7 +28,7 @@
 }
 
 .story-eyebrow {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.6);
@@ -37,7 +37,7 @@
 }
 
 .story-heading {
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: var(--font-sans);
   font-size: 3rem;
   font-weight: 500;
   color: #fff;
@@ -51,7 +51,7 @@
 }
 
 .story-supporting {
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.25rem;
   color: rgba(255, 255, 255, 0.6);
   line-height: 1.5;
@@ -90,7 +90,7 @@
   align-items: center;
   margin-top: 2.5rem;
   padding: 12px 24px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
   color: #000;
   background: #fff;

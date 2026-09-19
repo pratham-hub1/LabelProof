@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import './Navbar.css'
 
 const navLinks = [
@@ -8,11 +9,21 @@ const navLinks = [
 ]
 
 function Navbar() {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-inner">
         <a className="navbar-brand" href="/">
-          LABELCHECK
+          LABELPROOF
         </a>
 
         <div className="navbar-links">

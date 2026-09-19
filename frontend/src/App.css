@@ -3,5 +3,5 @@
 }
 
 .main {
-  padding-top: var(--navbar-height);
+  /* padding removed for full-bleed hero */
 }

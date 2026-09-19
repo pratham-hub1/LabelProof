@@ -39,7 +39,7 @@
 .nav-chapter {
   display: flex;
   align-items: center;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.3);

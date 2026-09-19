@@ -107,15 +107,28 @@
   order: -2;
 }
 
+.target-label .technical-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #fff;
+  letter-spacing: 0.05em;
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 8px;
+  border: 1px solid rgba(100, 200, 255, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 2px;
+}
+
 .target-label .coord {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   color: rgba(100, 200, 255, 0.5);
   letter-spacing: 0.05em;
 }
 
 .target-label .desc {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: rgba(100, 200, 255, 0.8);
   letter-spacing: 0.05em;
