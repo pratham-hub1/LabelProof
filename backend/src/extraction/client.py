@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 import base64
 import time
@@ -180,6 +180,12 @@ def extract(canonical_image_bytes, config, model_client=None, cache_client=None)
     first_provider = provider_map[active_id]
     second_provider = provider_map[fallback_id]
     
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logger.info(f"EXTRACTION PROVIDER RUNNING: provider={first_provider['id']}, model={first_provider['model']}")
+    print(f"EXTRACTION PROVIDER RUNNING: provider={first_provider['id']}, model={first_provider['model']}")
+    
     etag = hashlib.md5(canonical_image_bytes).hexdigest()
     
     if cache_client:
@@ -229,3 +235,4 @@ def extract(canonical_image_bytes, config, model_client=None, cache_client=None)
         cache_client.put(etag, res)
         
     return res
+

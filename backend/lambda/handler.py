@@ -1,4 +1,4 @@
-import json
+﻿import json
 import os
 import logging
 import boto3
@@ -11,7 +11,10 @@ from src.ingestion.terminal import mark_terminal
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'ingestion.config')
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config', 'ingestion.config')
+if not os.path.exists(CONFIG_PATH):
+    CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'ingestion.config')
+
 with open(CONFIG_PATH, 'r') as f:
     CONFIG = json.load(f)
 
@@ -149,8 +152,10 @@ def handler(event, context):
                 'created_at': scan_fields.get('created_at')
             }
             if result['status'] == 'FAILED':
-                kwargs['error_code'] = result.get('error_code', 'INTERNAL')
-                kwargs['error_msg'] = result.get('error_msg', 'Pipeline failed')
+                if 'error_code' in result:
+                    kwargs['error_code'] = result['error_code']
+                if 'error_msg' in result:
+                    kwargs['error_msg'] = result['error_msg']
                 
             mark_terminal(**kwargs)
         except Exception as e:
@@ -191,3 +196,5 @@ def _error_response(status_code: int, code: str, message: str) -> dict:
         'statusCode': status_code,
         'body': json.dumps({'error': {'code': code, 'message': message}})
     }
+
+

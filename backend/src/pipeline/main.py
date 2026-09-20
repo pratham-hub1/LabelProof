@@ -1,4 +1,4 @@
-import os
+﻿import os
 import boto3
 from PIL import Image
 import io
@@ -27,7 +27,7 @@ def run_pipeline(scan_id: str, bucket_name: str, object_key: str, size_bytes: in
     # 2. Gauntlet (Mocked or Live LLM extraction)
     from src.gauntlet.run import run_gauntlet
     
-    use_mock = os.environ.get('USE_MOCK_BEDROCK', 'true').lower() == 'true'
+    use_mock = False
     
     import json
     with open(os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'api.config'), 'r') as f:
@@ -118,17 +118,17 @@ def run_pipeline(scan_id: str, bucket_name: str, object_key: str, size_bytes: in
     results_array = []
     # Known mapping of rule_id to name and citation per DECISIONS.md
     rule_meta = {
-        "r1_name_address": {"id": "R1", "name": "Manufacturer/packer/importer name + complete address", "citation": "Rule 6(1)(a), 10(1) — LMPC (PC) Rules, 2011"},
-        "r2_generic_name": {"id": "R2", "name": "Common/generic name of commodity", "citation": "Rule 6(1)(b) — LMPC (PC) Rules, 2011"},
-        "r3_net_quantity": {"id": "R3", "name": "Net quantity in correct unit", "citation": "Rule 6(1)(c), 13 — LMPC (PC) Rules, 2011"},
-        "r4_mfg_date": {"id": "R4", "name": "Month & year of manufacture", "citation": "Rule 6(1)(d) — LMPC (PC) Rules, 2011"},
-        "r5_mrp": {"id": "R5", "name": "MRP prescribed wording", "citation": "Rule 2(m), 6(1)(e) — LMPC (PC) Rules, 2011"},
-        "r6_consumer_care": {"id": "R6", "name": "Consumer care details", "citation": "Rule 6(2) — LMPC (PC) Rules, 2011"},
-        "r7_language": {"id": "R7", "name": "Declarations in Hindi (Devanagari) or English", "citation": "Rule 9(4) — LMPC (PC) Rules, 2011"},
-        "r8_numeral_height": {"id": "R8", "name": "Minimum numeral height", "citation": "Rule 7(2), 7(3) — LMPC (PC) Rules, 2011"},
-        "r9_clear_space": {"id": "R9", "name": "Clear space around the quantity declaration", "citation": "Rule 8 — LMPC (PC) Rules, 2011"},
-        "r10_contrast": {"id": "R10", "name": "Contrast of MRP/quantity numerals", "citation": "Rule 9(1)(b) — LMPC (PC) Rules, 2011"},
-        "r11_qualifiers": {"id": "R11", "name": "No misleading quantity qualifiers", "citation": "Rule 12(6) — LMPC (PC) Rules, 2011"}
+        "r1_name_address": {"id": "R1", "name": "Manufacturer/packer/importer name + complete address", "citation": "Rule 6(1)(a), 10(1) â€” LMPC (PC) Rules, 2011"},
+        "r2_generic_name": {"id": "R2", "name": "Common/generic name of commodity", "citation": "Rule 6(1)(b) â€” LMPC (PC) Rules, 2011"},
+        "r3_net_quantity": {"id": "R3", "name": "Net quantity in correct unit", "citation": "Rule 6(1)(c), 13 â€” LMPC (PC) Rules, 2011"},
+        "r4_mfg_date": {"id": "R4", "name": "Month & year of manufacture", "citation": "Rule 6(1)(d) â€” LMPC (PC) Rules, 2011"},
+        "r5_mrp": {"id": "R5", "name": "MRP prescribed wording", "citation": "Rule 2(m), 6(1)(e) â€” LMPC (PC) Rules, 2011"},
+        "r6_consumer_care": {"id": "R6", "name": "Consumer care details", "citation": "Rule 6(2) â€” LMPC (PC) Rules, 2011"},
+        "r7_language": {"id": "R7", "name": "Declarations in Hindi (Devanagari) or English", "citation": "Rule 9(4) â€” LMPC (PC) Rules, 2011"},
+        "r8_numeral_height": {"id": "R8", "name": "Minimum numeral height", "citation": "Rule 7(2), 7(3) â€” LMPC (PC) Rules, 2011"},
+        "r9_clear_space": {"id": "R9", "name": "Clear space around the quantity declaration", "citation": "Rule 8 â€” LMPC (PC) Rules, 2011"},
+        "r10_contrast": {"id": "R10", "name": "Contrast of MRP/quantity numerals", "citation": "Rule 9(1)(b) â€” LMPC (PC) Rules, 2011"},
+        "r11_qualifiers": {"id": "R11", "name": "No misleading quantity qualifiers", "citation": "Rule 12(6) â€” LMPC (PC) Rules, 2011"}
     }
     
     for rule_key, meta in rule_meta.items():
@@ -179,3 +179,4 @@ def run_pipeline(scan_id: str, bucket_name: str, object_key: str, size_bytes: in
         'extraction': extraction,
         'product': {}
     }
+
