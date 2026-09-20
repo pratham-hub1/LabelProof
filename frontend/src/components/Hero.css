@@ -35,7 +35,8 @@
 
 .hero-headline {
   font-family: var(--font-sans);
-  font-size: clamp(48px, 8vw, 96px);
+  font-size: clamp(48px, 8vw, 112px);
+  letter-spacing: -0.05em;
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -47,7 +48,8 @@
 
 .hero-subtext {
   font-family: var(--font-sans);
-  font-size: clamp(18px, 2.5vw, 22px);
+  font-size: clamp(16px, 1.5vw, 20px);
+  letter-spacing: 0.01em;
   font-weight: 400;
   color: var(--color-text-secondary);
   line-height: 1.5;

@@ -1,6 +1,6 @@
 .history-page {
   padding: 80px 24px;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -24,48 +24,74 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 16px;
+  padding: 24px 16px;
   border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   transition: all var(--transition-fast);
+  gap: 24px;
 }
 
 .scan-card:hover {
   background-color: rgba(255, 255, 255, 0.03);
-  transform: translateX(2px);
 }
 
-.scan-card-header {
+.scan-card > div {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+}
+
+.col-date {
+  flex: 0 0 160px;
+}
+
+.col-product {
   flex: 1;
+  gap: 4px;
+}
+
+.col-verdict {
+  flex: 0 0 200px;
+}
+
+.col-summary {
+  flex: 0 0 180px;
+}
+
+.col-action {
+  flex: 0 0 120px;
+  align-items: flex-end !important;
+}
+
+.action-text {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.scan-card:hover .action-text {
+  opacity: 1;
 }
 
 .scan-id {
-  font-weight: 500;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--color-text-primary);
-}
-
-.product-name {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--color-text-secondary);
-}
-
-.scan-date {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
-.scan-card-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+.product-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.scan-date {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
 }
 
 .scan-status {
@@ -76,6 +102,8 @@
   padding: 4px 8px;
   border-radius: 2px;
   text-transform: uppercase;
+  display: inline-block;
+  width: fit-content;
 }
 
 .status-done .scan-status { background: var(--color-status-success-bg); color: var(--color-status-success); }
@@ -86,17 +114,20 @@
 .scan-card-error {
   font-size: 0.85rem;
   color: var(--color-status-error);
+  margin-top: 4px;
 }
 
 .scan-card-summary {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   font-family: var(--font-mono);
   font-size: 0.75rem;
 }
 
 .scan-card-summary .fail { color: var(--color-status-error); }
 .scan-card-summary .pass { color: var(--color-status-success); }
+.scan-card-summary .review { color: var(--color-status-warning); }
+.scan-card-summary.empty { color: var(--color-text-muted); }
 
 .load-more-container {
   margin-top: 40px;
@@ -104,16 +135,24 @@
   justify-content: center;
 }
 
+@media (max-width: 900px) {
+  .col-summary, .col-action {
+    display: none !important;
+  }
+}
+
 @media (max-width: 600px) {
   .scan-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
   }
-  
-  .scan-card-right {
-    align-items: flex-start;
+  .col-date, .col-product, .col-verdict {
+    flex: auto;
   }
+  .col-date { order: 2; }
+  .col-product { order: 1; }
+  .col-verdict { order: 3; }
 }
 
 @media (max-width: 768px) {

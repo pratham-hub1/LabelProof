@@ -77,8 +77,16 @@ export const apiClient = {
     return handleResponse<StatsResponse>(res);
   },
 
-  getReportDownloadUrl(scanId: string, format: 'pdf' | 'json' | 'csv'): string {
-    // This endpoint returns a 302 redirect. We just generate the URL for anchor tags.
-    return `${API_BASE}/reports/${scanId}.${format}`;
-  }
 };
+
+const OUTPUTS_BASE = import.meta.env.VITE_OUTPUTS_PUBLIC_BASE_URL || '';
+
+export function resolveArtifactUrl(relativePath: string | null | undefined): string | null {
+  if (!relativePath) return null;
+  if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+    return relativePath;
+  }
+  const base = OUTPUTS_BASE.replace(/\/$/, '');
+  const path = relativePath.replace(/^\//, '');
+  return `${base}/${path}`;
+}

@@ -1,28 +1,28 @@
 /* ── Design tokens ───────────────────────────────────────────── */
 
 :root {
-  --color-bg: #000000;
-  --color-bg-elevated: #080808;
-  --color-bg-subtle: #0a0a0a;
-  --color-surface: #121212;
+  --color-bg: #040404;
+  --color-bg-elevated: #0a0a0a;
+  --color-bg-subtle: #0f0f0f;
+  --color-surface: #141414;
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.15);
-  --color-border-active: rgba(255, 255, 255, 0.25);
+  --color-border-hover: rgba(255, 255, 255, 0.16);
+  --color-border-active: rgba(255, 255, 255, 0.28);
 
-  --color-text-primary: #f5f5f5;
-  --color-text-secondary: #999999;
-  --color-text-muted: #555555;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-text-muted: rgba(255, 255, 255, 0.35);
 
-  --color-cta-bg: #f5f5f5;
+  --color-cta-bg: #ffffff;
   --color-cta-text: #000000;
-  --color-cta-hover-bg: #ffffff;
+  --color-cta-hover-bg: #e6e6e6;
 
-  --color-status-success: rgba(100, 255, 150, 0.9);
-  --color-status-success-bg: rgba(100, 255, 150, 0.08);
-  --color-status-warning: rgba(255, 200, 50, 0.9);
-  --color-status-warning-bg: rgba(255, 200, 50, 0.08);
-  --color-status-error: rgba(255, 80, 80, 0.9);
-  --color-status-error-bg: rgba(255, 80, 80, 0.08);
+  --color-status-success: #66e299;
+  --color-status-success-bg: rgba(102, 226, 153, 0.08);
+  --color-status-warning: #f5b942;
+  --color-status-warning-bg: rgba(245, 185, 66, 0.08);
+  --color-status-error: #f55b5b;
+  --color-status-error-bg: rgba(245, 91, 91, 0.08);
   --color-status-neutral: var(--color-text-secondary);
   --color-status-neutral-bg: rgba(255, 255, 255, 0.05);
 
@@ -31,8 +31,8 @@
 
   --navbar-height: 56px;
   
-  --transition-fast: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s cubic-bezier(0.2, 0, 0, 1);
+  --transition-normal: 0.25s cubic-bezier(0.2, 0, 0, 1);
 
   --radius-sm: 2px;
   --radius-md: 2px;
@@ -58,9 +58,16 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 60%),
+    linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 100% 100%, 64px 64px, 64px 64px;
+  background-position: center top, center top, center top;
   color: var(--color-text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   min-height: 100vh;
+  position: relative;
 }
 
 #root {
@@ -85,35 +92,36 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 32px;
+  gap: 8px;
+  padding: 12px 28px;
   background-color: var(--color-cta-bg);
   color: var(--color-cta-text);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
   text-decoration: none;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .btn-primary::after {
   content: "";
   position: absolute;
   top: 0; left: -100%;
-  width: 50%; height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.6), transparent);
-  transform: skewX(-20deg);
+  width: 30%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-15deg);
 }
 
 .btn-primary:hover:not(:disabled)::after {
-  animation: button-sheen 0.5s ease-out;
+  animation: button-sheen 0.6s cubic-bezier(0.2, 0, 0, 1);
 }
 
 @keyframes button-sheen {
@@ -123,13 +131,22 @@ button {
 
 .btn-primary:hover:not(:disabled) {
   background-color: var(--color-cta-hover-bg);
-  border-color: #fff;
+  border-color: #ffffff;
   transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
-  opacity: 0.9;
+  background-color: #d4d4d4;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn-primary .btn-arrow {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.btn-primary:hover:not(:disabled) .btn-arrow {
+  transform: translateX(3px);
 }
 
 .btn-primary:focus-visible {
@@ -149,29 +166,37 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 12px 24px;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s, border-color 0.2s;
   text-decoration: none;
 }
 
 .btn-secondary:hover:not(:disabled), .btn-download:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--color-border-hover);
   transform: translateY(-1px);
 }
 
 .btn-secondary:active:not(:disabled), .btn-download:active:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(0);
+}
+
+.btn-secondary .btn-arrow {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.btn-secondary:hover:not(:disabled) .btn-arrow {
+  transform: translateX(3px);
 }
 
 .btn-secondary:focus-visible, .btn-download:focus-visible {
@@ -187,32 +212,52 @@ button {
 /* ──────────────── Functional Page Shared ──────────────── */
 
 .page-header {
-  margin-bottom: 48px;
+  margin-bottom: 64px;
+  position: relative;
 }
 
 .page-header-id {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.page-header-id .numeral {
+  font-family: var(--font-sans);
+  font-size: 3.5rem;
+  font-weight: 500;
+  line-height: 0.8;
+  color: rgba(255, 255, 255, 0.05);
+  letter-spacing: -0.04em;
+}
+
+.page-header-id .identifier {
+  position: relative;
+  top: -4px;
 }
 
 .page-header-id::after {
   content: "";
   display: block;
-  width: 24px;
+  flex: 1;
   height: 1px;
-  background-color: var(--color-border-active);
-  margin-top: 12px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent);
+  margin-left: 16px;
+  position: relative;
+  top: -4px;
 }
 
 .page-header-title {
   font-family: var(--font-sans);
-  font-size: 2.25rem;
-  font-weight: 500;
+  font-size: 2.5rem;
+  font-weight: 400;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
   margin-bottom: 12px;
@@ -230,7 +275,7 @@ button {
 .empty-state {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 80px 24px;
+  padding: 120px 24px; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;
   border-radius: 2px;
   text-align: center;
   position: relative;
