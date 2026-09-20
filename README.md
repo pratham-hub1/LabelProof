@@ -9,14 +9,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-186%20passing-brightgreen)](./backend/tests)
 
-**Built for the WeMakeDevs × AWS Bharat Builds Tour "First Commit" hackathon (Ship It track) and SIH 2026 (PS SIH26034, Ministry of Consumer Affairs)**
+**Built for the WeMakeDevs × AWS Bharat Builds Tour "First Commit" hackathon — Ship It track**
 
-[**Live Demo**](<PLACEHOLDER — S3 website URL>) · [**API**](https://owda7ujf7yynpwthu4ecbrtqhy0wxwlu.lambda-url.ap-south-1.on.aws/) · [**Contracts**](./CONTRACTS.md) · [**Decisions**](./DECISIONS.md)
+> 🟡 **Live Demo:** `<PLACEHOLDER — fill in your S3 website URL>` &nbsp;·&nbsp; [**API**](https://owda7ujf7yynpwthu4ecbrtqhy0wxwlu.lambda-url.ap-south-1.on.aws/) &nbsp;·&nbsp; [**Contracts**](./CONTRACTS.md) &nbsp;·&nbsp; [**Decisions**](./DECISIONS.md)
 
 ---
-
-<!-- PLACEHOLDER: Add a short screen recording GIF or screenshot here -->
-<!-- Example: ![LabelProof demo](./docs/demo.gif) -->
 
 </div>
 
@@ -25,7 +22,7 @@
 ## Table of Contents
 
 - [The Problem](#the-problem)
-- [Core Safety Design](#core-safety-design-the-soul-of-the-product)
+- [Core Safety Design](#core-safety-design)
 - [How It Works](#how-it-works)
 - [The 11 Compliance Rules](#the-11-compliance-rules)
 - [Architecture](#architecture)
@@ -53,7 +50,7 @@ LabelProof automates the full 11-point checklist, including the *geometric* sub-
 
 ---
 
-## Core Safety Design: The Soul of the Product
+## Core Safety Design
 
 > **"Never a silent wrong verdict."**
 
@@ -276,7 +273,7 @@ python -m venv .venv
 # source .venv/bin/activate   # Linux/macOS
 
 # 2. Install dependencies
-pip install -r backend/requirements.txt   # <PLACEHOLDER — verify exact path>
+pip install -r backend/requirements.txt
 
 # 3. Set required environment variables
 set GEMINI_API_KEY=<your-key>
@@ -291,15 +288,13 @@ set TESSDATA_PREFIX=<path-to-tessdata>
 pytest                         # full suite: unit + golden fixtures
 pytest -k determinism          # two-run identity assertion
 
-# 5. Run a live one-shot provider verification
-python <PLACEHOLDER — path to live verification script>
 ```
 
 ### Deploy to AWS
 
 ```bash
 # Publish Lambda layers (Tesseract OCR + Python deps)
-python backend/infra/layers/<PLACEHOLDER — layer publish script>
+# See scripts in backend/infra/layers/
 
 # Deploy the Lambda function (creates role, function, S3 trigger, Function URL)
 python backend/infra/lambda/deploy_lambda.py
@@ -404,13 +399,10 @@ The pipeline was burn-in validated against a real label dataset before deploymen
 
 | Document | Purpose |
 |----------|---------|
-| [`DECISIONS.md`](./DECISIONS.md) | The constitution — every locked decision lives here |
+| [`DECISIONS.md`](./DECISIONS.md) | The constitution — every locked design decision lives here |
 | [`CONTRACTS.md`](./CONTRACTS.md) | Frozen API contract — the only shared frontend/backend document |
-| [`AGENTS.md`](./AGENTS.md) | Rules for every AI agent and human contributor |
 | [`backend/docs/ENGINEERING.md`](./backend/docs/ENGINEERING.md) | Full feature specs (10 features, all proven) |
 | [`backend/docs/CHECKS.md`](./backend/docs/CHECKS.md) | Per-check spec, compiled 1:1 from ENGINEERING.md |
-| [`PROGRESS.md`](./PROGRESS.md) | Live implementation state |
-| [`TASKS.md`](./TASKS.md) | Work queue |
 
 ---
 
