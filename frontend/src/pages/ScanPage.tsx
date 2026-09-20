@@ -200,9 +200,12 @@ export default function ScanPage() {
         ) : (
           <div className="upload-state">
             <div className="page-header">
-              <span className="page-header-id reveal-1">01 / INTAKE</span>
-              <h1 className="page-header-title reveal-2">Inspect a packaged commodity</h1>
-              <p className="page-header-desc reveal-3">Upload a package label for automated compliance analysis.</p>
+              <span className="page-header-id reveal-1">
+                <span className="numeral">01</span>
+                <span className="identifier">INTAKE</span>
+              </span>
+              <h1 className="page-header-title reveal-2">Compliance Console</h1>
+              <p className="page-header-desc reveal-3">Inspect a packaged commodity. Upload imagery to verify regulatory adherence.</p>
             </div>
             
             {error && <div className="error-banner reveal-4">{error}</div>}
@@ -210,7 +213,7 @@ export default function ScanPage() {
             <div className="upload-layout reveal-4">
               <div className="upload-left">
                 <div className="file-input-group">
-                  <label className="technical-label">INPUT / EVIDENCE UPLOAD</label>
+                  <label className="technical-label">1. Upload Package Image</label>
                   <div 
                     className="drop-zone-wrapper"
                     onDragEnter={handleDragEnter}
@@ -253,7 +256,7 @@ export default function ScanPage() {
               <div className="upload-right">
                 {file && !file.type.includes('pdf') && (
                   <div className="input-group">
-                    <label htmlFor="labelWidth" className="technical-label">TARGET / LABEL WIDTH CALIBRATION</label>
+                    <label htmlFor="labelWidth" className="technical-label">2. Enter Physical Label Width</label>
                     <input 
                       id="labelWidth"
                       type="number" 
@@ -269,7 +272,7 @@ export default function ScanPage() {
                 )}
 
                 <div className="scan-info-note">
-                  11-point LMPC (Legal Metrology) compliance check
+                  11-point LMPC compliance check
                 </div>
 
                 <button 
@@ -277,7 +280,7 @@ export default function ScanPage() {
                   onClick={handleUpload}
                   disabled={!file || isUploading}
                 >
-                  {isUploading ? `PROCESSING [${uploadProgress}%]` : 'INITIATE INSPECTION'}
+                  {isUploading ? `PROCESSING [${uploadProgress}%]` : '3. Start Inspection'}
                 </button>
               </div>
             </div>

@@ -80,13 +80,12 @@ export default function CinematicStory({ progress }: CinematicStoryProps) {
         <h2 className="story-heading large">From label to compliance.</h2>
         <p className="story-supporting">Structured evidence for a clearer view of packaged-commodity requirements.</p>
         <button 
-          className="story-transition-cue"
+          className="btn-primary story-transition-cue"
           onClick={() => navigate('/scan')}
         >
-          Inspect a real package
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px' }}>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
+          <span>Inspect a real package</span>
+          <svg className="btn-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ marginLeft: '4px' }}>
+            <path d="M6 1L11 6M11 6L6 11M11 6L0 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter"/>
           </svg>
         </button>
         <div className="transition-line-down"></div>

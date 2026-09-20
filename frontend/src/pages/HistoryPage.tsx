@@ -61,8 +61,11 @@ export default function HistoryPage() {
     <div className="history-page">
       <div className="history-container">
         <div className="page-header">
-          <span className="page-header-id reveal-1">02 / ARCHIVE</span>
-          <h1 className="page-header-title reveal-2">Inspection History</h1>
+          <span className="page-header-id reveal-1">
+            <span className="numeral">02</span>
+            <span className="identifier">ARCHIVE</span>
+          </span>
+          <h1 className="page-header-title reveal-2">Inspection Archive</h1>
           <p className="page-header-desc reveal-3">Review and access previously recorded compliance reports.</p>
         </div>
         
@@ -82,27 +85,28 @@ export default function HistoryPage() {
                   className={`scan-card status-${scan.status.toLowerCase()}`}
                   onClick={() => navigate(`/report/${scan.scan_id}`)}
                 >
-                  <div className="col-date">
-                    <span className="scan-date">{new Date(scan.created_at).toLocaleString()}</span>
+                  <div className="col-product">
+                    <span className="product-name">
+                      {scan.product?.brand_guess || scan.product?.generic_name 
+                        ? `${scan.product.brand_guess || ''} ${scan.product.generic_name || ''}`.trim() 
+                        : scan.input?.filename || 'Unknown Product'}
+                    </span>
+                    <span className="scan-id">ID: {scan.scan_id}</span>
                   </div>
                   
-                  <div className="col-product">
-                    <span className="scan-id">{scan.scan_id}</span>
-                    <span className="product-name">
-                      {scan.input?.filename || 'Unknown File'} 
-                      {scan.product?.brand_guess ? ` • ${scan.product.brand_guess}` : ''}
-                    </span>
+                  <div className="col-date">
+                    <span className="scan-date">{new Date(scan.created_at).toLocaleDateString()} {new Date(scan.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                   </div>
                   
                   <div className="col-verdict">
                     <span className={`scan-status status-badge ${scan.status.toLowerCase()}`}>
                       {scan.status === 'DONE' ? 'COMPLIANT' : 
-                       scan.status === 'FAILED' ? (scan.results ? 'NON-COMPLIANT' : 'FAILED') : 
-                       scan.status === 'NEEDS_REVIEW' ? 'HUMAN REVIEW NEEDED' : scan.status}
+                       scan.status === 'FAILED' ? (scan.results ? 'NON-COMPLIANT' : 'PROCESSING FAILED') : 
+                       scan.status === 'NEEDS_REVIEW' ? 'REVIEW NEEDED' : scan.status}
                     </span>
                     {scan.status === 'FAILED' && scan.error && !scan.results && (
                       <div className="scan-card-error">
-                        Error: {scan.error.code}
+                        {scan.error.code}
                       </div>
                     )}
                   </div>

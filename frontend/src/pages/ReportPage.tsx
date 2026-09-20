@@ -112,20 +112,23 @@ export default function ReportPage() {
     <div className="report-page">
       <header className="report-header page-header">
         <div className="header-info">
-          <span className="page-header-id reveal-1">04 / RESULT</span>
-          <h1 className="page-header-title reveal-2">Compliance Verdict</h1>
+          <span className="page-header-id reveal-1">
+            <span className="numeral">04</span>
+            <span className="identifier">RESULT</span>
+          </span>
+          <h1 className="page-header-title reveal-2">Inspection Report</h1>
           <div className="page-header-desc reveal-3">
             <div className="metadata-row">
               <span className="label">TARGET</span>
               <span className="value">{scan.product?.brand_guess} {scan.product?.generic_name || 'Unknown Product'}</span>
             </div>
             <div className="metadata-row">
-              <span className="label">SCAN ID</span>
-              <span className="value">{scan.scan_id}</span>
-            </div>
-            <div className="metadata-row">
               <span className="label">TIMESTAMP</span>
               <span className="value">{new Date(scan.updated_at).toLocaleString()}</span>
+            </div>
+            <div className="metadata-row">
+              <span className="label">SCAN ID</span>
+              <span className="value" style={{opacity: 0.6}}>{scan.scan_id}</span>
             </div>
           </div>
           <div className="report-actions">
@@ -140,22 +143,27 @@ export default function ReportPage() {
                scan.status === 'FAILED' ? 'NON-COMPLIANT' : 
                scan.status === 'NEEDS_REVIEW' ? 'HUMAN REVIEW NEEDED' : scan.status}
             </div>
+            <div className="verdict-explanation">
+              {scan.status === 'DONE' ? 'All evaluated requirements passed.' :
+               scan.status === 'FAILED' ? `${scan.summary.fail} requirement${scan.summary.fail === 1 ? '' : 's'} failed.` :
+               scan.status === 'NEEDS_REVIEW' ? 'Some requirements require manual verification.' : ''}
+            </div>
             <div className="summary-stats">
               <div className="stat-box">
-                <span className="stat-label">VIOLATIONS</span>
-                <span className={`stat-num ${scan.summary.fail > 0 ? 'fail-text' : ''}`}>{scan.summary.fail}</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">REVIEWS</span>
-                <span className={`stat-num ${scan.summary.needs_review > 0 ? 'review-text' : ''}`}>{scan.summary.needs_review}</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">PASSED</span>
+                <span className="stat-label">PASS</span>
                 <span className="stat-num pass-text">{scan.summary.pass}</span>
               </div>
               <div className="stat-box">
-                <span className="stat-label">DECLARATIONS</span>
-                <span className="stat-num">{scan.summary.found_declarations ?? 0}/7</span>
+                <span className="stat-label">FAIL</span>
+                <span className={`stat-num ${scan.summary.fail > 0 ? 'fail-text' : ''}`}>{scan.summary.fail}</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-label">REVIEW</span>
+                <span className={`stat-num ${scan.summary.needs_review > 0 ? 'review-text' : ''}`}>{scan.summary.needs_review}</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-label">NOT APPLICABLE</span>
+                <span className="stat-num">{scan.summary.na || 0}</span>
               </div>
             </div>
           </div>
@@ -186,40 +194,67 @@ export default function ReportPage() {
               }}
               style={{ cursor: 'pointer' }}
             >
-              <div className="result-header">
-                <span className="rule-id">{result.rule_id}</span>
-                <span className={`status-badge ${getStatusColor(result.status)}`}>{result.status}</span>
+              <div className="result-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                    <span className="rule-id">{result.rule_id}</span>
+                    <h3 className="rule-name" style={{ margin: 0 }}>{result.name}</h3>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <span className={`status-badge ${getStatusColor(result.status)}`}>
+                      {result.status === 'PASS' ? 'Requirement satisfied' :
+                       result.status === 'FAIL' ? 'Requirement not satisfied' :
+                       result.status === 'NEEDS_REVIEW' ? 'Requires human review' :
+                       result.status === 'NA' ? 'Not applicable' : result.status}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="chevron-icon" style={{ opacity: 0.5, transition: 'transform 0.3s ease' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
               </div>
-              <h3 className="rule-name">{result.name}</h3>
-              <p className="citation">{result.citation}</p>
               
               <div className="expandable-content" style={{ overflow: 'hidden', height: 0, opacity: 0, transition: 'all 0.3s ease-out' }}>
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                  {result.evidence ? (
-                    <div className="evidence-text" style={{ marginBottom: '8px' }}>
-                      <strong>Evidence:</strong> {result.evidence}
-                    </div>
-                  ) : (
-                    <div className="evidence-text missing" style={{ marginBottom: '8px', opacity: 0.5 }}>
-                      <strong>Evidence:</strong> Not available
+                <div style={{ marginTop: '16px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  
+                  {result.evidence && (
+                    <div className="evidence-section">
+                      <span className="technical-label" style={{ display: 'block', marginBottom: '8px', color: 'var(--color-text-secondary)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>CHECK DETAIL</span>
+                      <div className="evidence-text" style={{ fontSize: '1rem', color: 'var(--color-text-primary)' }}>
+                        {result.evidence}
+                      </div>
+                      {result.measurement && (
+                        <div className="measurement-info" style={{ marginTop: '8px', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
+                          Measured: {result.measurement.measured_mm}mm (Required: {result.measurement.required_mm}mm)
+                        </div>
+                      )}
                     </div>
                   )}
                   
-                  {result.fix ? (
-                    <div className="fix-text" style={{ marginBottom: '8px' }}>
-                      <strong>Fix:</strong> {result.fix}
-                    </div>
-                  ) : (
-                    <div className="fix-text missing" style={{ marginBottom: '8px', opacity: 0.5 }}>
-                      <strong>Fix:</strong> Not available
-                    </div>
-                  )}
-                  
-                  {result.measurement && (
-                    <div className="measurement-info">
-                      <strong>Measurement:</strong> {result.measurement.measured_mm}mm (Req: {result.measurement.required_mm}mm)
+                  {result.fix && (
+                    <div className="fix-section">
+                      <span className="technical-label" style={{ display: 'block', marginBottom: '8px', color: 'var(--color-status-warning)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>RECOMMENDED ACTION</span>
+                      <div className="fix-text" style={{ fontSize: '1rem', color: 'var(--color-text-primary)' }}>
+                        {result.fix}
+                      </div>
                     </div>
                   )}
+
+                  {!result.evidence && !result.fix && (
+                     <div style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                       No additional detail was returned for this rule.
+                     </div>
+                  )}
+
+                  <div className="citation-section" style={{ paddingTop: '16px', borderTop: '1px dashed rgba(255,255,255,0.05)' }}>
+                    <span className="technical-label" style={{ display: 'block', marginBottom: '4px', color: 'var(--color-text-muted)', fontSize: '0.7rem', fontFamily: 'var(--font-mono)' }}>LEGAL REFERENCE</span>
+                    <p className="citation" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>{result.citation}</p>
+                  </div>
+
                 </div>
               </div>
               <div className="expand-hint" style={{ marginTop: '12px', fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', transition: 'opacity 0.2s' }}>
@@ -235,13 +270,14 @@ export default function ReportPage() {
             <div className="declarations-grid">
               {Object.entries(scan.extraction.fields).map(([key, field]) => {
                 if (!field || typeof field !== 'object' || !('raw' in field)) return null;
+                const confClass = field.confidence && field.confidence < 0.8 ? 'low-conf' : '';
                 return (
-                  <div className="declaration-cell" key={key}>
+                  <div className={`declaration-cell ${confClass}`} key={key}>
                     <span className="dec-label">{key.replace(/_/g, ' ').toUpperCase()}</span>
                     <span className="dec-value">{field.raw || 'Not found on label'}</span>
                     {field.raw && (
                       <span className="dec-conf">
-                        Confidence: {field.confidence !== null && field.confidence !== undefined ? `${(field.confidence * 100).toFixed(1)}%` : 'Not available'}
+                        {field.confidence !== null && field.confidence !== undefined ? `${(field.confidence * 100).toFixed(0)}% CONFIDENCE` : 'N/A'}
                       </span>
                     )}
                   </div>
@@ -255,7 +291,8 @@ export default function ReportPage() {
         </div>
 
         <div className="evidence-section">
-          <h2>Evidence Viewer</h2>
+          <h2>EVIDENCE IMAGE</h2>
+          <p style={{marginBottom: '16px', color: 'var(--color-text-secondary)', fontSize: '0.9rem'}}>Annotated package image used during the compliance inspection.</p>
           {scan.artifacts?.display_image && scan.extraction?.image ? (
             <EvidenceViewer 
               imageUrl={resolveArtifactUrl(scan.artifacts.display_image) || ''}
