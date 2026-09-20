@@ -1,6 +1,6 @@
 # DECISIONS.md — Source of Truth
 
-**Project:** LabelCheck (working name — final name TBD)
+**Project:** LabelProof
 **What it is:** Software system to check compliance of packaged commodities under the Legal Metrology (Packaged Commodities) Rules, 2011 by scanning products, images and labels.
 
 **One line:** label photo/PDF in → AI reads it (extraction only) → deterministic rule engine judges it against LMPC Rules 2011 → compliance report card out: pass/fail/NA per rule, exact clause citation, violations highlighted on the label image, fix-it guidance per violation.
@@ -25,8 +25,7 @@ before a field is VERIFIED.
 
 | | Event | Format | What we submit |
 |---|---|---|---|
-| 1 | **SIH 2026, PS SIH26034** (Ministry of Consumer Affairs, Food & Public Distribution) | Internal round: presentation | PPT: Problem → Gap → Solution → Architecture → Innovation → Demo → Impact |
-| 2 | **WeMakeDevs × AWS Bharat Builds Tour — Stop 1 "First Commit", Sept 17–20, 2026** (hybrid: online anywhere in India + optional Bangalore Sept 19) | 4-day build, teams of 1–4 | Public repo + 2–3 min demo video + short writeup |
+| 1 | **WeMakeDevs × AWS Bharat Builds Tour — Stop 1 "First Commit", Sept 17–20, 2026** (hybrid: online anywhere in India + optional Bangalore Sept 19) | 4-day build, teams of 1–4 | Public repo + 2–3 min demo video + short writeup |
 
 Event rules that shape everything:
 - [LOCKED] **Project work (code/repo) starts Sept 17 only.** Repo history must match the event window — prior work disqualifies the team. Planning, setup, learning before that is allowed.
@@ -88,7 +87,7 @@ Event rules that shape everything:
 - [LOCKED] **THE CORE PRINCIPLE — model-independent correctness:** the model's quality may change **coverage** (how many fields get extracted), never **correctness** (whether a given verdict is right). Every verdict must trace to deterministic verification (crop-verify OCR on pixels, or PDF text-layer) — never to raw model output. A weak model yields more `NA`/`NEEDS_REVIEW`, never more wrong answers. The system itself detects incomplete extraction and reports it honestly (e.g., "found 5 of 7 declarations"), and the benchmark reports accuracy and coverage as separate numbers.
 
 - [LOCKED] Principle: **the LLM reads the label; code judges it. The judge never hallucinates.**
-- [LOCKED] LLM (Amazon Bedrock) is used for exactly ONE job: extraction — fields + bounding boxes from the photo/PDF. All 11 verdicts, geometry, reports = pure Python.
+- [LOCKED] LLM is used for exactly ONE job: extraction — fields + bounding boxes from the photo/PDF. All 11 verdicts, geometry, reports = pure Python.
 - [LOCKED] Verification gauntlet (full spec: ENGINEERING.md Feature 1): every claim passes deterministic gates — box sanity, text sanity, parsed↔raw consistency, crop-verify (OCR match inside the claimed box), keyword-anchor check (box must contain the field's keyword, e.g. an "MRP" claim needs an OCR-detected MRP anchor in that box), confidence gate. Verifier = Tesseract word-index (deterministic; PDFs use the exact text layer instead).
 - [LOCKED] **Missing vs unreadable:** a mandatory declaration that is confidently absent from a readable label (readability score from the OCR word index passes, field null everywhere) is reported as **FAIL — "not found on label"** (a real violation, most common case: missing MRP), never swallowed as NA. Only genuinely undeterminable cases become NA. Every NA/NEEDS_REVIEW carries a reason code (`NOT_PRINTED`, `UNREADABLE_IMAGE`, `VERIFY_FAILED`, `LOW_CONFIDENCE`, `UNSUPPORTED_LANGUAGE`, `NO_SCALE_REFERENCE`, `DEPENDENCY_UNAVAILABLE`, `NA_EXEMPT`, `EXTRACTION_MISS`) + human-readable message + suggested action. Partial report principle: a failed gate on one field never fails the scan; only unparseable garbage does. Reports always state "found X of 7 declarations".
 - [LOCKED] **Extraction cache:** the same label never hits Bedrock twice. Dev iterations on rule engine/UI run on cached JSON. This is also the cost control.
@@ -147,11 +146,6 @@ Event rules that shape everything:
 - [LOCKED] Repo doc structure (updated 2026-09-18 — monorepo layout, owner-directed; decision log same date): `AGENTS.md` (agent constitution + verify commands), `PROGRESS.md` (live state + decision log), `TASKS.md` (queue), `CONTRACTS.md` (repo root — frozen schemas, the ONLY shared document), `backend/docs/ENGINEERING.md` (proven designs, Features 1–10), `backend/docs/ARCHITECTURE.md` (text version — NOT the HTML), `backend/docs/CHECKS.md` (exact spec per check: citation, pass/fail logic, edge cases, examples), `backend/fixtures/` (golden extraction JSONs = TDD answer key).
 - [LOCKED] **Doc scoping — backend vs frontend:** `backend/docs/ARCHITECTURE.md`, `backend/docs/ENGINEERING.md` and `backend/docs/CHECKS.md` are BACKEND build documents — backend agents only; they describe the server system and must never lead to frontend code. **`CONTRACTS.md` (repo root) is the ONLY shared document** — the frontend track (2 members) builds entirely against it, with its own UI-focused doc if needed.
 - [LOCKED] **Proof-first rule:** no feature or stage gets coded before its approach is written down AND mathematically justified (error sources, bounds, cost/latency budget) in the docs. Agents receive a proven approach + implementation direction — they translate designs into code; they never make design decisions. Design correctness is proven by the math; implementation correctness is enforced by fixtures/TDD.
-
-## 9. Open items (decide later, in order)
-
-1. Final product name
-2. Which member owns Lambda deploys; IAM usernames
 
 ---
 

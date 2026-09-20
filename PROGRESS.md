@@ -1,6 +1,6 @@
 # PROGRESS.md -- Live State
 
-**Updated:** 2026-09-17 (design phase complete, implementation starting)
+**Updated:** 2026-09-20 (implementation complete, deployed live on AWS)
 **Rule:** this file is the live state of the build -- updated after EVERY task (AGENTS.md 5). The authoritative decision log lives in DECISIONS.md; it is never duplicated here.
 
 ---
@@ -58,29 +58,24 @@
 | T4.3 | F4 acceptance fixtures | 2026-09-18 | F4 4.9 |
 | T1.8 | Bedrock extraction client (schema, prompt, fallback logic) | 2026-09-18 | F9 |
 
-## Not started
+## Remaining
 
-- **Repo code** -- every implementation task, tracked in TASKS.md (all tasks TODO except Phase 1-4 and Phase 0/T1.9)
-- **AWS infra** -- IAM users/policies (User handling IAM manually)
-- **Benchmark label collection** -- the long-lead human task: 80-100 real supermarket labels, 2-labeler + adjudication protocol, stratified minimums (ENGINEERING F8 8.6). Phasing: ~30 fully-verified labels by day 2, remainder by day 3. START NOW -- it gates the demo numbers.
-- **Frontend track** -- builds against CONTRACTS.md only (upload UI, polling report card, history/search/stats, download buttons); may keep its own UI-focused doc
+- **Benchmark label collection** -- corpus collection and calibration pending; framework is production-ready (F8). No accuracy numbers claimed until corpus is collected.
+- **Bedrock re-enable** -- on hold per Decision #17; can be added as a config row + dialect adapter when in-region access is confirmed.
 
 ## Open items (DECISIONS.md 9)
 
-1. Final product name (current: LabelCheck, working name)
-2. Which member owns Lambda deploys; IAM usernames
-3. Exact Bedrock inference profile IDs (wire during integration)
-
+1. ~~Final product name~~ -- closed: **LabelProof**
+2. ~~Exact Bedrock inference profile IDs~~ -- superseded by Decision #17 (Gemini primary, NIM fallback; Bedrock on hold)
 ## Decision log
 
 Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highlights: initial lock; judging criteria; core principle; doc scoping + proof-first rule; Features 1-10 proven and locked; CONTRACTS additive changes (F4, F6, decision sessions); PENDING->FAILED upload-timeout semantics (F5); Rule 7 Table-I legal correction to the 2018 area-based table.
 
-## Next actions (in order)
+## Next actions
 
-1. Repo init (today, 17 Sept) -- scaffold per TASKS.md Phase 0; branch protection, `.gitignore`, no code before this date
-2. Benchmark collection trip planning -- stratification minimums, 2 labelers, materials (ruler/calipers, phone)
-3. Backend: Phase 0 infra + Phase 1 (Feature 1 modules, pure Python, no AWS needed) in parallel -- AWS-unfamiliarity never blocks anyone (DECISIONS.md 7)
-4. Frontend: start against CONTRACTS.md mocks in parallel
+1. Benchmark label collection -- collect corpus for calibration against the production pipeline (framework ready, F8)
+2. Bedrock re-enable -- config row + dialect adapter once in-region access is confirmed (post-hackathon)
+3. Roadmap -- auto-orientation, mobile capture UX, batch scans
 
 
 | T5.1 | generate_scan_id and PENDING record | 2026-09-18 | F5 |

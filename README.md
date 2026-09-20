@@ -11,7 +11,7 @@
 
 **Built for the WeMakeDevs × AWS Bharat Builds Tour "First Commit" hackathon — Ship It track**
 
-> 🟡 **Live Demo:** `<PLACEHOLDER — fill in your S3 website URL>` &nbsp;·&nbsp; [**API**](https://owda7ujf7yynpwthu4ecbrtqhy0wxwlu.lambda-url.ap-south-1.on.aws/) &nbsp;·&nbsp; [**Contracts**](./CONTRACTS.md) &nbsp;·&nbsp; [**Decisions**](./DECISIONS.md)
+> 🟡 **Live Demo:** `<PLACEHOLDER — fill in your S3 website URL>` &nbsp;·&nbsp; [**Contracts**](./CONTRACTS.md) &nbsp;·&nbsp; [**Decisions**](./DECISIONS.md)
 
 ---
 
@@ -31,6 +31,7 @@
 - [Project Structure](#project-structure)
 - [Quick Start](#quick-start)
 - [AWS Feedback](#aws-feedback-honest)
+- [What We Learned](#what-we-learned)
 - [Engineering Process](#engineering-process)
 - [Team](#team)
 - [Limitations & Roadmap](#limitations--roadmap)
@@ -355,6 +356,19 @@ The `scipy + numpy + PyMuPDF + Pillow` stack exceeded the 250 MB unzipped limit 
 
 ---
 
+## What We Learned
+
+None of us had shipped anything on S3, Lambda, or DynamoDB before this. A few things that genuinely surprised us:
+
+**S3 events + Lambda is simpler than we thought it would be.** We went in assuming we'd need a queue between upload and processing. We didn't. The `s3:ObjectCreated` trigger just works, and once we added DynamoDB conditional writes to guard against Lambda retries processing the same label twice, the whole intake path became solid without any extra moving parts.
+
+**The 250 MB Lambda layer limit is real and it bites.** We didn't think about transitive dependencies when we picked `scipy`. It dragged in a full OpenBLAS distribution we never called directly. We had to audit the actual import graph and strip it down to only the three subpackages the geometry code uses. Now that dependency graph is documented so it doesn't happen again.
+
+**Building provider-agnostic from the start was the right call, but for a reason we didn't expect.** We designed the extraction layer to be swappable because it seemed like good practice. On day 3, Bedrock threw a `ValidationException` in `ap-south-1` over the difference between base model IDs and inference profile ARNs. Switching to Gemini took one config change. If the LLM client had been tightly coupled to Bedrock's API, that would have been a day of rewriting code instead.
+
+**Frozen contracts between teams actually work.** Frontend and backend developed in parallel for most of the build with almost no coordination on the implementation. The contract document defined the shapes upfront and both sides built to it. When they connected, it worked. That's not something we expected to be true in a 4-day sprint.
+
+
 ## Engineering Process
 
 ### Spec-First Development
@@ -381,10 +395,10 @@ The pipeline was burn-in validated against a real label dataset before deploymen
 
 | Member | Role | Contributions |
 |--------|------|---------------|
-| \<NAME 1\> | Backend & Architecture | Designed the serverless compliance pipeline including LLM extraction, OCR verification gauntlet, rule engine and geometry analysis. Owned the API layer and end-to-end integration. |
-| \<NAME 2\> | AWS Infrastructure & DevOps | Built and maintained the AWS deployment: Lambda layers, S3/DynamoDB setup, IAM policies and the live production environment. |
-| \<NAME 3\> | Frontend - UI & Experience | Owned the complete product interface: upload, scanning and results experience, visual design, and the report-viewing screens. |
-| \<NAME 4\> | Frontend - Contracts & Integration | Owned all API integration from the frozen `CONTRACTS.md`: upload/presign flow, polling, pagination and artifact delivery. Isolated and reported production endpoint issues during integration. |
+| Pratham Soni | Backend & Architecture | Designed the serverless compliance pipeline including LLM extraction, OCR verification gauntlet, rule engine and geometry analysis. Owned the API layer and end-to-end integration. |
+| Manav Solanki | AWS Infrastructure & DevOps | Built and maintained the AWS deployment: Lambda layers, S3/DynamoDB setup, IAM policies and the live production environment. |
+| Prajyot Asawale | Frontend - UI & Experience | Owned the complete product interface: upload, scanning and results experience, visual design, and the report-viewing screens. |
+| Alison Solanki | Frontend - API & Integration | Owned all API integration from the frozen `CONTRACTS.md`: upload/presign flow, polling, pagination and artifact delivery. Isolated and reported production endpoint issues during integration. |
 
 ---
 
