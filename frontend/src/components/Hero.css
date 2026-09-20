@@ -33,33 +33,28 @@
   align-items: center;
 }
 
-.hero-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 24px;
-  text-transform: uppercase;
-}
-
 .hero-headline {
   font-family: var(--font-sans);
   font-size: clamp(48px, 8vw, 96px);
   font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  color: #ffffff;
-  margin-bottom: 32px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-text-primary);
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: hero-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-subtext {
   font-family: var(--font-sans);
-  font-size: clamp(18px, 2.5vw, 24px);
+  font-size: clamp(18px, 2.5vw, 22px);
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-secondary);
   line-height: 1.5;
-  margin-bottom: 56px;
-  max-width: 600px;
+  margin-bottom: 48px;
+  max-width: 540px;
+  opacity: 0;
+  animation: hero-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.07s forwards;
 }
 
 .hero-actions {
@@ -68,37 +63,36 @@
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
+  opacity: 0;
+  animation: hero-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.14s forwards;
 }
 
-.hero-btn-primary {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 500;
-  padding: 16px 36px;
-  border-radius: 40px;
-  background: #ffffff;
-  color: #050505;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.hero-btn-primary:hover {
-  transform: scale(1.02);
-  opacity: 0.9;
+@keyframes hero-fade-in {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .hero-btn-secondary {
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  padding: 16px 36px;
+  letter-spacing: 0.02em;
+  padding: 14px 32px;
   border-radius: 40px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background 0.2s ease, transform 0.2s ease;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
 }
 
 .hero-btn-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.02);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.hero-btn-secondary:active {
+  transform: translateY(0);
+  opacity: 0.8;
 }

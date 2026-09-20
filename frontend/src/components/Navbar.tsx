@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import './Navbar.css'
 
 const navLinks = [
@@ -10,7 +10,7 @@ const navLinks = [
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
-  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,20 +28,19 @@ function Navbar() {
         </Link>
 
         <div className="navbar-links">
-          {navLinks.map((link) => (
-            <Link key={link.to} className="navbar-link" to={link.to}>
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.to;
+            return (
+              <Link 
+                key={link.to} 
+                className={`navbar-link ${isActive ? 'active' : ''}`} 
+                to={link.to}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
         </div>
-
-        <button
-          className="navbar-cta"
-          type="button"
-          onClick={() => navigate('/scan')}
-        >
-          Scan a package
-        </button>
       </div>
     </nav>
   )

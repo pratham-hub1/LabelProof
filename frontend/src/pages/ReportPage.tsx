@@ -34,18 +34,20 @@ export default function ReportPage() {
 
   if (loading) {
     return (
-      <div className="report-page loading">
+      <div className="report-page state-container">
         <div className="spinner"></div>
-        <p>Loading report...</p>
       </div>
     );
   }
 
   if (error || !scan) {
     return (
-      <div className="report-page error">
-        <h2>Report Not Found</h2>
-        <p>{error || 'An unknown error occurred.'}</p>
+      <div className="report-page">
+        <div className="empty-state" style={{ margin: '0 auto', marginTop: '100px' }}>
+          <div className="empty-state-ghost">04</div>
+          <p className="empty-state-text">NO REPORT AVAILABLE</p>
+          <p className="empty-state-subtext">{error || 'The requested scan ID does not exist or failed.'}</p>
+        </div>
       </div>
     );
   }
@@ -114,31 +116,51 @@ export default function ReportPage() {
 
   return (
     <div className="report-page">
-      <header className="report-header">
+      <header className="report-header page-header">
         <div className="header-info">
-          <h1>Compliance Report: {scan.scan_id}</h1>
-          <p>Product: {scan.product?.brand_guess} {scan.product?.generic_name}</p>
-          <p className="timestamp">Processed: {new Date(scan.updated_at).toLocaleString()}</p>
-          <DownloadButtons scan={scan} />
+          <span className="page-header-id reveal-1">04 / RESULT</span>
+          <h1 className="page-header-title reveal-2">Compliance Verdict</h1>
+          <div className="page-header-desc reveal-3">
+            <div className="metadata-row">
+              <span className="label">TARGET</span>
+              <span className="value">{scan.product?.brand_guess} {scan.product?.generic_name || 'Unknown Product'}</span>
+            </div>
+            <div className="metadata-row">
+              <span className="label">SCAN ID</span>
+              <span className="value">{scan.scan_id}</span>
+            </div>
+            <div className="metadata-row">
+              <span className="label">TIMESTAMP</span>
+              <span className="value">{new Date(scan.updated_at).toLocaleString()}</span>
+            </div>
+          </div>
+          <div className="report-actions">
+            <DownloadButtons scan={scan} />
+          </div>
         </div>
         
         {scan.summary && (
-          <div className="summary-stats">
-            <div className={`stat-box ${scan.summary.fail > 0 ? 'fail' : 'pass'}`}>
-              <span className="stat-num">{scan.summary.fail}</span>
-              <span className="stat-label">Violations</span>
+          <div className="verdict-panel reveal-4">
+            <div className={`verdict-status ${scan.summary.fail > 0 ? 'status-fail' : (scan.summary.needs_review > 0 ? 'status-review' : 'status-pass')}`}>
+              {scan.summary.fail > 0 ? 'NON-COMPLIANT' : (scan.summary.needs_review > 0 ? 'NEEDS REVIEW' : 'COMPLIANT')}
             </div>
-            <div className="stat-box pass">
-              <span className="stat-num">{scan.summary.pass}</span>
-              <span className="stat-label">Passed</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-num">{scan.summary.needs_review}</span>
-              <span className="stat-label">Reviews</span>
-            </div>
-            <div className="stat-box info">
-              <span className="stat-num">{scan.summary.found_declarations ?? 0}/7</span>
-              <span className="stat-label">Declarations</span>
+            <div className="summary-stats">
+              <div className="stat-box">
+                <span className="stat-label">VIOLATIONS</span>
+                <span className={`stat-num ${scan.summary.fail > 0 ? 'fail-text' : ''}`}>{scan.summary.fail}</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-label">REVIEWS</span>
+                <span className={`stat-num ${scan.summary.needs_review > 0 ? 'review-text' : ''}`}>{scan.summary.needs_review}</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-label">PASSED</span>
+                <span className="stat-num pass-text">{scan.summary.pass}</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-label">DECLARATIONS</span>
+                <span className="stat-num">{scan.summary.found_declarations ?? 0}/7</span>
+              </div>
             </div>
           </div>
         )}
@@ -152,10 +174,11 @@ export default function ReportPage() {
         </div>
       )}
 
-      <div className="report-content">
-        <div className="results-list">
-          <h2>Rule Results</h2>
-          {scan.results?.map((result) => (
+      <div className="report-content reveal-4">
+        <div className="report-left-column">
+          <div className="results-list">
+            <h2>Rule Results</h2>
+            {scan.results?.map((result) => (
             <div 
               key={result.rule_id} 
               className={`result-card ${getStatusColor(result.status)} ${activeBoxId === result.rule_id ? 'active' : ''}`}
@@ -188,6 +211,27 @@ export default function ReportPage() {
               )}
             </div>
           ))}
+        </div>
+
+        <div className="declarations-section">
+          <h2>Extracted Declarations</h2>
+          {scan.extraction?.fields ? (
+            <div className="declarations-grid">
+              {Object.entries(scan.extraction.fields).map(([key, field]) => {
+                if (!field || typeof field !== 'object' || !('raw' in field)) return null;
+                return (
+                  <div className="declaration-cell" key={key}>
+                    <span className="dec-label">{key.replace(/_/g, ' ').toUpperCase()}</span>
+                    <span className="dec-value">{field.raw || 'Not detected'}</span>
+                    <span className="dec-conf">Confidence: {(field.confidence * 100).toFixed(1)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="no-evidence"><p>No declarations extracted.</p></div>
+          )}
+        </div>
         </div>
 
         <div className="evidence-section">

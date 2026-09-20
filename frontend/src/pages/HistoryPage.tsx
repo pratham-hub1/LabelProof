@@ -52,7 +52,7 @@ export default function HistoryPage() {
       <div className="history-page state-container">
         <h2>Error Loading History</h2>
         <p className="error-text">{error}</p>
-        <button className="btn-retry" onClick={() => fetchScans()}>Retry</button>
+        <button className="btn-primary" style={{ marginTop: '16px' }} onClick={() => fetchScans()}>Retry</button>
       </div>
     );
   }
@@ -60,16 +60,22 @@ export default function HistoryPage() {
   return (
     <div className="history-page">
       <div className="history-container">
-        <h1>Scan History</h1>
+        <div className="page-header">
+          <span className="page-header-id reveal-1">02 / ARCHIVE</span>
+          <h1 className="page-header-title reveal-2">Inspection History</h1>
+          <p className="page-header-desc reveal-3">Review and access previously recorded compliance reports.</p>
+        </div>
         
         {scans.length === 0 ? (
-          <div className="empty-state">
-            <p>No scans found.</p>
-            <button className="btn-primary" onClick={() => navigate('/scan')}>Scan a Package</button>
+          <div className="empty-state reveal-4">
+            <div className="empty-state-ghost">02</div>
+            <p className="empty-state-text">NO INSPECTIONS RECORDED</p>
+            <p className="empty-state-subtext">Upload a label in the intake console to create the first record.</p>
+            <button className="btn-primary" onClick={() => navigate('/scan')}>INITIATE INSPECTION</button>
           </div>
         ) : (
           <>
-            <div className="scans-list">
+            <div className="scans-list reveal-4">
               {scans.map((scan) => (
                 <div 
                   key={scan.scan_id} 
@@ -77,26 +83,29 @@ export default function HistoryPage() {
                   onClick={() => navigate(`/report/${scan.scan_id}`)}
                 >
                   <div className="scan-card-header">
-                    <span className="scan-id">{scan.scan_id}</span>
-                    <span className="scan-status">{scan.status}</span>
-                  </div>
-                  <div className="scan-card-body">
-                    <p className="product-name">
+                    <span className="product-name">
                       {scan.product?.brand_guess || 'Unknown Brand'} - {scan.product?.generic_name || 'Unknown Product'}
-                    </p>
-                    <p className="scan-date">{new Date(scan.created_at).toLocaleString()}</p>
+                    </span>
+                    <span className="scan-id">{scan.scan_id}</span>
+                    <span className="scan-date">{new Date(scan.created_at).toLocaleString()}</span>
                   </div>
-                  {scan.status === 'FAILED' && scan.error && (
-                    <div className="scan-card-error">
-                      Error: {scan.error.code}
-                    </div>
-                  )}
-                  {scan.summary && (
-                    <div className="scan-card-summary">
-                      <span className="fail">{scan.summary.fail} Violations</span>
-                      <span className="pass">{scan.summary.pass} Passed</span>
-                    </div>
-                  )}
+                  
+                  <div className="scan-card-right">
+                    <span className="scan-status">{scan.status}</span>
+                    
+                    {scan.status === 'FAILED' && scan.error && (
+                      <div className="scan-card-error">
+                        Error: {scan.error.code}
+                      </div>
+                    )}
+                    
+                    {scan.summary && (
+                      <div className="scan-card-summary">
+                        <span className="fail">{scan.summary.fail} Violations</span>
+                        <span className="pass">{scan.summary.pass} Passed</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

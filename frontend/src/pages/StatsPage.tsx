@@ -25,31 +25,33 @@ export default function StatsPage() {
     fetchStats();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="stats-page state-container">
-        <div className="spinner"></div>
-        <p>Loading statistics...</p>
-      </div>
-    );
-  }
-
-  if (error || !stats) {
-    return (
-      <div className="stats-page state-container">
-        <h2>Error Loading Statistics</h2>
-        <p className="error-text">{error || 'Unknown error'}</p>
-        <button className="btn-retry" onClick={fetchStats}>Retry</button>
-      </div>
-    );
-  }
-
   return (
     <div className="stats-page">
-      <div className="stats-container">
-        <h1>Platform Statistics</h1>
-        
-        <div className="overall-stats">
+      <div className="page-header">
+        <span className="page-header-id reveal-1">03 / ANALYTICS</span>
+        <h1 className="page-header-title reveal-2">Compliance Intelligence</h1>
+        <p className="page-header-desc reveal-3">Macro-level statistics across all scanned products and declarations.</p>
+      </div>
+
+      <div className="stats-container reveal-4">
+        {loading ? (
+          <div className="state-container">
+            <div className="spinner"></div>
+          </div>
+        ) : error || !stats ? (
+          <div className="state-container">
+            <p className="error-text">ERROR: {error || 'Unknown error'}</p>
+            <button className="btn-primary" style={{ marginTop: '16px' }} onClick={fetchStats}>RETRY</button>
+          </div>
+        ) : stats.total_scans === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-ghost">03</div>
+            <p className="empty-state-text">ANALYTICS AWAITING DATA</p>
+            <p className="empty-state-subtext">Run inspections to populate compliance analytics.</p>
+          </div>
+        ) : (
+          <>
+            <div className="overall-stats">
           <div className="stat-card primary">
             <span className="stat-value">{stats.total_scans}</span>
             <span className="stat-label">Total Scans</span>
@@ -73,13 +75,19 @@ export default function StatsPage() {
                   <h3>{ruleId}</h3>
                   <div className="rule-stat-bars">
                     <div className="stat-bar-group">
-                      <span className="label">Pass ({ruleStats.pass})</span>
+                      <div className="label">
+                        <span>PASS</span>
+                        <span>{ruleStats.pass}</span>
+                      </div>
                       <div className="bar-bg">
                         <div className="bar-fill pass" style={{ width: `${Math.min(100, (ruleStats.pass / Math.max(1, stats.total_scans)) * 100)}%` }}></div>
                       </div>
                     </div>
                     <div className="stat-bar-group">
-                      <span className="label">Fail ({ruleStats.fail})</span>
+                      <div className="label">
+                        <span>FAIL</span>
+                        <span>{ruleStats.fail}</span>
+                      </div>
                       <div className="bar-bg">
                         <div className="bar-fill fail" style={{ width: `${Math.min(100, (ruleStats.fail / Math.max(1, stats.total_scans)) * 100)}%` }}></div>
                       </div>
@@ -103,6 +111,8 @@ export default function StatsPage() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
