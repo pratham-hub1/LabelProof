@@ -48,7 +48,7 @@ def encode_cursor(key: dict) -> str:
     if not key:
         return None
     try:
-        return base64.urlsafe_b64encode(json.dumps(key).encode('utf-8')).decode('utf-8')
+        return base64.urlsafe_b64encode(json.dumps(normalize_scalars(key)).encode('utf-8')).decode('utf-8')
     except Exception:
         return None
 

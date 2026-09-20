@@ -54,7 +54,9 @@ def get_stats() -> dict:
                 overall['exempt'] += summ.get('exempt', 0)
                 
             if item.get('results'):
-                for rule_id, res in item['results'].items():
+                for res in item['results']:
+                    rule_id = res.get('rule_id')
+                    if not rule_id: continue
                     if rule_id not in by_rule:
                         by_rule[rule_id] = {'pass': 0, 'fail': 0, 'na': 0, 'needs_review': 0, 'exempt': 0}
                     st = res.get('status', 'NA').lower()
