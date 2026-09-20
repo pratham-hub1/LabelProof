@@ -119,3 +119,4 @@ Authoritative log: DECISIONS.md (15 entries, 2026-09-16 to 2026-09-18). Highligh
 | Phase 5-8 Fixes | B1-B8 | 2026-09-19 | REVIEW_PHASES_5_8.md |
 | Day 3 Fixes | N-B1..N-B12, N-S1..N-S8 | 2026-09-19 | nex_findings_day3.md |
 | T1.8 | Replaced Bedrock client with OpenAI-compatible client (GEMINI/NIM), robust JSON extraction, + mocked tests | 2026-09-19 | F9 |
+| Lambda Deployment | Live E2E fixes (fixed handler.py error_code, switched USE_MOCK_BEDROCK to live, fixed label width, restored numpy.testing for scipy) | 2026-09-20 | E2E |
