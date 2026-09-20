@@ -30,3 +30,5 @@ Thumbs.db
 layers/*/
 
 scratch/
+backend/infra/layers/python/
+*.log

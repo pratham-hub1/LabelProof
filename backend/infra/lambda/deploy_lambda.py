@@ -100,12 +100,23 @@ def deploy():
     print("Packaging lambda...")
     lambda_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'lambda')
     zip_path = os.path.join(lambda_dir, 'function.zip')
-    with zipfile.ZipFile(zip_path, 'w') as zf:
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         handler_path = os.path.join(lambda_dir, 'handler.py')
         if os.path.exists(handler_path):
             zf.write(handler_path, 'handler.py')
         else:
             print(f"handler.py not found at {handler_path}")
+            
+        base_dir = os.path.join(lambda_dir, '..')
+        for dir_name in ['src', 'config']:
+            dir_path = os.path.join(base_dir, dir_name)
+            for root, _, files in os.walk(dir_path):
+                for file in files:
+                    if file.endswith('.pyc') or '__pycache__' in root:
+                        continue
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, base_dir)
+                    zf.write(file_path, arcname)
 
     # 3. Create/Update Lambda Function
     func_name = 'labelcheck-handler'
@@ -116,7 +127,7 @@ def deploy():
         print(f"Creating lambda function {func_name}...")
         response = lam.create_function(
             FunctionName=func_name,
-            Runtime='python3.11',
+            Runtime='python3.12',
             Role=role_arn,
             Handler='handler.handler',
             Code={'ZipFile': zip_content},
