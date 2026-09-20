@@ -2,7 +2,7 @@
 
 # LabelProof
 
-### LMPC 2011 label compliance in ~40 seconds — photograph a product label, get a legally-cited compliance verdict with a full report.
+### LMPC 2011 label compliance in ~40 seconds. Photograph a product label, get a legally-cited compliance verdict with a full report.
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-FF9900?logo=awslambda&logoColor=white)](https://aws.amazon.com/lambda/)
@@ -40,13 +40,13 @@
 
 ## The Problem
 
-Every pre-packaged product sold in India must carry **11 mandatory declarations** under the Legal Metrology (Packaged Commodities) Rules, 2011. Compliance verification today is manual — inspector with rulebook, eyeballing a label — which is:
+Every pre-packaged product sold in India must carry **11 mandatory declarations** under the Legal Metrology (Packaged Commodities) Rules, 2011. Compliance verification today is manual: an inspector with a rulebook, eyeballing a label. That approach is:
 
 - **Slow**: a multi-SKU audit takes hours
-- **Error-prone**: geometric checks (numeral heights, clear space, contrast) are near-impossible to do visually and consistently
+- **Error-prone**: geometric checks like numeral heights, clear space, and contrast are nearly impossible to do visually and consistently
 - **Unscalable**: sellers cannot self-audit before committing to a print run of lakhs of labels; inspectors cannot scan thousands of SKUs at market speed
 
-LabelProof automates the full 11-point checklist, including the *geometric* sub-rules that no prior tool touches, and returns a structured verdict in ~40 seconds.
+LabelProof automates the full 11-point checklist, including the *geometric* sub-rules that no prior tool handles, and returns a structured verdict in ~40 seconds.
 
 ---
 
@@ -54,7 +54,7 @@ LabelProof automates the full 11-point checklist, including the *geometric* sub-
 
 > **"Never a silent wrong verdict."**
 
-A system that says *COMPLIANT* on a bad label is worse than no system at all. Every design decision in LabelProof traces back to one constraint: **ambiguous or unreadable data degrades to `NEEDS_REVIEW` for human review — it never silently produces a wrong verdict.**
+A system that says *COMPLIANT* on a bad label is worse than no system at all. Every design decision in LabelProof traces back to one constraint: **ambiguous or unreadable data degrades to `NEEDS_REVIEW` for human review. It never silently produces a wrong verdict.**
 
 ### Anti-Hallucination by Construction
 
@@ -62,25 +62,25 @@ The LLM is the reader, not the judge. Its output passes a **six-gate verificatio
 
 | Gate | What it checks |
 |------|----------------|
-| **G0** | JSON schema validation — malformed output is rejected immediately |
-| **G1** | Mandatory field presence — every required field must be populated |
-| **G2** | Bounding-box sanity — coordinates must be plausible for the image dimensions |
-| **G3** | Blur / readability — severely blurred regions are flagged before OCR is attempted |
-| **G4** | OCR cross-verification — Tesseract crops each LLM-reported bounding box and verifies the extracted text against the LLM claim (normalized edit-distance = 0) |
-| **G5** | Anchor verification — key declarations are independently re-located |
-| **G6** | Per-field confidence gates (≥ 0.60) — low-confidence fields resolve to `NA` with a reason code, not to a verdict |
+| **G0** | JSON schema validation. Malformed output is rejected immediately. |
+| **G1** | Mandatory field presence. Every required field must be populated. |
+| **G2** | Bounding-box sanity. Coordinates must be plausible for the image dimensions. |
+| **G3** | Blur / readability. Severely blurred regions are flagged before OCR is attempted. |
+| **G4** | OCR cross-verification. Tesseract crops each LLM-reported bounding box and verifies the extracted text against the LLM claim (normalized edit-distance = 0). |
+| **G5** | Anchor verification. Key declarations are independently re-located. |
+| **G6** | Per-field confidence gates (>=0.60). Low-confidence fields resolve to `NA` with a reason code, not to a verdict. |
 
-Provider fallback is also baked in at the infrastructure level (see [Architecture](#architecture)).
+Provider fallback is baked in at the infrastructure level as well (see [Architecture](#architecture)).
 
 ### Statistical Geometry Verdicts
 
-Geometric checks (numeral height, clear space, contrast) use a **3σ rule** (σ = 0.05 × measured height):
+Geometric checks (numeral height, clear space, contrast) use a **3-sigma rule** (sigma = 0.05 × measured height):
 
-- `FAIL` only when a measurement is **confidently out of spec** (beyond 3σ below the minimum)
-- `PASS` only when **confidently within spec** (beyond 3σ above the minimum)
+- `FAIL` only when a measurement is **confidently out of spec** (beyond 3-sigma below the minimum)
+- `PASS` only when **confidently within spec** (beyond 3-sigma above the minimum)
 - `NEEDS_REVIEW` for everything in between
 
-This means measurement uncertainty is propagated through the verdict, not hidden.
+Measurement uncertainty is carried through to the verdict rather than hidden.
 
 ---
 
@@ -88,38 +88,38 @@ This means measurement uncertainty is propagated through the verdict, not hidden
 
 ```
 User uploads label photo (or PDF) + physical label width (mm)
-      │
-      ▼
-1. PREPROCESS   — EXIF auto-rotate, PDF page-1 render @ 200 DPI (PyMuPDF)
-      │
-      ▼
-2. EXTRACTION   — Multimodal LLM reads the label (Gemini 3.1 Flash Lite,
-                  OpenAI-compatible client, config-driven provider)
-      │
-      ▼
-3. GAUNTLET     — G0 schema → G1 presence → G2 box sanity → G3 blur →
-                  G4 Tesseract OCR crop-verify → G5 anchors → G6 confidence
-      │
-      ▼
-4. RULE ENGINE  — R1–R11 checks + automatic small-pack exemptions +
-                  geometric analysis (connected components, minAreaRect PCA,
-                  ΔE contrast)
-      │
-      ▼
+      |
+      v
+1. PREPROCESS    EXIF auto-rotate, PDF page-1 render @ 200 DPI (PyMuPDF)
+      |
+      v
+2. EXTRACTION    Multimodal LLM reads the label (Gemini 3.1 Flash Lite,
+                 OpenAI-compatible client, config-driven provider)
+      |
+      v
+3. GAUNTLET      G0 schema -> G1 presence -> G2 box sanity -> G3 blur ->
+                 G4 Tesseract OCR crop-verify -> G5 anchors -> G6 confidence
+      |
+      v
+4. RULE ENGINE   R1-R11 checks + automatic small-pack exemptions +
+                 geometric analysis (connected components, minAreaRect PCA,
+                 delta-E contrast)
+      |
+      v
 5. VERDICT + ARTIFACTS
-      │
-      ├── Overall: COMPLIANT / NON_COMPLIANT / NEEDS_REVIEW
-      ├── 11-point report with legal citations, evidence, suggested fixes
-      ├── PDF report (reportlab)
-      ├── CSV + JSON data artifacts
-      └── Annotated & display images
+      |
+      +-- Overall: COMPLIANT / NON_COMPLIANT / NEEDS_REVIEW
+      +-- 11-point report with legal citations, evidence, suggested fixes
+      +-- PDF report (reportlab)
+      +-- CSV + JSON data artifacts
+      +-- Annotated & display images
 ```
 
 ---
 
 ## The 11 Compliance Rules
 
-All rules codify the **Legal Metrology (Packaged Commodities) Rules, 2011**. Small packs (≤ 10 g or > 25 kg) receive automatic `NA_EXEMPT` verdicts with the statutory citation.
+All rules codify the **Legal Metrology (Packaged Commodities) Rules, 2011**. Small packs (<=10 g or >25 kg) receive automatic `NA_EXEMPT` verdicts with the statutory citation.
 
 | Rule | Declaration | Statutory Reference |
 |------|-------------|---------------------|
@@ -135,7 +135,7 @@ All rules codify the **Legal Metrology (Packaged Commodities) Rules, 2011**. Sma
 | R10 | Contrast of MRP/quantity numerals | Rule 9(1)(b) |
 | R11 | No misleading quantity qualifiers | Rule 12(6) |
 
-Every `NA` and `NEEDS_REVIEW` verdict carries one of **9 reason codes** plus a human-readable message and a suggested action (from `reasons.config`). Every `FAIL` carries a concrete fix.
+Every `NA` and `NEEDS_REVIEW` verdict carries one of **9 reason codes** plus a human-readable message and a suggested action (sourced from `reasons.config`). Every `FAIL` carries a concrete fix.
 
 ---
 
@@ -143,26 +143,41 @@ Every `NA` and `NEEDS_REVIEW` verdict carries one of **9 reason codes** plus a h
 
 ```mermaid
 flowchart TD
-    A["User Browser\n(React / Vite / TypeScript)"] -->|"POST /upload\n(presigned URL request)"| B["Lambda Function URL\n(REST API — AuthType NONE)"]
+    subgraph Frontend["Frontend (S3 Static Site)"]
+        A["React / Vite / TypeScript"]
+    end
+
+    subgraph API["API Layer"]
+        B["Lambda Function URL\nREST API / AuthType NONE"]
+    end
+
+    subgraph Storage["Storage"]
+        C["S3 uploads bucket"]
+        J["S3 outputs bucket\npublic report artifacts"]
+        K["DynamoDB\nscan lifecycle + GSI"]
+    end
+
+    subgraph Pipeline["Processing Pipeline (Lambda)"]
+        D["Handler\nbackend/lambda/handler.py"]
+        E["1. Preprocess\nEXIF transpose\nPDF to image at 200 DPI"]
+        F["2. Extraction\nGemini 3.1 Flash Lite\nconfig-driven provider\nfallback: NVIDIA NIM"]
+        G["3. Gauntlet G1-G6\nschema, presence, box sanity\nblur, OCR verify, confidence"]
+        H["4. Rule Engine R1-R11\nexemptions + geometry\nPCA, delta-E contrast"]
+        I["5. Verdict + Artifacts\nPDF, CSV, JSON\nannotated images"]
+    end
+
+    A -->|"POST /upload (presign request)"| B
     B -->|presigned S3 URL| A
-    A -->|"PUT label image / PDF\n(direct to S3)"| C["S3 uploads bucket\n(event-triggered intake)"]
-    C -->|S3 event trigger| D["Lambda Handler\nbackend/lambda/handler.py"]
-
-    D --> E["1 · Preprocess\nEXIF transpose\nPDF→image @ 200 DPI\n(PyMuPDF)"]
-    E --> F["2 · Extraction\nGemini 3.1 Flash Lite\nOpenAI-compatible client\nConfig-driven provider\nFallback: NVIDIA NIM GLM-5.3-Flash"]
-    F --> G["3 · Gauntlet G1–G6\nSchema · presence · box sanity\nblur · OCR cross-verify\nanchors · confidence gates"]
-    G --> H["4 · Rule Engine R1–R11\n+ Exemptions + Geometry\nconnected components\nminAreaRect PCA · ΔE contrast"]
-    H --> I["5 · Verdict + Artifacts\nPDF · CSV · JSON\nannotated images"]
-
-    I -->|"report artifacts\n(public)"| J["S3 outputs bucket"]
-    I -->|"state update\n(PENDING→PROCESSING→terminal)"| K["DynamoDB\n(scan lifecycle + GSI)"]
-
-    J --> L["Frontend polls\nGET /scans/{id}"]
-    K --> L
-    L --> A
+    A -->|"PUT image/PDF direct to S3"| C
+    C -->|S3 event trigger| D
+    D --> E --> F --> G --> H --> I
+    I -->|report artifacts| J
+    I -->|state update| K
+    J --> A
+    K --> A
 ```
 
-> **Provider agnosticism:** The extraction layer uses a single OpenAI-compatible client interface configured via `backend/config/llm_providers.config`. Switching providers requires zero code changes — the Bedrock → Gemini pivot during development was a config-only operation (see [AWS Feedback](#aws-feedback-honest)).
+> **Provider agnosticism:** The extraction layer uses a single OpenAI-compatible client configured via `backend/config/llm_providers.config`. Switching providers requires zero code changes. The Bedrock-to-Gemini pivot during development was a config-only operation (see [AWS Feedback](#aws-feedback-honest)).
 
 ---
 
@@ -170,12 +185,12 @@ flowchart TD
 
 | Service | Role | Notes |
 |---------|------|-------|
-| **S3 × 3** | `uploads` (event-triggered intake), `outputs` (public report artifacts), `web` (static frontend hosting) | Event notification on `uploads` triggers the Lambda pipeline |
+| **S3 x3** | `uploads` (event-triggered intake), `outputs` (public report artifacts), `web` (static frontend hosting) | Event notification on `uploads` triggers the Lambda pipeline |
 | **Lambda** | Entire backend: pipeline handler + REST API | Two layers attached: Tesseract OCR (eng + hin traineddata); slimmed Python deps layer (~170 MB unzipped) |
-| **DynamoDB** | Scan lifecycle (`PENDING → PROCESSING → terminal`), GSI for scan history | Atomic conditional writes for retry-safety; DynamoDB Streams not used |
-| **Lambda Function URL** | Public REST API | `AuthType NONE`; eliminated the need for API Gateway entirely |
-| **IAM** | Least-privilege inline policies per resource | — |
-| **CloudWatch** | Execution logs + debuggability | — |
+| **DynamoDB** | Scan lifecycle (`PENDING -> PROCESSING -> terminal`), GSI for scan history | Atomic conditional writes for retry-safety; DynamoDB Streams not used |
+| **Lambda Function URL** | Public REST API | `AuthType NONE`; no API Gateway needed |
+| **IAM** | Least-privilege inline policies per resource | |
+| **CloudWatch** | Execution logs and debuggability | |
 
 > **4 AWS core services: S3, Lambda, DynamoDB, Lambda Function URL.** No API Gateway, no EventBridge/SNS, no Cognito, no Textract in the MVP.
 
@@ -186,14 +201,14 @@ flowchart TD
 | Layer | Technology |
 |-------|-----------|
 | Runtime | Python 3.12 |
-| LLM (extraction) | Gemini 3.1 Flash Lite — multimodal, OpenAI-compatible endpoint |
-| LLM fallback | NVIDIA NIM GLM-5.3-Flash (configured as secondary provider) |
+| LLM (extraction) | Gemini 3.1 Flash Lite, multimodal, OpenAI-compatible endpoint |
+| LLM fallback | NVIDIA NIM GLM-5.3-Flash (secondary provider) |
 | OCR | Tesseract (eng + hin traineddata) |
 | PDF rendering | PyMuPDF |
-| Geometry / image | scipy · numpy · Pillow · OpenBLAS |
+| Geometry / image | scipy, numpy, Pillow, OpenBLAS |
 | Report generation | reportlab (deterministic / invariant mode) |
 | AWS SDK | boto3 |
-| Frontend | React 19 · Vite 8 · TypeScript · react-router-dom |
+| Frontend | React 19, Vite 8, TypeScript, react-router-dom |
 | Frontend hosting | S3 static website |
 
 ---
@@ -202,26 +217,26 @@ flowchart TD
 
 ```
 LabelProof/
-├── CONTRACTS.md              ← Frozen API contract (backend + frontend build against this)
-├── DECISIONS.md              ← Constitution — read before anything else
-├── AGENTS.md                 ← Rules for every AI agent and contributor
-├── TASKS.md / PROGRESS.md    ← Work queue + live state
+├── CONTRACTS.md              # Frozen API contract (backend + frontend build against this)
+├── DECISIONS.md              # Constitution, read before anything else
+├── AGENTS.md                 # Rules for every AI agent and contributor
+├── TASKS.md / PROGRESS.md    # Work queue + live state
 │
 ├── backend/
 │   ├── lambda/
-│   │   └── handler.py        ← Lambda entry point
+│   │   └── handler.py        # Lambda entry point
 │   ├── src/
-│   │   ├── preprocess/       ← EXIF transpose, PDF render
-│   │   ├── extraction/       ← LLM client (provider-agnostic)
-│   │   ├── gauntlet/         ← Gates G1–G6
-│   │   ├── rules/            ← Checks R1–R11, engine, verdict, exemptions
-│   │   ├── geometry/         ← Connected components, PCA, ΔE contrast
-│   │   ├── reports/          ← PDF / CSV / JSON / image artifact generation
-│   │   ├── ingestion/        ← S3 event intake and presign API
-│   │   ├── api/              ← REST route handlers
-│   │   └── pipeline/         ← Orchestrator
+│   │   ├── preprocess/       # EXIF transpose, PDF render
+│   │   ├── extraction/       # LLM client (provider-agnostic)
+│   │   ├── gauntlet/         # Gates G1-G6
+│   │   ├── rules/            # Checks R1-R11, engine, verdict, exemptions
+│   │   ├── geometry/         # Connected components, PCA, delta-E contrast
+│   │   ├── reports/          # PDF / CSV / JSON / image artifact generation
+│   │   ├── ingestion/        # S3 event intake and presign API
+│   │   ├── api/              # REST route handlers
+│   │   └── pipeline/         # Orchestrator
 │   ├── config/
-│   │   ├── llm_providers.config   ← Provider config (Gemini, NVIDIA NIM, Bedrock)
+│   │   ├── llm_providers.config   # Provider config (Gemini, NVIDIA NIM, Bedrock)
 │   │   ├── anchors.config
 │   │   ├── reasons.config
 │   │   ├── patterns.config
@@ -232,21 +247,21 @@ LabelProof/
 │   │   ├── api.config
 │   │   └── benchmark.config
 │   ├── infra/
-│   │   ├── lambda/           ← deploy_lambda.py (creates role, function, trigger, URL)
-│   │   ├── layers/           ← Layer publish scripts
-│   │   ├── buckets/          ← S3 setup
-│   │   ├── dynamodb/         ← Table + GSI setup
-│   │   └── bedrock/          ← Bedrock policy (re-enable via config when available)
+│   │   ├── lambda/           # deploy_lambda.py (creates role, function, trigger, URL)
+│   │   ├── layers/           # Layer publish scripts
+│   │   ├── buckets/          # S3 setup
+│   │   ├── dynamodb/         # Table + GSI setup
+│   │   └── bedrock/          # Bedrock policy (re-enable via config when available)
 │   ├── docs/
-│   │   ├── ENGINEERING.md    ← Full feature specs (10 features, all proven)
-│   │   ├── ARCHITECTURE.md   ← System map
-│   │   └── CHECKS.md         ← Per-check spec (compiled 1:1 from ENGINEERING.md)
-│   ├── tests/                ← 186 automated tests
-│   ├── fixtures/             ← Golden fixture files
-│   └── benchmark/            ← Benchmark runner (framework built)
+│   │   ├── ENGINEERING.md    # Full feature specs (10 features, all proven)
+│   │   ├── ARCHITECTURE.md   # System map
+│   │   └── CHECKS.md         # Per-check spec (compiled 1:1 from ENGINEERING.md)
+│   ├── tests/                # 186 automated tests
+│   ├── fixtures/             # Golden fixture files
+│   └── benchmark/            # Benchmark runner (framework built)
 │
 └── frontend/
-    ├── src/                  ← React app (builds against CONTRACTS.md only)
+    ├── src/                  # React app (builds against CONTRACTS.md only)
     └── vite.config.ts
 ```
 
@@ -287,7 +302,6 @@ set TESSDATA_PREFIX=<path-to-tessdata>
 # 4. Run the test suite
 pytest                         # full suite: unit + golden fixtures
 pytest -k determinism          # two-run identity assertion
-
 ```
 
 ### Deploy to AWS
@@ -324,20 +338,20 @@ npm run build
 
 This section responds to the hackathon's explicit ask for honest AWS platform feedback.
 
-### What Worked Flawlessly
+### What Worked Well
 
-- **S3 event-driven intake** — zero configuration headaches; the `s3:ObjectCreated` trigger to Lambda was instant and reliable throughout development and live burn-in.
-- **Lambda layers** — packaging Tesseract + traineddata as a separate layer kept the deployment workflow clean and the function zip small.
-- **DynamoDB conditional writes** — `ConditionExpression` for state-machine transitions (e.g., `attribute_not_exists` / `status = PENDING`) worked exactly as documented; no retry races in production.
-- **Lambda Function URL** — exposing a public REST API with `AuthType NONE` required zero additional service configuration. API Gateway was never needed.
+- **S3 event-driven intake**: the `s3:ObjectCreated` trigger to Lambda was instant and reliable throughout development and live burn-in with no configuration issues.
+- **Lambda layers**: packaging Tesseract + traineddata as a separate layer kept the deployment workflow clean and the function zip small.
+- **DynamoDB conditional writes**: `ConditionExpression` for state-machine transitions (e.g., `attribute_not_exists` / `status = PENDING`) worked exactly as documented. No retry races in production.
+- **Lambda Function URL**: exposing a public REST API with `AuthType NONE` required zero additional service configuration. API Gateway was never needed.
 
-### Friction 1 — Bedrock Model Access in ap-south-1
+### Friction 1: Bedrock Model Access in ap-south-1
 
-Amazon Bedrock model access in `ap-south-1` surfaced a `ValidationException` due to the distinction between base model IDs and cross-region inference profile ARNs. Because the extraction layer was built **provider-agnostic from day zero** — single OpenAI-compatible client, config-driven providers, G0 schema validation upstream of the provider call — we switched to Gemini via its OpenAI-compatible endpoint with **zero code changes**. The NVIDIA NIM fallback was configured as the secondary provider in the same operation. Bedrock can be re-enabled as a single config row (`backend/config/llm_providers.config`) plus a small dialect adapter when access is confirmed in-region.
+Amazon Bedrock model access in `ap-south-1` surfaced a `ValidationException` caused by the distinction between base model IDs and cross-region inference profile ARNs. Because the extraction layer was built **provider-agnostic from day zero** (single OpenAI-compatible client, config-driven providers, G0 schema validation upstream of the provider call), we switched to Gemini via its OpenAI-compatible endpoint with **zero code changes**. The NVIDIA NIM fallback was configured as the secondary provider in the same operation. Bedrock can be re-enabled as a single config row in `backend/config/llm_providers.config` plus a small dialect adapter once in-region access is confirmed.
 
-### Friction 2 — Lambda Layer 250 MB Unzipped Limit
+### Friction 2: Lambda Layer 250 MB Unzipped Limit
 
-The `scipy + numpy + PyMuPDF + Pillow` stack exceeded the 250 MB unzipped limit (code + all layers combined). We pruned `scipy` to only the sub-packages the geometry code imports (`ndimage`, `special`, `linalg`) and removed the implicit `OpenBLAS` full distribution, saving ~100 MB. The dependency graph is now documented so future additions can be evaluated against the budget before adding them.
+The `scipy + numpy + PyMuPDF + Pillow` stack exceeded the 250 MB unzipped limit (code + all layers combined). We pruned `scipy` to only the sub-packages the geometry code actually imports (`ndimage`, `special`, `linalg`) and removed the full OpenBLAS distribution, saving roughly 100 MB. The dependency graph is now documented so future additions can be evaluated against the budget before being added.
 
 ---
 
@@ -345,7 +359,7 @@ The `scipy + numpy + PyMuPDF + Pillow` stack exceeded the 250 MB unzipped limit 
 
 ### Spec-First Development
 
-Every module was fully specified and peer-reviewed before any code was written. The frozen data contract ([`CONTRACTS.md`](./CONTRACTS.md)) was established at the start of the project and drove backend and frontend development **in parallel with zero integration surprises** — the frontend built against the contract document, not against backend code.
+Every module was fully specified and peer-reviewed before any code was written. The frozen data contract ([`CONTRACTS.md`](./CONTRACTS.md)) was established at the start of the project and drove backend and frontend development in parallel. The frontend built against the contract document, not against backend code, which meant zero integration surprises when the two sides connected.
 
 ### Adversarial Cross-Model Review
 
@@ -355,7 +369,7 @@ An independent model reviewed the build in scenario mode: wrong-verdict construc
 
 - **186 automated tests**, all green
 - **Deterministic pipeline**: identical inputs produce byte-identical reports across runs (replay-verified via `pytest -k determinism`)
-- Fixture schemas validated on load — a fixture that does not match `CONTRACTS.md` fails loudly
+- Fixture schemas are validated on load. A fixture that does not match `CONTRACTS.md` fails loudly.
 
 ### Live Validation
 
@@ -367,10 +381,10 @@ The pipeline was burn-in validated against a real label dataset before deploymen
 
 | Member | Role | Contributions |
 |--------|------|---------------|
-| \<NAME 1\> | Backend & Architecture | Designed the serverless compliance pipeline — LLM extraction, OCR verification gauntlet, rule engine and geometry analysis — and owned the API layer and end-to-end integration |
-| \<NAME 2\> | AWS Infrastructure & DevOps | Built and maintained the AWS deployment — Lambda layers, S3/DynamoDB setup, IAM policies and the live production environment |
-| \<NAME 3\> | Frontend — UI & Experience | Owned the complete product interface — upload, scanning and results experience, visual design, and the report-viewing screens users actually see |
-| \<NAME 4\> | Frontend — Contracts & Integration | Owned all API integration from the frozen `CONTRACTS.md` — upload/presign flow, polling, pagination and artifact delivery — and isolated & reported production endpoint issues during integration |
+| \<NAME 1\> | Backend & Architecture | Designed the serverless compliance pipeline including LLM extraction, OCR verification gauntlet, rule engine and geometry analysis. Owned the API layer and end-to-end integration. |
+| \<NAME 2\> | AWS Infrastructure & DevOps | Built and maintained the AWS deployment: Lambda layers, S3/DynamoDB setup, IAM policies and the live production environment. |
+| \<NAME 3\> | Frontend - UI & Experience | Owned the complete product interface: upload, scanning and results experience, visual design, and the report-viewing screens. |
+| \<NAME 4\> | Frontend - Contracts & Integration | Owned all API integration from the frozen `CONTRACTS.md`: upload/presign flow, polling, pagination and artifact delivery. Isolated and reported production endpoint issues during integration. |
 
 ---
 
@@ -380,17 +394,17 @@ The pipeline was burn-in validated against a real label dataset before deploymen
 
 | Area | Status |
 |------|--------|
-| Benchmark accuracy numbers | Framework built; corpus collection and calibration is the next step. **No accuracy percentage is claimed.** |
+| Benchmark accuracy numbers | Framework is built; corpus collection and calibration is the next step. No accuracy percentage is claimed. |
 | Non-upright label photos | Auto-orientation not yet implemented; safely degrades to `NEEDS_REVIEW` |
 | Dot-matrix stamped dates | Hard for OCR to read reliably; flagged as `NEEDS_REVIEW`, never guessed |
 | Free-tier LLM rate limits | Mitigated by the provider fallback chain; a paid tier removes this entirely |
 
 ### Roadmap
 
-- [ ] Benchmark calibration on a collected label corpus (the framework is production-ready)
+- [ ] Benchmark calibration on a collected label corpus (framework is production-ready)
 - [ ] Auto-orientation for non-upright label photos
-- [ ] Bedrock re-enable (config + dialect adapter when in-region access is confirmed)
-- [ ] Mobile capture UX (optimized camera upload flow)
+- [ ] Bedrock re-enable (config + dialect adapter once in-region access is confirmed)
+- [ ] Mobile capture UX
 - [ ] Batch scan support (multiple SKUs in one submission)
 
 ---
@@ -399,8 +413,8 @@ The pipeline was burn-in validated against a real label dataset before deploymen
 
 | Document | Purpose |
 |----------|---------|
-| [`DECISIONS.md`](./DECISIONS.md) | The constitution — every locked design decision lives here |
-| [`CONTRACTS.md`](./CONTRACTS.md) | Frozen API contract — the only shared frontend/backend document |
+| [`DECISIONS.md`](./DECISIONS.md) | The constitution. Every locked design decision lives here. |
+| [`CONTRACTS.md`](./CONTRACTS.md) | Frozen API contract. The only shared frontend/backend document. |
 | [`backend/docs/ENGINEERING.md`](./backend/docs/ENGINEERING.md) | Full feature specs (10 features, all proven) |
 | [`backend/docs/CHECKS.md`](./backend/docs/CHECKS.md) | Per-check spec, compiled 1:1 from ENGINEERING.md |
 
@@ -408,13 +422,13 @@ The pipeline was burn-in validated against a real label dataset before deploymen
 
 ## License
 
-This project is licensed under the MIT License — see the [`LICENSE`](./LICENSE) file for details.
+This project is licensed under the MIT License. See the [`LICENSE`](./LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**LabelProof** · LMPC 2011 Compliance Automation · AWS · ap-south-1
+**LabelProof** &nbsp;·&nbsp; LMPC 2011 Compliance Automation &nbsp;·&nbsp; AWS ap-south-1
 
 *Built at the WeMakeDevs × AWS Bharat Builds Tour "First Commit" Hackathon, September 2026*
 
