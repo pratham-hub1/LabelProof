@@ -11,7 +11,7 @@
 
 **Built for the WeMakeDevs × AWS Bharat Builds Tour "First Commit" hackathon — Ship It track**
 
-> 🟡 **Live Demo:** `http://labelcheck-front-end.s3-website.ap-south-1.amazonaws.com/` &nbsp;·&nbsp; [**Contracts**](./CONTRACTS.md) &nbsp;·&nbsp; [**Decisions**](./DECISIONS.md)
+> [**🟡 Live Demo**](https://PLACEHOLDER.s3-website.ap-south-1.amazonaws.com) &nbsp;·&nbsp; [**Contracts**](./CONTRACTS.md) &nbsp;·&nbsp; [**Decisions**](./DECISIONS.md)
 
 ---
 
