@@ -82,29 +82,45 @@ export default function HistoryPage() {
                   className={`scan-card status-${scan.status.toLowerCase()}`}
                   onClick={() => navigate(`/report/${scan.scan_id}`)}
                 >
-                  <div className="scan-card-header">
-                    <span className="product-name">
-                      {scan.product?.brand_guess || 'Unknown Brand'} - {scan.product?.generic_name || 'Unknown Product'}
-                    </span>
-                    <span className="scan-id">{scan.scan_id}</span>
+                  <div className="col-date">
                     <span className="scan-date">{new Date(scan.created_at).toLocaleString()}</span>
                   </div>
                   
-                  <div className="scan-card-right">
-                    <span className="scan-status">{scan.status}</span>
-                    
-                    {scan.status === 'FAILED' && scan.error && (
+                  <div className="col-product">
+                    <span className="scan-id">{scan.scan_id}</span>
+                    <span className="product-name">
+                      {scan.input?.filename || 'Unknown File'} 
+                      {scan.product?.brand_guess ? ` • ${scan.product.brand_guess}` : ''}
+                    </span>
+                  </div>
+                  
+                  <div className="col-verdict">
+                    <span className={`scan-status status-badge ${scan.status.toLowerCase()}`}>
+                      {scan.status === 'DONE' ? 'COMPLIANT' : 
+                       scan.status === 'FAILED' ? (scan.results ? 'NON-COMPLIANT' : 'FAILED') : 
+                       scan.status === 'NEEDS_REVIEW' ? 'HUMAN REVIEW NEEDED' : scan.status}
+                    </span>
+                    {scan.status === 'FAILED' && scan.error && !scan.results && (
                       <div className="scan-card-error">
                         Error: {scan.error.code}
                       </div>
                     )}
-                    
-                    {scan.summary && (
+                  </div>
+                  
+                  <div className="col-summary">
+                    {scan.summary ? (
                       <div className="scan-card-summary">
-                        <span className="fail">{scan.summary.fail} Violations</span>
-                        <span className="pass">{scan.summary.pass} Passed</span>
+                        <span className="fail">{scan.summary.fail} FAIL</span>
+                        <span className="pass">{scan.summary.pass} PASS</span>
+                        <span className="review">{scan.summary.needs_review} REVIEW</span>
                       </div>
+                    ) : (
+                      <span className="scan-card-summary empty">-</span>
                     )}
+                  </div>
+
+                  <div className="col-action">
+                    <span className="action-text">View Report →</span>
                   </div>
                 </div>
               ))}

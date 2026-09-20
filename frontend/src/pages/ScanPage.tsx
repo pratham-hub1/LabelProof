@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
+import type { ScanRecord } from '../types/contracts';
 import './ScanPage.css';
 
 export default function ScanPage() {
@@ -15,6 +16,7 @@ export default function ScanPage() {
   // Processing state
   const [activeScanId, setActiveScanId] = useState<string | null>(null);
   const [pollingStatus, setPollingStatus] = useState<string | null>(null);
+  const [currentScan, setCurrentScan] = useState<ScanRecord | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,12 +65,20 @@ export default function ScanPage() {
 
   const handleUpload = async () => {
     if (!file) return;
+
+    let parsedWidth: number | undefined;
+    if (!file.type.includes('pdf')) {
+      parsedWidth = parseFloat(labelWidth);
+      if (isNaN(parsedWidth) || parsedWidth <= 0) {
+        setError('Physical label width is required and must be greater than 0 for image uploads.');
+        return;
+      }
+    }
+
     setIsUploading(true);
     setError(null);
 
     try {
-      const parsedWidth = labelWidth ? parseFloat(labelWidth) : undefined;
-      
       // Step 1: Request upload URL
       setUploadProgress(10);
       const res = await apiClient.requestUpload({
@@ -97,20 +107,24 @@ export default function ScanPage() {
     if (!activeScanId) return;
 
     let timeoutId: number;
+    let isMounted = true;
 
     const poll = async () => {
       try {
         const scan = await apiClient.getScan(activeScanId);
+        if (!isMounted) return;
         setPollingStatus(scan.status);
+        setCurrentScan(scan);
 
         if (['DONE', 'NEEDS_REVIEW', 'FAILED'].includes(scan.status)) {
           // Terminal state reached, navigate to report
           navigate(`/report/${activeScanId}`);
         } else {
           // Continue polling
-          timeoutId = window.setTimeout(poll, 2000);
+          timeoutId = window.setTimeout(poll, 3000);
         }
       } catch (err: unknown) {
+        if (!isMounted) return;
         // If getting scan fails, we can retry or abort
         setError('Failed to poll scan status: ' + (err instanceof Error ? err.message : String(err)));
         timeoutId = window.setTimeout(poll, 5000); // Backoff
@@ -120,6 +134,7 @@ export default function ScanPage() {
     poll();
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
     };
   }, [activeScanId, navigate]);
@@ -132,13 +147,54 @@ export default function ScanPage() {
           <div className="processing-state">
             <span className="processing-eyebrow">INSPECTION IN PROGRESS</span>
             <h2>Machine Vision Analyzing...</h2>
-            <div className="status-indicator">
-              <span className="spinner"></span>
-              <span className="status-text">{pollingStatus}</span>
+            
+            {error && <div className="error-banner">{error}</div>}
+            {currentScan?.error && (
+              <div className="error-banner">
+                <strong>{currentScan.error.code}</strong>: {currentScan.error.message}
+              </div>
+            )}
+
+            <div className="processing-steps" style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={`processing-step ${currentScan ? 'completed' : 'active'}`}>
+                <span className="step-icon">{currentScan ? '✓' : '⟳'}</span>
+                <span className="step-text">Image received</span>
+              </div>
+              
+              <div className={`processing-step ${currentScan?.extraction ? 'completed' : (currentScan ? 'active' : 'waiting')}`}>
+                <span className="step-icon">{currentScan?.extraction ? '✓' : (currentScan ? '⟳' : '○')}</span>
+                <span className="step-text">AI is reading the label</span>
+                {currentScan?.extraction?.fields && (
+                  <div className="extraction-preview" style={{ marginLeft: '24px', fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
+                    {Object.entries(currentScan.extraction.fields).map(([key, field]) => {
+                      if (!field || !field.raw) return null;
+                      return (
+                        <div key={key} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{key}: {field.raw}</span>
+                          <span>{field.confidence ? `${(field.confidence * 100).toFixed(0)}%` : ''}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className={`processing-step ${currentScan?.results ? 'completed' : (currentScan?.extraction ? 'active' : 'waiting')}`}>
+                <span className="step-icon">{currentScan?.results ? '✓' : (currentScan?.extraction ? '⟳' : '○')}</span>
+                <span className="step-text">Verifying 11 legal rules</span>
+              </div>
+
+              <div className={`processing-step ${['DONE', 'NEEDS_REVIEW', 'FAILED'].includes(currentScan?.status || '') ? 'completed' : (currentScan?.results ? 'active' : 'waiting')}`}>
+                <span className="step-icon">{['DONE', 'NEEDS_REVIEW', 'FAILED'].includes(currentScan?.status || '') ? '✓' : (currentScan?.results ? '⟳' : '○')}</span>
+                <span className="step-text">Generating report</span>
+              </div>
             </div>
-            <div className="processing-metadata">
+
+            <div className="processing-metadata" style={{ marginTop: '32px' }}>
               <span className="label">TARGET ID</span>
               <span className="value">{activeScanId}</span>
+              <span className="label" style={{ marginLeft: '16px' }}>STATUS</span>
+              <span className="value">{pollingStatus}</span>
             </div>
           </div>
         ) : (
@@ -151,71 +207,79 @@ export default function ScanPage() {
             
             {error && <div className="error-banner reveal-4">{error}</div>}
             
-            <div className="upload-card reveal-4">
-              <div className="file-input-group">
-                <label className="technical-label">INPUT / EVIDENCE UPLOAD</label>
-                <div 
-                  className="drop-zone-wrapper"
-                  onDragEnter={handleDragEnter}
-                  onDragOver={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <input 
-                    type="file" 
-                    accept=".jpg,.jpeg,.png,.pdf" 
-                    onChange={handleFileChange} 
-                    ref={fileInputRef}
-                    disabled={isUploading}
-                    className={file ? 'has-file' : ''}
-                  />
-                  <div className={`drop-zone-content ${file ? 'active' : ''} ${isDragging ? 'armed' : ''}`}>
-                    {/* Corner markers */}
-                    <div className="corner top-left"></div>
-                    <div className="corner top-right"></div>
-                    <div className="corner bottom-left"></div>
-                    <div className="corner bottom-right"></div>
-                    
-                    {!file ? (
-                      <>
-                        <span className="primary-inst">Select or drop file here</span>
-                        <span className="secondary-inst">JPEG, PNG, or PDF up to 20MB</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="technical-label success-label">READY TO INSPECT</span>
-                        <span className="file-name">{file.name}</span>
-                        <span className="file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                      </>
-                    )}
+            <div className="upload-layout reveal-4">
+              <div className="upload-left">
+                <div className="file-input-group">
+                  <label className="technical-label">INPUT / EVIDENCE UPLOAD</label>
+                  <div 
+                    className="drop-zone-wrapper"
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <input 
+                      type="file" 
+                      accept=".jpg,.jpeg,.png,.pdf" 
+                      onChange={handleFileChange} 
+                      ref={fileInputRef}
+                      disabled={isUploading}
+                      className={file ? 'has-file' : ''}
+                    />
+                    <div className={`drop-zone-content ${file ? 'active' : ''} ${isDragging ? 'armed' : ''}`}>
+                      {/* Corner markers */}
+                      <div className="corner top-left"></div>
+                      <div className="corner top-right"></div>
+                      <div className="corner bottom-left"></div>
+                      <div className="corner bottom-right"></div>
+                      
+                      {!file ? (
+                        <>
+                          <span className="primary-inst">Select or drop file here</span>
+                          <span className="secondary-inst">JPEG, PNG, or PDF up to 20MB</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="technical-label success-label">READY TO INSPECT</span>
+                          <span className="file-name">{file.name}</span>
+                          <span className="file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {file && !file.type.includes('pdf') && (
-                <div className="input-group">
-                  <label htmlFor="labelWidth" className="technical-label">TARGET / LABEL WIDTH CALIBRATION <span className="optional">(OPTIONAL)</span></label>
-                  <input 
-                    id="labelWidth"
-                    type="number" 
-                    step="0.1" 
-                    min="0"
-                    placeholder="e.g. 90" 
-                    value={labelWidth} 
-                    onChange={e => setLabelWidth(e.target.value)}
-                    disabled={isUploading}
-                  />
-                  <small>Enter physical width in millimeters to calibrate numeral height checks.</small>
-                </div>
-              )}
+              <div className="upload-right">
+                {file && !file.type.includes('pdf') && (
+                  <div className="input-group">
+                    <label htmlFor="labelWidth" className="technical-label">TARGET / LABEL WIDTH CALIBRATION</label>
+                    <input 
+                      id="labelWidth"
+                      type="number" 
+                      step="0.1" 
+                      min="0"
+                      placeholder="e.g. 90 (mm)" 
+                      value={labelWidth} 
+                      onChange={e => setLabelWidth(e.target.value)}
+                      disabled={isUploading}
+                    />
+                    <small>Approximate physical width of the label in millimeters. Required for image uploads.</small>
+                  </div>
+                )}
 
-              <button 
-                className="btn-primary scan-action-btn" 
-                onClick={handleUpload}
-                disabled={!file || isUploading}
-              >
-                {isUploading ? `PROCESSING [${uploadProgress}%]` : 'INITIATE INSPECTION'}
-              </button>
+                <div className="scan-info-note">
+                  11-point LMPC (Legal Metrology) compliance check
+                </div>
+
+                <button 
+                  className="btn-primary scan-action-btn" 
+                  onClick={handleUpload}
+                  disabled={!file || isUploading}
+                >
+                  {isUploading ? `PROCESSING [${uploadProgress}%]` : 'INITIATE INSPECTION'}
+                </button>
+              </div>
             </div>
           </div>
         )}

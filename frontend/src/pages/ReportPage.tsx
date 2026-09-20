@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { apiClient } from '../api/client';
+import { apiClient, resolveArtifactUrl } from '../api/client';
 import type { ScanRecord, RuleResultStatus } from '../types/contracts';
 import EvidenceViewer from '../components/EvidenceViewer';
 import DownloadButtons from '../components/DownloadButtons';
@@ -52,20 +52,14 @@ export default function ReportPage() {
     );
   }
 
-  // Handle FAILED scan appropriately (strict requirement)
-  if (scan.status === 'FAILED') {
+  // Handle true API/transport failures that have no results
+  if (scan.status === 'FAILED' && scan.error && !scan.results) {
     return (
       <div className="report-page failed">
         <div className="failed-banner">
           <h2>Scan Failed</h2>
-          {scan.error ? (
-            <>
-              <p><strong>Code:</strong> {scan.error.code}</p>
-              <p><strong>Message:</strong> {scan.error.message}</p>
-            </>
-          ) : (
-            <p>The scan failed due to an unknown internal error.</p>
-          )}
+          <p><strong>Code:</strong> {scan.error.code}</p>
+          <p><strong>Message:</strong> {scan.error.message}</p>
         </div>
       </div>
     );
@@ -141,8 +135,10 @@ export default function ReportPage() {
         
         {scan.summary && (
           <div className="verdict-panel reveal-4">
-            <div className={`verdict-status ${scan.summary.fail > 0 ? 'status-fail' : (scan.summary.needs_review > 0 ? 'status-review' : 'status-pass')}`}>
-              {scan.summary.fail > 0 ? 'NON-COMPLIANT' : (scan.summary.needs_review > 0 ? 'NEEDS REVIEW' : 'COMPLIANT')}
+            <div className={`verdict-status ${scan.status === 'DONE' ? 'status-pass' : scan.status === 'FAILED' ? 'status-fail' : scan.status === 'NEEDS_REVIEW' ? 'status-review' : ''}`}>
+              {scan.status === 'DONE' ? 'COMPLIANT' : 
+               scan.status === 'FAILED' ? 'NON-COMPLIANT' : 
+               scan.status === 'NEEDS_REVIEW' ? 'HUMAN REVIEW NEEDED' : scan.status}
             </div>
             <div className="summary-stats">
               <div className="stat-box">
@@ -184,6 +180,11 @@ export default function ReportPage() {
               className={`result-card ${getStatusColor(result.status)} ${activeBoxId === result.rule_id ? 'active' : ''}`}
               onMouseEnter={() => setActiveBoxId(result.rule_id)}
               onMouseLeave={() => setActiveBoxId(null)}
+              onClick={(e) => {
+                const el = e.currentTarget;
+                el.classList.toggle('expanded');
+              }}
+              style={{ cursor: 'pointer' }}
             >
               <div className="result-header">
                 <span className="rule-id">{result.rule_id}</span>
@@ -192,29 +193,44 @@ export default function ReportPage() {
               <h3 className="rule-name">{result.name}</h3>
               <p className="citation">{result.citation}</p>
               
-              {result.evidence && (
-                <div className="evidence-text">
-                  <strong>Evidence:</strong> {result.evidence}
+              <div className="expandable-content" style={{ overflow: 'hidden', height: 0, opacity: 0, transition: 'all 0.3s ease-out' }}>
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                  {result.evidence ? (
+                    <div className="evidence-text" style={{ marginBottom: '8px' }}>
+                      <strong>Evidence:</strong> {result.evidence}
+                    </div>
+                  ) : (
+                    <div className="evidence-text missing" style={{ marginBottom: '8px', opacity: 0.5 }}>
+                      <strong>Evidence:</strong> Not available
+                    </div>
+                  )}
+                  
+                  {result.fix ? (
+                    <div className="fix-text" style={{ marginBottom: '8px' }}>
+                      <strong>Fix:</strong> {result.fix}
+                    </div>
+                  ) : (
+                    <div className="fix-text missing" style={{ marginBottom: '8px', opacity: 0.5 }}>
+                      <strong>Fix:</strong> Not available
+                    </div>
+                  )}
+                  
+                  {result.measurement && (
+                    <div className="measurement-info">
+                      <strong>Measurement:</strong> {result.measurement.measured_mm}mm (Req: {result.measurement.required_mm}mm)
+                    </div>
+                  )}
                 </div>
-              )}
-              
-              {result.fix && (
-                <div className="fix-text">
-                  <strong>Fix:</strong> {result.fix}
-                </div>
-              )}
-              
-              {result.measurement && (
-                <div className="measurement-info">
-                  <strong>Measurement:</strong> {result.measurement.measured_mm}mm (Req: {result.measurement.required_mm}mm)
-                </div>
-              )}
+              </div>
+              <div className="expand-hint" style={{ marginTop: '12px', fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', transition: 'opacity 0.2s' }}>
+                Click to expand details
+              </div>
             </div>
           ))}
         </div>
 
         <div className="declarations-section">
-          <h2>Extracted Declarations</h2>
+          <h2>EXTRACTED LABEL DATA</h2>
           {scan.extraction?.fields ? (
             <div className="declarations-grid">
               {Object.entries(scan.extraction.fields).map(([key, field]) => {
@@ -222,8 +238,12 @@ export default function ReportPage() {
                 return (
                   <div className="declaration-cell" key={key}>
                     <span className="dec-label">{key.replace(/_/g, ' ').toUpperCase()}</span>
-                    <span className="dec-value">{field.raw || 'Not detected'}</span>
-                    <span className="dec-conf">Confidence: {(field.confidence * 100).toFixed(1)}%</span>
+                    <span className="dec-value">{field.raw || 'Not found on label'}</span>
+                    {field.raw && (
+                      <span className="dec-conf">
+                        Confidence: {field.confidence !== null && field.confidence !== undefined ? `${(field.confidence * 100).toFixed(1)}%` : 'Not available'}
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -238,7 +258,7 @@ export default function ReportPage() {
           <h2>Evidence Viewer</h2>
           {scan.artifacts?.display_image && scan.extraction?.image ? (
             <EvidenceViewer 
-              imageUrl={scan.artifacts.display_image}
+              imageUrl={resolveArtifactUrl(scan.artifacts.display_image) || ''}
               originalWidth={scan.extraction.image.width}
               originalHeight={scan.extraction.image.height}
               boxes={viewerBoxes}
@@ -250,6 +270,14 @@ export default function ReportPage() {
           )}
         </div>
       </div>
+
+      <footer className="report-footer">
+        <div className="footer-content">
+          <span>{scan.scan_id}</span>
+          <span>{new Date(scan.updated_at).toLocaleString()}</span>
+          <span>LMPC (PC) Rules, 2011</span>
+        </div>
+      </footer>
     </div>
   );
 }

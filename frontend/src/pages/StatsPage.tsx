@@ -52,17 +52,23 @@ export default function StatsPage() {
         ) : (
           <>
             <div className="overall-stats">
-          <div className="stat-card primary">
+          <div className="total-scans-card">
             <span className="stat-value">{stats.total_scans}</span>
             <span className="stat-label">Total Scans</span>
           </div>
-          <div className="stat-card pass">
-            <span className="stat-value">{stats.overall.pass}</span>
-            <span className="stat-label">Total Passes</span>
-          </div>
-          <div className="stat-card fail">
-            <span className="stat-value">{stats.overall.fail}</span>
-            <span className="stat-label">Total Failures</span>
+          <div className="secondary-stats">
+            <div className="stat-card pass">
+              <span className="stat-label">Total Passes</span>
+              <span className="stat-value">{stats.overall.pass}</span>
+            </div>
+            <div className="stat-card fail">
+              <span className="stat-label">Total Failures</span>
+              <span className="stat-value">{stats.overall.fail}</span>
+            </div>
+            <div className="stat-card review">
+              <span className="stat-label">Needs Review</span>
+              <span className="stat-value">{stats.overall.needs_review || 0}</span>
+            </div>
           </div>
         </div>
 

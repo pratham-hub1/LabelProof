@@ -1,4 +1,4 @@
-import { apiClient } from '../api/client';
+import { resolveArtifactUrl } from '../api/client';
 import type { ScanRecord } from '../types/contracts';
 
 interface DownloadButtonsProps {
@@ -12,7 +12,7 @@ export default function DownloadButtons({ scan }: DownloadButtonsProps) {
     <div className="download-buttons" style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
       {scan.artifacts.report_pdf && (
         <a 
-          href={apiClient.getReportDownloadUrl(scan.scan_id, 'pdf')}
+          href={resolveArtifactUrl(scan.artifacts.report_pdf) || '#'}
           className="btn-download pdf"
           target="_blank" 
           rel="noreferrer"
@@ -22,7 +22,7 @@ export default function DownloadButtons({ scan }: DownloadButtonsProps) {
       )}
       {scan.artifacts.report_csv && (
         <a 
-          href={apiClient.getReportDownloadUrl(scan.scan_id, 'csv')}
+          href={resolveArtifactUrl(scan.artifacts.report_csv) || '#'}
           className="btn-download csv"
           target="_blank" 
           rel="noreferrer"
@@ -32,7 +32,7 @@ export default function DownloadButtons({ scan }: DownloadButtonsProps) {
       )}
       {scan.artifacts.report_json && (
         <a 
-          href={apiClient.getReportDownloadUrl(scan.scan_id, 'json')}
+          href={resolveArtifactUrl(scan.artifacts.report_json) || '#'}
           className="btn-download json"
           target="_blank" 
           rel="noreferrer"
