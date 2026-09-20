@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import './CinematicStory.css';
 
 interface CinematicStoryProps {
@@ -5,6 +6,8 @@ interface CinematicStoryProps {
 }
 
 export default function CinematicStory({ progress }: CinematicStoryProps) {
+  const navigate = useNavigate();
+
   // Helper to calculate opacity and transform based on progress window
   const getStyle = (start: number, end: number) => {
     // Extend the end slightly so it doesn't blink out exactly at boundary
@@ -76,13 +79,16 @@ export default function CinematicStory({ progress }: CinematicStoryProps) {
         <div className="story-eyebrow">05 / REVEAL</div>
         <h2 className="story-heading large">From label to compliance.</h2>
         <p className="story-supporting">Structured evidence for a clearer view of packaged-commodity requirements.</p>
-        <div className="story-transition-cue">
+        <button 
+          className="story-transition-cue"
+          onClick={() => navigate('/scan')}
+        >
           Inspect a real package
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px' }}>
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
           </svg>
-        </div>
+        </button>
         <div className="transition-line-down"></div>
       </div>
     </div>

@@ -1,8 +1,7 @@
 .history-page {
-  padding: 40px 24px;
+  padding: 80px 24px;
   max-width: 1000px;
   margin: 0 auto;
-  color: var(--color-text-primary);
 }
 
 .state-container {
@@ -14,126 +13,112 @@
   text-align: center;
 }
 
-.history-container h1 {
-  margin-bottom: 24px;
-}
-
-.empty-state {
-  background: var(--color-surface);
-  border: 1px dashed var(--color-border);
-  padding: 48px;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.empty-state p {
-  color: var(--color-text-secondary);
-  margin-bottom: 16px;
-}
-
 .scans-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--color-border);
 }
 
 .scan-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: all var(--transition-fast);
 }
 
 .scan-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background-color: rgba(255, 255, 255, 0.03);
+  transform: translateX(2px);
 }
 
 .scan-card-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
 }
 
 .scan-id {
-  font-weight: 700;
-  font-family: monospace;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
 }
-
-.scan-status {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255,255,255,0.1);
-}
-
-.status-done .scan-status { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
-.status-failed .scan-status { background: rgba(244, 67, 54, 0.2); color: #f44336; }
-.status-needs_review .scan-status { background: rgba(255, 152, 0, 0.2); color: #ff9800; }
-.status-pending .scan-status, .status-processing .scan-status { background: rgba(33, 150, 243, 0.2); color: #2196f3; }
 
 .product-name {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.scan-date {
-  font-size: 0.85rem;
+  font-size: 1rem;
+  font-weight: 400;
   color: var(--color-text-secondary);
 }
 
+.scan-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.scan-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.scan-status {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.status-done .scan-status { background: var(--color-status-success-bg); color: var(--color-status-success); }
+.status-failed .scan-status { background: var(--color-status-error-bg); color: var(--color-status-error); }
+.status-needs_review .scan-status { background: var(--color-status-warning-bg); color: var(--color-status-warning); }
+.status-pending .scan-status, .status-processing .scan-status { background: var(--color-status-neutral-bg); color: var(--color-status-neutral); }
+
 .scan-card-error {
-  margin-top: 12px;
   font-size: 0.85rem;
-  color: #f44336;
+  color: var(--color-status-error);
 }
 
 .scan-card-summary {
-  margin-top: 12px;
   display: flex;
-  gap: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
 }
 
-.scan-card-summary .fail { color: #f44336; }
-.scan-card-summary .pass { color: #4caf50; }
+.scan-card-summary .fail { color: var(--color-status-error); }
+.scan-card-summary .pass { color: var(--color-status-success); }
 
 .load-more-container {
-  margin-top: 32px;
+  margin-top: 40px;
   display: flex;
   justify-content: center;
 }
 
-.btn-secondary {
-  padding: 10px 24px;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
+@media (max-width: 600px) {
+  .scan-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .scan-card-right {
+    align-items: flex-start;
+  }
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background: rgba(255,255,255,0.05);
+@media (max-width: 768px) {
+  .history-page {
+    padding: 40px 16px;
+  }
 }
 
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-retry {
-  padding: 10px 24px;
-  background: var(--color-accent);
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 16px;
-}
