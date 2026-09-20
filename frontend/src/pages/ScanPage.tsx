@@ -209,6 +209,123 @@ export default function ScanPage() {
             </div>
             
             {error && <div className="error-banner reveal-4">{error}</div>}
+
+            <div className="upload-guidance reveal-4">
+              <h2 className="guidance-title">Before you upload</h2>
+              <p className="guidance-subtitle">Choose the instructions that match the type of label you are uploading.</p>
+              
+              <div className="guidance-cards">
+                <div className="guidance-card">
+                  <h3>
+                    <span className="icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    </span>
+                    1. If you have a photo of the label
+                  </h3>
+                  <p className="card-desc">For the most reliable analysis, make sure the physical label is captured clearly and straight-on.</p>
+                  
+                  <h4>Before you scan:</h4>
+                  <ul className="guidance-list">
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>Keep the label flat and facing the camera directly.</strong>
+                        <span>For example: a chips packet, carton, or box front face.</span>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>Make sure the text is readable and not blurry.</strong>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>Use good, even lighting.</strong>
+                        <span>Avoid harsh shadows or reflections across the text.</span>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>Measure the physical label width in millimetres with a ruler.</strong>
+                        <span>This is required for geometry checks such as numeral height and clear space.</span>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div className="guidance-callout">
+                    <div className="callout-header">
+                      <span className="icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.3 15.3l-10-10a2 2 0 0 0-2.8 0l-5.7 5.7a2 2 0 0 0 0 2.8l10 10a2 2 0 0 0 2.8 0l5.7-5.7a2 2 0 0 0 0-2.8z"></path><line x1="14" y1="5.5" x2="16.5" y2="8"></line><line x1="10" y1="9.5" x2="12.5" y2="12"></line><line x1="6" y1="13.5" x2="8.5" y2="16"></line></svg>
+                      </span>
+                      <strong>Why do I need the label width?</strong>
+                    </div>
+                    <p>Label width lets LabelProof evaluate physical-size requirements that cannot be measured reliably from a photo alone. Without the width, geometry rules <span className="mono">R8</span> and <span className="mono">R9</span> will return <span className="mono">NEEDS_REVIEW</span> instead of a final verdict.</p>
+                  </div>
+                </div>
+
+                <div className="guidance-card">
+                  <h3>
+                    <span className="icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </span>
+                    2. If you have a PDF of the label artwork
+                  </h3>
+                  <p className="card-desc">For artwork files, LabelProof can use the document's built-in dimensions.</p>
+
+                  <h4>Before you upload:</h4>
+                  <ul className="guidance-list">
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>Upload the label artwork file.</strong>
+                        <span>Vector or high-resolution artwork is recommended.</span>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>Only the first page is processed.</strong>
+                        <span>If your artwork contains multiple pages, make sure the label is on page 1.</span>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="check">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <div>
+                        <strong>You do not need to enter a label width.</strong>
+                        <span>Dimensions are read directly from the PDF.</span>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div className="guidance-callout">
+                    <div className="callout-header">
+                      <span className="icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                      </span>
+                      <strong>Why don't PDFs need a width?</strong>
+                    </div>
+                    <p>LabelProof reads the physical dimensions directly from the PDF artwork, so geometry checks such as <span className="mono">R8</span> can run using exact document measurements.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <div className="upload-layout reveal-4">
               <div className="upload-left">
@@ -267,7 +384,7 @@ export default function ScanPage() {
                       onChange={e => setLabelWidth(e.target.value)}
                       disabled={isUploading}
                     />
-                    <small>Approximate physical width of the label in millimeters. Required for image uploads.</small>
+                    <small>Required for physical geometry checks such as numeral height and clear space.</small>
                   </div>
                 )}
 
